@@ -10,6 +10,9 @@
 #define LED_PIN        D2  // hardware pin for the led strip serial data
 const int LED_COUNT =  6;  // amount of leds on the led strip
 
+const String SRL_INFO_RESET = "IOT wakeuplight reset";
+const String SRL_INFO_IDN_ID = "Last 2 bytes of chip ID: ";
+
 const String WIFI_NAME_CONCAT = "WakeUpLight_"; // String to prepend to the wifi name
 const int OSCILLATION_TIME = 500; // used to oscillate the rgb led strip
 const int REQUEST_DELAY = 2000; // minimum time between alarm checks
@@ -20,7 +23,7 @@ String chipID; // used to store the chip id
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ400);
 
 // declaration to prevent undeclared function error
-void setAllPixels(uint8_t r, uint8_t g, uint8_t b, float multiplier);
+void setAllPixels(rgbColor color, float multiplier);
 
 /**
  * 
@@ -34,6 +37,8 @@ void setup()
 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   int counter = 0;
+  rgbColor red = rgbColor(255,0,0);
+  rgbColor purple = rgbColor(0,255,255);
   while(digitalRead(BUTTON_PIN) == LOW)
   {
     counter++;
@@ -41,24 +46,24 @@ void setup()
 
     if(counter > 500)
     {
-      Serial.println("Remove all wifi settings!");
-      setAllPixels(255,0,0,1.0);
-      fadeBrightness(255,0,0,1.0);
+      Serial.println(SRL_INFO_RESET);
+      setAllPixels(red, 1.0);
+      fadeBrightness(red, 255, 0, 500);
       ESP.reset();
     }
   }
   delay(1000);
 
   Serial.println();
-  Serial.print("Last 2 bytes of chip ID: ");
+  Serial.print(SRL_INFO_IDN_ID);
   Serial.println(chipID);
 
   String wifiNameConcat = WIFI_NAME_CONCAT + chipID;
   char wifiName[19] = {};
   wifiNameConcat.toCharArray(wifiName, 19);
   
-  setAllPixels(0,255,255,1.0);
-  fadeBrightness(0,255,255,1.0);
+  setAllPixels(purple, 1.0);
+  fadeBrightness(purple, 0, 1, 2000);
 }
 
 /**
@@ -107,35 +112,31 @@ void buttonPress() {
 
 
 /**
- * 
- * @Param r
- * @Param g
- * @Param b
- * @Param mulitplier
+ * set the led strip to the desired color
+ * @Param r amount of red in 256 steps
+ * @Param g amount of green in 256 steps
+ * @Param b amount of blue in 256 steps
+ * @Param mulitplier multiplies all the color values by this amount leave 1 for as is
  */
-void setAllPixels(uint8_t r, uint8_t g, uint8_t b, float multiplier = 1.0) 
+void setAllPixels(rgbColor color, float multiplier = 1.0) 
 {
   for (int iPixel = 0; iPixel < LED_COUNT; iPixel++)
     strip.setPixelColor(iPixel,
-                        (byte)((float)r * multiplier),
-                        (byte)((float)g * multiplier),
-                        (byte)((float)b * multiplier));
+                        (byte)((float)color.getRed() * multiplier),
+                        (byte)((float)color.getGreen() * multiplier),
+                        (byte)((float)color.getBlue() * multiplier));
   strip.show();
 }
 
 /*
- * Starts an oscillation movement in both the LED strip
- * @Param springConstant
- * @Param dampConstant
- * @Param c
+ * Starts an oscillation movement in both the LED strip for a specific color
+ * @Param springConstant how springy the oscillation is
+ * @Param dampConstant how damped the oscillation is
+ * @Param color rgbColor instance containing all the base colors of the color
  */
-void oscillate(float springConstant, float dampConstant, rgbColor c)
+void oscillate(float springConstant, float dampConstant, rgbColor color)
 {
   SpringyValue spring;
-  
-  byte red = c.getRed();
-  byte green = c.getGreen();
-  byte blue = c.getBlue();
   
   spring.c = springConstant;
   spring.k = dampConstant / 100;
@@ -145,40 +146,66 @@ void oscillate(float springConstant, float dampConstant, rgbColor c)
   for(int i = 0; i < OSCILLATION_TIME; i++)
   {
     spring.update(0.01);
-    setAllPixels(red, green, blue, abs(spring.x) / 255.0);
+    setAllPixels(color, abs(spring.x) / 255.0);
 
     //Check for button press and cancel if pressed
 //    if(digitalRead(BUTTON_PIN) == LOW)
 //    {
 //      //Fade the current color out
-//      fadeBrightness(red, green, blue, abs(spring.x) / 255.0);
+//      fadeBrightness(color, abs(spring.x) / 255.0);
 //      return;
 //    }
 
     delay(10);
   }
-  fadeBrightness(red, green, blue, abs(spring.x) / 255.0);
+  fadeBrightness(color, abs(spring.x) / 255.0, 0, 500);
 }
 
 /*
- * Grabs the current RGB values and current brightness and fades the colors to black
- * @Param r
- * @Param g
- * @Param b
- * @Param currentBrightness
+ * Grabs the current RGB values and current brightness and fades the colors to a given value
+ * @Param color rgbColor class containing all three base color parameters
+ * @Param currentBrightness how bright the current color is
  */
-void fadeBrightness(uint8_t r, uint8_t g, uint8_t b, float currentBrightness)
+void fadeBrightness(rgbColor color, float currentBrightness, float value, int animTime)
 {
-    for(float j = currentBrightness; j > 0.0; j-=0.01)
-    {
-          setAllPixels(r, g, b, j);
-          delay(20);
+    float toMove = value - currentBrightness;
+    float stepSize = toMove / (animTime / 20);
+    
+//    Serial.print("From brightness: ");
+//    Serial.print(currentBrightness);
+//    Serial.print(" To: ");
+//    Serial.println(value);
+//    Serial.print("toMove: ");
+//    Serial.print(toMove);
+//    Serial.print(" stepSize: ");
+//    Serial.println(stepSize);
+
+    // brighten
+    if(toMove > 0) {
+      for(float j = currentBrightness; j < value; j+=stepSize)
+      {
+//            Serial.print("stepping: ");
+//            Serial.println(j);
+            setAllPixels(color, j);
+            delay(20);
+      }
     }
+    // darken
+    else {
+      for(float j = currentBrightness; j > value; j+=stepSize)
+      {
+//            Serial.print("stepping: ");
+//            Serial.println(j);
+            setAllPixels(color, j);
+            delay(20);
+      }
+    }
+    
     hideColor();
 }
 
 /**
- * 
+ * turn the entire led strip off
  */
 void hideColor() 
 {
