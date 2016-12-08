@@ -16,32 +16,50 @@
  */
 
 /*  * * * * * * * * * * * * * * * * * * * * * * * * * * *
- Code by Dantali0n
- https://dantalion.nl
+ Code by Simon Monk
+ http://www.simonmonk.org
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-typedef unsigned char byte;
+// For Arduino 1.0 and earlier
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
 
-class rgbColor {
-  private:
-    byte red, green, blue;   
-  public:
-    rgbColor(int value);
-    rgbColor(byte red, byte green, byte blue);
-    rgbColor(int red, int green, int blue);
+#include "Event.h"
 
-    static byte intColorToByte(int color);
+Event::Event(void)
+{
+	eventType = EVENT_NONE;
+}
 
-    byte getRed();
-    void setRed(int red);
-    void setRed(byte red);
-    
-    byte getGreen();
-    void setGreen(int green);
-    void setGreen(byte red);
-    
-    byte getBlue();
-    void setBlue(int blue);
-    void setBlue(byte blue);
-};
+void Event::update(void)
+{
+    unsigned long now = millis();
+    update(now);
+}
 
+void Event::update(unsigned long now)
+{
+	if (now - lastEventTime >= period)
+	{
+		switch (eventType)
+		{
+			case EVENT_EVERY:
+				(*callback)();
+				break;
+
+			case EVENT_OSCILLATE:
+				pinState = ! pinState;
+				digitalWrite(pin, pinState);
+				break;
+		}
+		lastEventTime = now;
+		count++;
+	}
+	if (repeatCount > -1 && count >= repeatCount)
+	{
+		eventType = EVENT_NONE;
+	}
+}

@@ -16,32 +16,34 @@
  */
 
 /*  * * * * * * * * * * * * * * * * * * * * * * * * * * *
- Code by Dantali0n
- https://dantalion.nl
+ Code by Simon Monk
+ http://www.simonmonk.org
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-typedef unsigned char byte;
+#ifndef Event_h
+#define Event_h
 
-class rgbColor {
-  private:
-    byte red, green, blue;   
-  public:
-    rgbColor(int value);
-    rgbColor(byte red, byte green, byte blue);
-    rgbColor(int red, int green, int blue);
+#include <inttypes.h>
 
-    static byte intColorToByte(int color);
+#define EVENT_NONE 0
+#define EVENT_EVERY 1
+#define EVENT_OSCILLATE 2
 
-    byte getRed();
-    void setRed(int red);
-    void setRed(byte red);
-    
-    byte getGreen();
-    void setGreen(int green);
-    void setGreen(byte red);
-    
-    byte getBlue();
-    void setBlue(int blue);
-    void setBlue(byte blue);
+class Event
+{
+
+public:
+  Event(void);
+  void update(void);
+  void update(unsigned long now);
+  int8_t eventType;
+  unsigned long period;
+  int repeatCount;
+  uint8_t pin;
+  uint8_t pinState;
+  void (*callback)(void);
+  unsigned long lastEventTime;
+  int count;
 };
 
+#endif

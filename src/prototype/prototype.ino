@@ -1,8 +1,31 @@
+/*
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation; either version 2 of the License, or
+ *      (at your option) any later version.
+ *
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with this program; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ *      MA 02110-1301, USA.
+ */
+
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ Code by Dantali0n
+ https://dantalion.nl
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 #include <ESP8266HTTPClient.h>
 #include <Adafruit_NeoPixel.h>
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
+#include "Timer.h"
 #include "rgbColor.h"
 #include "springyValue.h"
 
@@ -15,11 +38,12 @@ const String SRL_INFO_IDN_ID = "Last 2 bytes of chip ID: ";
 
 const String WIFI_NAME_CONCAT = "WakeUpLight_"; // String to prepend to the wifi name
 const int OSCILLATION_TIME = 500; // used to oscillate the rgb led strip
-const int REQUEST_DELAY = 2000; // minimum time between alarm checks
+const int REQUEST_DELAY = 2000; // minimum time between alarm checks and clock updates
 
 int oldTime = 0; // used in loop to store millis
 String chipID; // used to store the chip id
 
+Timer timeKeeper; // our continous time keeper unless we can update via WiFi or the user 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ400);
 
 // declaration to prevent undeclared function error
@@ -31,14 +55,18 @@ void setAllPixels(rgbColor color, float multiplier);
 void setup() 
 {
   configureChipID();
+  Serial.begin(115200);
+
+  timeKeeper.every(REQUEST_DELAY, alarmUpdate);
   strip.begin();
   strip.setBrightness(255);
-  Serial.begin(115200);
 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   int counter = 0;
   rgbColor red = rgbColor(255,0,0);
   rgbColor purple = rgbColor(0,255,255);
+
+  // Reset condition if the button is held down on power up
   while(digitalRead(BUTTON_PIN) == LOW)
   {
     counter++;
@@ -78,12 +106,22 @@ void loop()
     delay(250);
   }
 
-  //Every requestDelay, send a request to the server
-  if(millis() > oldTime + REQUEST_DELAY)
-  {
-    checkAlarms();
-    oldTime = millis();
-  }
+  timeKeeper.update();
+}
+
+/**
+ * Update the internal time keeping and check for user configured alarms
+ */
+void alarmUpdate() {
+  updateTime(millis());
+  checkAlarms();
+}
+
+/**
+ * 
+ */
+void updateTime(int timeBetweenUpdate) {
+  
 }
 
 /**
