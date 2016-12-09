@@ -20,28 +20,26 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#include <Arduino.h>
+#include <WiFiUdp.h>
+#include "time/Time.h"
+
 typedef unsigned char byte;
 
-class rgbColor {
+class ntpClient {
   private:
-    byte red, green, blue;   
+    IPAddress ntpServerIP;
+    WiFiUDP udpHandler;
+
+    static const unsigned int NTP_PORT = 8888; // port for WiFiUDP 
+    static const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
+
+    int timeZone; // system timeZone
+    byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
+
+    void sendNTPpacket();
   public:
-    rgbColor(int value);
-    rgbColor(byte red, byte green, byte blue);
-    rgbColor(int red, int green, int blue);
-
-    static byte intColorToByte(int color);
-
-    byte getRed();
-    void setRed(int red);
-    void setRed(byte red);
-    
-    byte getGreen();
-    void setGreen(int green);
-    void setGreen(byte red);
-    
-    byte getBlue();
-    void setBlue(int blue);
-    void setBlue(byte blue);
+    ntpClient(IPAddress address, int timeZone);
+    bool updateTime();
 };
 

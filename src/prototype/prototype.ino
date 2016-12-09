@@ -1,7 +1,7 @@
 /*
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
+ *      the Free Software Foundation; either version 3 of the License, or
  *      (at your option) any later version.
  *
  *      This program is distributed in the hope that it will be useful,
@@ -21,30 +21,48 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include <ESP8266HTTPClient.h>
-#include <Adafruit_NeoPixel.h>
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
-#include "Timer.h"
-#include "rgbColor.h"
-#include "springyValue.h"
+#include <Adafruit_NeoPixel.h> // library to control rgb neopixels
+#include "time/Time.h" // library to keep track of time 
+#include "timer/Timer.h" // library for executing unctions at a given interval
+#include "ntpClient.h" // library to communicate with ntp servers
+#include "rgbColor.h" // library to hold a rgb color
+#include "springyValue.h" // library to interpolate values as a spring
 
-#define BUTTON_PIN     D1  // hardware pin for the snooze / reset button
-#define LED_PIN        D2  // hardware pin for the led strip serial data
-const int LED_COUNT =  6;  // amount of leds on the led strip
+static const int  BUTTON_PIN = D1;  // hardware pin for the snooze / reset button
+static const int LED_PIN = D2;  // hardware pin for the led strip serial data
+static const int LED_COUNT =  6;  // amount of leds on the led strip
 
-const String SRL_INFO_RESET = "IOT wakeuplight reset";
-const String SRL_INFO_IDN_ID = "Last 2 bytes of chip ID: ";
+static const String SRL_INFO_RESET = "IOT wakeuplight reset";
+static const String SRL_INFO_IDN_ID = "Last 2 bytes of chip ID: ";
 
-const String WIFI_NAME_CONCAT = "WakeUpLight_"; // String to prepend to the wifi name
-const int OSCILLATION_TIME = 500; // used to oscillate the rgb led strip
-const int REQUEST_DELAY = 2000; // minimum time between alarm checks and clock updates
+static const String WIFI_NAME_CONCAT = "WakeUpLight_"; // String to prepend to the wifi name
+static const int OSCILLATION_TIME = 500; // used to oscillate the rgb led strip
+static const int REQUEST_DELAY = 2000; // minimum time between alarm checks and clock updates
 
-int oldTime = 0; // used in loop to store millis
-String chipID; // used to store the chip id
+// Default available NTP Servers:
+static const String ntpServerNames[] = { 
+  "us.pool.ntp.org",
+  "time.nist.gov",
+  "time-a.timefreq.bldrdoc.gov",
+};
+
+//static const char ntpServerName[] = "time-b.timefreq.bldrdoc.gov";
+//static const char ntpServerName[] = "time-c.timefreq.bldrdoc.gov";
+
+/* ===================== Constants end here ============================== */
+
+String chipID; // used to store the chip id - used in wifi name if configured as access point
+
+bool buttonBounce = false; // boolean to bounce button so we prevent multiple triggers
+unsigned long previousMicros = 0; // used in loop to store micros
+String curNtpServer = ntpServerNames[0]; // current ntp timeserver 
+int curTimeZone = 1; // timeZone for the current time
 
 Timer timeKeeper; // our continous time keeper unless we can update via WiFi or the user 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ400);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ400); // lights to wake up the user
 
 // declaration to prevent undeclared function error
 void setAllPixels(rgbColor color, float multiplier);
@@ -54,19 +72,19 @@ void setAllPixels(rgbColor color, float multiplier);
  */
 void setup() 
 {
-  configureChipID();
+  chipID = configureChipID();
   Serial.begin(115200);
 
-  timeKeeper.every(REQUEST_DELAY, alarmUpdate);
   strip.begin();
   strip.setBrightness(255);
 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
-  int counter = 0;
+  
   rgbColor red = rgbColor(255,0,0);
   rgbColor purple = rgbColor(0,255,255);
 
   // Reset condition if the button is held down on power up
+  int counter = 0;
   while(digitalRead(BUTTON_PIN) == LOW)
   {
     counter++;
@@ -75,8 +93,9 @@ void setup()
     if(counter > 500)
     {
       Serial.println(SRL_INFO_RESET);
+      // fade red to indicate reset
       setAllPixels(red, 1.0);
-      fadeBrightness(red, 255, 0, 500);
+      fadeBrightness(red, 255, 0, (OSCILLATION_TIME*2));
       ESP.reset();
     }
   }
@@ -86,12 +105,17 @@ void setup()
   Serial.print(SRL_INFO_IDN_ID);
   Serial.println(chipID);
 
+  // setup wifi name based on chip id
   String wifiNameConcat = WIFI_NAME_CONCAT + chipID;
   char wifiName[19] = {};
   wifiNameConcat.toCharArray(wifiName, 19);
   
+  // fade to purple to indicate successful boot 
   setAllPixels(purple, 1.0);
-  fadeBrightness(purple, 0, 1, 2000);
+  fadeBrightness(purple, 0, 1, (OSCILLATION_TIME*4));
+
+  // run alarmUpdate at the rate specified by REQUEST_DELAY
+  timeKeeper.every(REQUEST_DELAY, alarmUpdate);
 }
 
 /**
@@ -99,11 +123,14 @@ void setup()
  */
 void loop() 
 {
-  //Check for button press
-  if(digitalRead(BUTTON_PIN) == LOW)
+  //Check for button press and bounce
+  if(digitalRead(BUTTON_PIN) == LOW && buttonBounce == false)
   {    
+    buttonBounce = true;
     buttonPress();
-    delay(250);
+  }
+  else if(buttonBounce == true) {
+    buttonBounce = false; // reset bounce condition
   }
 
   timeKeeper.update();
@@ -113,14 +140,15 @@ void loop()
  * Update the internal time keeping and check for user configured alarms
  */
 void alarmUpdate() {
-  updateTime(millis());
+  updateTime(micros() - previousMicros); // current running time - previous running time 
+  previousMicros = micros();
   checkAlarms();
 }
 
 /**
- * 
+ * Update the system time using the Time library and the progress in microseconds
  */
-void updateTime(int timeBetweenUpdate) {
+void updateTime(unsigned long timeBetweenUpdate) {
   
 }
 
@@ -133,6 +161,7 @@ void checkAlarms() {
 
 /**
  * Called when the button is pressed.
+ * Used to disable triggered alarms
  */
 void buttonPress() {
 //  int value = 0;
@@ -251,7 +280,7 @@ void hideColor()
 }
 
 /**
- * 
+ * Set the entire led strip to the specified color
  */
 void colorWipe(uint32_t c) 
 {
@@ -265,8 +294,9 @@ void colorWipe(uint32_t c)
 /**
  * Get the ESP chip id
  */
-void configureChipID()
+String configureChipID()
 {
+  String tmpID;
   char chipIdArray[5] = {};
   uint32_t id = ESP.getChipId();
   byte lower = id & 0xff;
@@ -293,9 +323,10 @@ void configureChipID()
     u = String(upper, HEX);
   }
  
-  chipID = u + l;
-  chipID.toUpperCase();
-  chipID.toCharArray(chipIdArray, 5);
+  tmpID = u + l;
+  tmpID.toUpperCase();
+  tmpID.toCharArray(chipIdArray, 5);
+  return tmpID;
 }
 
 //void sendButtonPress()
