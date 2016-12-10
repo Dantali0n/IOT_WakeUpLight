@@ -25,8 +25,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
 #include <Adafruit_NeoPixel.h> // library to control rgb neopixels
-#include "time/Time.h" // library to keep track of time 
-#include "timer/Timer.h" // library for executing unctions at a given interval
+#include "timelib.h" // library to keep track of time 
 #include "ntpClient.h" // library to communicate with ntp servers
 #include "rgbColor.h" // library to hold a rgb color
 #include "springyValue.h" // library to interpolate values as a spring
@@ -40,7 +39,10 @@ static const String SRL_INFO_IDN_ID = "Last 2 bytes of chip ID: ";
 
 static const String WIFI_NAME_CONCAT = "WakeUpLight_"; // String to prepend to the wifi name
 static const int OSCILLATION_TIME = 500; // used to oscillate the rgb led strip
-static const int REQUEST_DELAY = 2000; // minimum time between alarm checks and clock updates
+static const int REQUEST_DELAY = 2000000; // minimum time between alarm checks and clock updates in micro seconds
+
+
+static const int MICROS_TO_SECONDS = 1000000; // constant value to convert micro seconds to seconds
 
 // Default available NTP Servers:
 static const String ntpServerNames[] = { 
@@ -57,11 +59,13 @@ static const String ntpServerNames[] = {
 String chipID; // used to store the chip id - used in wifi name if configured as access point
 
 bool buttonBounce = false; // boolean to bounce button so we prevent multiple triggers
+unsigned long currentMicros = 0; // used in loop to store micros
 unsigned long previousMicros = 0; // used in loop to store micros
 String curNtpServer = ntpServerNames[0]; // current ntp timeserver 
 int curTimeZone = 1; // timeZone for the current time
 
-Timer timeKeeper; // our continous time keeper unless we can update via WiFi or the user 
+// Timer timeKeeper; // our continous time keeper
+time_t activeTime; // current system time
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ400); // lights to wake up the user
 
 // declaration to prevent undeclared function error
@@ -109,13 +113,19 @@ void setup()
   String wifiNameConcat = WIFI_NAME_CONCAT + chipID;
   char wifiName[19] = {};
   wifiNameConcat.toCharArray(wifiName, 19);
+
+  // iniate time
+  // TODO: read last stored time from EEPROM 
+  // TODO: If wifi connected use ntp to configure initial time
+  setTime(0, 0, 0, 0, 0, 0);
+  activeTime = now();
   
   // fade to purple to indicate successful boot 
   setAllPixels(purple, 1.0);
   fadeBrightness(purple, 0, 1, (OSCILLATION_TIME*4));
 
   // run alarmUpdate at the rate specified by REQUEST_DELAY
-  timeKeeper.every(REQUEST_DELAY, alarmUpdate);
+  // timeKeeper.every(REQUEST_DELAY, alarmUpdate);
 }
 
 /**
@@ -125,31 +135,46 @@ void loop()
 {
   //Check for button press and bounce
   if(digitalRead(BUTTON_PIN) == LOW && buttonBounce == false)
-  {    
+  {
+    Serial.println("Button press");    
     buttonBounce = true;
     buttonPress();
   }
   else if(buttonBounce == true) {
+    Serial.println("Button bounce back");
     buttonBounce = false; // reset bounce condition
   }
 
-  timeKeeper.update();
-}
+  currentMicros = micros();
 
-/**
- * Update the internal time keeping and check for user configured alarms
- */
-void alarmUpdate() {
-  updateTime(micros() - previousMicros); // current running time - previous running time 
-  previousMicros = micros();
-  checkAlarms();
+  // micros overflow reset condition -> this happens about once every 70 minutes
+  // this will mean we lose some time data because of the missing microseconds around the overflow condition.
+  if(previousMicros > currentMicros) {
+    Serial.println("Micros overflow");
+    previousMicros = currentMicros;
+  }
+  
+  // timeKeeper.update();
+  if(currentMicros - previousMicros > REQUEST_DELAY) {
+    updateTime(currentMicros - previousMicros);
+    checkAlarms();
+    previousMicros = micros();
+  }
 }
 
 /**
  * Update the system time using the Time library and the progress in microseconds
+ * @Param timeBetweenUpdate amount of microseconds to update the current time
  */
 void updateTime(unsigned long timeBetweenUpdate) {
-  
+  int timeUpdate = timeBetweenUpdate / MICROS_TO_SECONDS;
+  Serial.println(timeUpdate);
+  activeTime += timeUpdate;
+  Serial.print(hour(activeTime));
+  Serial.print(":");
+  Serial.print(minute(activeTime));
+  Serial.print(":");
+  Serial.println(second(activeTime));
 }
 
 /**
