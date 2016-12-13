@@ -152,11 +152,10 @@ void loop()
     previousMicros = currentMicros;
   }
   
-  // timeKeeper.update();
   if(currentMicros - previousMicros > REQUEST_DELAY) {
     updateTime(currentMicros - previousMicros);
     checkAlarms();
-    previousMicros = micros();
+    previousMicros = currentMicros;
   }
 }
 
