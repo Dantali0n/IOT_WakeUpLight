@@ -25,7 +25,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
 #include <Adafruit_NeoPixel.h> // library to control rgb neopixels
-#include "timelib.h" // library to keep track of time 
+#include "microTime.h" // library to keep track of time 
 #include "ntpClient.h" // library to communicate with ntp servers
 #include "rgbColor.h" // library to hold a rgb color
 #include "springyValue.h" // library to interpolate values as a spring
@@ -65,7 +65,7 @@ String curNtpServer = ntpServerNames[0]; // current ntp timeserver
 int curTimeZone = 1; // timeZone for the current time
 
 // Timer timeKeeper; // our continous time keeper
-time_t activeTime; // current system time
+microTime activeTime; // current system time
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ400); // lights to wake up the user
 
 // declaration to prevent undeclared function error
@@ -117,8 +117,6 @@ void setup()
   // iniate time
   // TODO: read last stored time from EEPROM 
   // TODO: If wifi connected use ntp to configure initial time
-  setTime(0, 0, 0, 0, 0, 0);
-  activeTime = now();
   
   // fade to purple to indicate successful boot 
   setAllPixels(purple, 1.0);
@@ -167,14 +165,15 @@ void loop()
  * @Param timeBetweenUpdate amount of microseconds to update the current time
  */
 void updateTime(unsigned long timeBetweenUpdate) {
-  int timeUpdate = timeBetweenUpdate / MICROS_TO_SECONDS;
-  Serial.println(timeUpdate);
-  activeTime += timeUpdate;
-  Serial.print(hour(activeTime));
+  activeTime.update(timeBetweenUpdate);
+  Serial.println(timeBetweenUpdate);
+  Serial.print(activeTime.hour());
   Serial.print(":");
-  Serial.print(minute(activeTime));
+  Serial.print(activeTime.minute());
   Serial.print(":");
-  Serial.println(second(activeTime));
+  Serial.print(activeTime.second());
+  Serial.print(":");
+  Serial.print(activeTime.microSecond());
 }
 
 /**

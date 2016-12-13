@@ -20,6 +20,10 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#ifndef _Rgb_Color_h
+#ifdef __cplusplus
+#define _Rgb_Color_h
+
 typedef unsigned char byte;
 
 class rgbColor {
@@ -45,3 +49,5 @@ class rgbColor {
     void setBlue(byte blue);
 };
 
+#endif /* __cplusplus */
+#endif /* _Rgb_Color_h */

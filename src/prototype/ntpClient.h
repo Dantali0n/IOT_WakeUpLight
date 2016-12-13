@@ -20,9 +20,13 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#ifndef _Ntp_Client_h
+#ifdef __cplusplus
+#define _Ntp_Client_h
+
 #include <Arduino.h>
 #include <WiFiUdp.h>
-#include "timelib.h"
+#include "microTime.h"
 
 typedef unsigned char byte;
 
@@ -43,3 +47,5 @@ class ntpClient {
     bool updateTime();
 };
 
+#endif /* __cplusplus */
+#endif /* _Ntp_Client_h */
