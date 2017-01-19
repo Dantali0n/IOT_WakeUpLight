@@ -71,6 +71,24 @@ void microTime::update(unsigned long additionalMicros) {
   cascadeMonth();
 }
 
+// bool microTime::operator<(const microTime& rhs) const {
+//     return true;
+// }
+
+/**
+ *
+ */
+// inline bool microTime::operator< (const microTime& lhs, const microTime& rhs) { 
+//   return true;
+// }
+
+/**
+ *
+ */
+// inline bool microTime::operator> (const microTime& lhs, const microTime& rhs) { 
+//   return  operator< (rhs,lhs);
+// }
+
 /**
  *
  */

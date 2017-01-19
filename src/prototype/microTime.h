@@ -26,9 +26,13 @@
 
 #include <Arduino.h> // needed for PROGMEM support -> if applicable to microcontroller architecture.
 #include "timeLib.h"
+#include "wulTypedef.h"
 
-typedef unsigned char byte;
-
+/**
+ * MicroTime is a small time and date keeping class which can store time in intervals of microseconds.
+ * Time is kept at UTC and any timezone translation needs to be done outside of microTime.
+ * microTime does have the capability to store a timezone, although India and Nepal timezones are unsupported.
+ */
 class microTime {
   private:
     static const int MICRO_TO_MILLI_DIV PROGMEM = 1000;

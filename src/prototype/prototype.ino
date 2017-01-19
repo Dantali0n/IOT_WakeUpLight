@@ -39,7 +39,7 @@ static const String SRL_INFO_IDN_ID = "Last 2 bytes of chip ID: ";
 
 static const String WIFI_NAME_CONCAT = "WakeUpLight_"; // String to prepend to the wifi name
 static const int OSCILLATION_TIME = 500; // used to oscillate the rgb led strip
-static const int REQUEST_DELAY = 2000000; // minimum time between alarm checks and clock updates in micro seconds
+static const int REQUEST_DELAY = 250000; // minimum time between alarm checks and clock updates in micro seconds
 
 
 static const int MICROS_TO_SECONDS = 1000000; // constant value to convert micro seconds to seconds
@@ -114,7 +114,7 @@ void setup()
   char wifiName[19] = {};
   wifiNameConcat.toCharArray(wifiName, 19);
 
-  // iniate time
+  // initiate time
   // TODO: read last stored time from EEPROM 
   // TODO: If wifi connected use ntp to configure initial time
   
@@ -147,6 +147,7 @@ void loop()
 
   // micros overflow reset condition -> this happens about once every 70 minutes
   // this will mean we lose some time data because of the missing microseconds around the overflow condition.
+  // the amout of time lost can be greatly reduced by keeping REQUEST_DELAY very small
   if(previousMicros > currentMicros) {
     Serial.println("Micros overflow");
     previousMicros = currentMicros;
