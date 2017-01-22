@@ -35,17 +35,17 @@
  */
 class microTime {
   private:
-    static const int MICRO_TO_MILLI_DIV PROGMEM = 1000;
+    static const int MICRO_TO_MILLI_DIV = 1000;
 
-    static const unsigned long CASCADE_MICRO PROGMEM = 1000000;
-    static const byte CASCADE_SECOND PROGMEM = 60;
-    static const byte CASCADE_MINUTE PROGMEM = 60;
-    static const byte CASCADE_HOUR PROGMEM = 24;
-    static const byte CASCADE_DAY_FS PROGMEM = 28;
-    static const byte CASCADE_DAY_FL PROGMEM = 29;
-    static const byte CASCADE_DAY_S PROGMEM = 30;
-    static const byte CASCADE_DAY_L PROGMEM = 31;
-    static const byte CASCADE_MONTH PROGMEM = 12;
+    static const unsigned long CASCADE_MICRO = 1000000;
+    static const byte CASCADE_SECOND = 60;
+    static const byte CASCADE_MINUTE = 60;
+    static const byte CASCADE_HOUR = 24;
+    static const byte CASCADE_DAY_FS = 28;
+    static const byte CASCADE_DAY_FL = 29;
+    static const byte CASCADE_DAY_S = 30;
+    static const byte CASCADE_DAY_L = 31;
+    static const byte CASCADE_MONTH = 12;
     
   	bool timeSet;
     char timeZone; // does not work for Nepal or India which have a timezone of + 5.75 and 5.50 #sorry

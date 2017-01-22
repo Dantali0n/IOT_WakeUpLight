@@ -24,7 +24,7 @@
 #ifdef __cplusplus
 #define _Alarm_h
 
-#include <Arduino.h> // needed for PROGMEM support -> if applicable to microcontroller architecture.
+// #include <Arduino.h> // needed for PROGMEM support -> if applicable to microcontroller architecture.
 #include "wulTypedef.h"
 #include "microTime.h"
 
@@ -42,7 +42,7 @@ class alarm {
 		microTime lastCheck;
 		bool hasInterval;
 	public:
-	  	alarm(microTime trigger);
+	  alarm(microTime trigger);
 		alarm(microTime trigger, microTime interval);
 		bool check(microTime *current);
 };

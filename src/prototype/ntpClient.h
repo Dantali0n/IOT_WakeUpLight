@@ -24,7 +24,7 @@
 #ifdef __cplusplus
 #define _Ntp_Client_h
 
-#include <Arduino.h>
+// #include <Arduino.h>
 #include <WiFiUdp.h>
 #include "microTime.h"
 
@@ -44,7 +44,7 @@ class ntpClient {
     void sendNTPpacket();
   public:
     ntpClient(IPAddress address, int timeZone);
-    bool updateTime();
+    unsigned long updateTime();
 };
 
 #endif /* __cplusplus */

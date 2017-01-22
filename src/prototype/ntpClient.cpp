@@ -34,7 +34,7 @@ ntpClient::ntpClient(IPAddress address, int timeZone) {
 /**
  * 
  */
-bool ntpClient::updateTime() {
+unsigned long ntpClient::updateTime() {
   while (udpHandler.parsePacket() > 0) ; // discard any previously received packets
   // get a random server from the pool
 
@@ -57,7 +57,7 @@ bool ntpClient::updateTime() {
     }
   }
   Serial.println("No NTP Response :-(");
-  return false; // return 0 if unable to get the time
+  return 0UL; // return 0 if unable to get the time
 }
 
 
