@@ -72,26 +72,26 @@ void microTime::update(unsigned long additionalMicros) {
 }
 
 
-//inline bool operator< (microTime& lhs, microTime& rhs){ 
-//  if(lhs.year() < rhs.year()) return true;
-//  if(lhs.month() < rhs.month()) return true;
-//  if(lhs.day() < rhs.day()) return true;
-//  if(lhs.hour() < rhs.hour()) return true;
-//  if(lhs.minute() < rhs.minute()) return true;
-//  if(lhs.second() < rhs.second()) return true;
-//  if(lhs.microSecond() < rhs.microSecond()) return true;
-//  return false;
-//}
+bool microTime::operator< (microTime& rhs){ 
+  if(this->year() < rhs.year()) return true;
+  if(this->month() < rhs.month()) return true;
+  if(this->day() < rhs.day()) return true;
+  if(this->hour() < rhs.hour()) return true;
+  if(this->minute() < rhs.minute()) return true;
+  if(this->second() < rhs.second()) return true;
+  if(this->microSecond() < rhs.microSecond()) return true;
+  return false;
+}
 
-//inline bool operator> (microTime& lhs, microTime& rhs) { 
+//bool microTime::operator> (microTime& lhs, microTime& rhs) { 
 //  return rhs < lhs; 
 //}
 //
-//inline bool operator<=(microTime& lhs, microTime& rhs) { 
+//bool microTime::operator<=(microTime& lhs, microTime& rhs) { 
 //  return !(lhs > rhs); 
 //}
 //
-//inline bool operator>=(microTime& lhs, microTime& rhs) { 
+//bool microTime::operator>=(microTime& lhs, microTime& rhs) { 
 //  return !(lhs < rhs); 
 //}
 

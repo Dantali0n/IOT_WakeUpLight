@@ -29,6 +29,7 @@
 #include "ntpClient.h" // library to communicate with ntp servers
 #include "rgbColor.h" // library to hold a rgb color
 #include "springyValue.h" // library to interpolate values as a spring
+#include "testcases.h"
 
 /* ========================== */
 /* === NOTE ABOUT PROGMEM === */
@@ -91,6 +92,8 @@ void setup()
 {
   chipID = configureChipID();
   Serial.begin(115200);
+
+  wulTestCases wtc = wulTestCases(&Serial);
 
   strip.begin();
   strip.setBrightness(255);
