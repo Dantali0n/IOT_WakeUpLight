@@ -58,6 +58,8 @@ class microTime {
   	byte seconds;
   	unsigned long microSeconds;
 
+    static byte getCascadeDay(unsigned int years, byte months);
+  
     void cascadeMicroSecond();
     void cascadeSecond();
     void cascadeMinute();
