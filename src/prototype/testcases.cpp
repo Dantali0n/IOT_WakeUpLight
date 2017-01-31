@@ -20,32 +20,46 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _Ntp_Client_h
-#ifdef __cplusplus
-#define _Ntp_Client_h
+#include "testcases.h"
 
-// #include <Arduino.h>
-#include <WiFiUdp.h>
-#include "microTime.h"
+/**
+ *
+ */
+wulTestCases::wulTestCases(HardwareSerial *serialRef) {
+  this->serialRef = serialRef;
+	testWrapper();
+}
 
-typedef unsigned char byte;
 
-class ntpClient {
-  private:
-    IPAddress ntpServerIP;
-    WiFiUDP udpHandler;
+/**
+ * Wrapper to save some program space when executing tests using the multiple constructors
+ */
+void wulTestCases::testWrapper() {
+  serialRef->println("Testing begin...");
+	testMicroTime();
+	testNtpClient();
+}
 
-    static const unsigned int NTP_PORT = 8888; // port for WiFiUDP 
-    static const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
+/**
+ *
+ */
+void wulTestCases::testMicroTime() {
+	serialRef->println("Testing MicroTime:");
+  microTime mt1 = microTime(1994, 1, 1, 0, 0, 0);
+  microTime mt2 = microTime(1995, 1, 1, 0, 0, 0);
+  if(mt1 < mt2) {
+    serialRef->println("Assert year 1994 < year 1995 : SUCCESS");
+  }
+  else {
+    serialRef->println("Assert year 1994 < year 1995 : FAILED");
+  }
+}
 
-    int timeZone; // system timeZone
-    byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
+/**
+ *
+ */
+void wulTestCases::testNtpClient() {
+	serialRef->println("Testing NtpClient:");
+}
 
-    void sendNTPpacket();
-  public:
-    ntpClient(IPAddress address, int timeZone);
-    unsigned long updateTime();
-};
 
-#endif /* __cplusplus */
-#endif /* _Ntp_Client_h */

@@ -20,32 +20,25 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _Ntp_Client_h
+#ifndef _Wul_Test_Cases_h
 #ifdef __cplusplus
-#define _Ntp_Client_h
+#define _Wul_Test_Cases_h
 
-// #include <Arduino.h>
-#include <WiFiUdp.h>
+#include <Arduino.h>
+#include "wulTypedef.h"
 #include "microTime.h"
 
-typedef unsigned char byte;
+class wulTestCases {
+  	private:
+  		HardwareSerial *serialRef; // used to product output
 
-class ntpClient {
-  private:
-    IPAddress ntpServerIP;
-    WiFiUDP udpHandler;
+  		void testWrapper(); 
 
-    static const unsigned int NTP_PORT = 8888; // port for WiFiUDP 
-    static const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
-
-    int timeZone; // system timeZone
-    byte packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
-
-    void sendNTPpacket();
-  public:
-    ntpClient(IPAddress address, int timeZone);
-    unsigned long updateTime();
+  		void testMicroTime();
+  		void testNtpClient();
+  	public:
+  		wulTestCases(HardwareSerial *serialRef);
 };
 
 #endif /* __cplusplus */
-#endif /* _Ntp_Client_h */
+#endif /* _Wul_Test_Cases_h */

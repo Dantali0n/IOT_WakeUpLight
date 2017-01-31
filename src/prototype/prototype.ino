@@ -29,6 +29,15 @@
 #include "ntpClient.h" // library to communicate with ntp servers
 #include "rgbColor.h" // library to hold a rgb color
 #include "springyValue.h" // library to interpolate values as a spring
+#include "testcases.h"
+
+/* ========================== */
+/* === NOTE ABOUT PROGMEM === */
+/* ========================== */
+/* PROGMEM is not available on the ESP82 but for all we know it could be ported eventually
+ * using progmem while it is not available on the ESP82 will result in a segfault.
+ * The esp will terminate the program and reset.
+ */
 
 static const int  BUTTON_PIN = D1;  // hardware pin for the snooze / reset button
 static const int LED_PIN = D2;  // hardware pin for the led strip serial data
@@ -39,19 +48,24 @@ static const String SRL_INFO_IDN_ID = "Last 2 bytes of chip ID: ";
 
 static const String WIFI_NAME_CONCAT = "WakeUpLight_"; // String to prepend to the wifi name
 static const int OSCILLATION_TIME = 500; // used to oscillate the rgb led strip
-static const int REQUEST_DELAY = 250000; // minimum time between alarm checks and clock updates in micro seconds
+static const int REQUEST_DELAY = 200000; // minimum time between alarm checks and clock updates in micro seconds
 
 
 static const int MICROS_TO_SECONDS = 1000000; // constant value to convert micro seconds to seconds
 
 // Default available NTP Servers:
+// pool.ntp.org servers determine closest available server automaticly. 
 static const String ntpServerNames[] = { 
-  "us.pool.ntp.org",
-  "time.nist.gov",
+  "0.pool.ntp.org",
+  "1.pool.ntp.org",
+  "2.pool.ntp.org",
+  "3.pool.ntp.org",
   "time-a.timefreq.bldrdoc.gov",
+  "time-b.timefreq.bldrdoc.gov",
+  "time-c.timefreq.bldrdoc.gov",
+  "time.nist.gov"
 };
 
-//static const char ntpServerName[] = "time-b.timefreq.bldrdoc.gov";
 //static const char ntpServerName[] = "time-c.timefreq.bldrdoc.gov";
 
 /* ===================== Constants end here ============================== */
@@ -78,6 +92,8 @@ void setup()
 {
   chipID = configureChipID();
   Serial.begin(115200);
+
+  wulTestCases wtc = wulTestCases(&Serial);
 
   strip.begin();
   strip.setBrightness(255);
@@ -114,7 +130,7 @@ void setup()
   char wifiName[19] = {};
   wifiNameConcat.toCharArray(wifiName, 19);
 
-  // initiate time
+  // iniate time
   // TODO: read last stored time from EEPROM 
   // TODO: If wifi connected use ntp to configure initial time
   
@@ -147,7 +163,6 @@ void loop()
 
   // micros overflow reset condition -> this happens about once every 70 minutes
   // this will mean we lose some time data because of the missing microseconds around the overflow condition.
-  // the amout of time lost can be greatly reduced by keeping REQUEST_DELAY very small
   if(previousMicros > currentMicros) {
     Serial.println("Micros overflow");
     previousMicros = currentMicros;
@@ -173,7 +188,7 @@ void updateTime(unsigned long timeBetweenUpdate) {
   Serial.print(":");
   Serial.print(activeTime.second());
   Serial.print(":");
-  Serial.print(activeTime.microSecond());
+  Serial.println(activeTime.microSecond());
 }
 
 /**

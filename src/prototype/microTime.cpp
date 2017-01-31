@@ -48,12 +48,14 @@ microTime::microTime() {
  */
 microTime::microTime(unsigned int years, byte months, byte days, byte hours, byte seconds, unsigned long microSeconds) {
 	this->timeZone = 0;
-	this->years = years;
-	this->months = months;
-	this->days = days;
-	this->hours = hours;
-	this->seconds = seconds;
-	this->microSeconds = microSeconds;
+	this->years = constrain(years, 1970, 9999);
+	this->months = constrain(months, 1, 12);
+  
+  byte currentCascadeDay = getCascadeDay(this->years, this->months); // only works if year and month are available hence it is not on top of this method.
+	this->days = constrain(days, 1, currentCascadeDay);
+	this->hours = constrain(hours, 0 , CASCADE_HOUR -1);
+	this->seconds = constrain(seconds, 0 , CASCADE_MINUTE -1);
+	this->microSeconds = constrain(microSeconds, 0, CASCADE_MICRO -1);
 	this->timeSet = true;
 }
 
@@ -72,28 +74,28 @@ void microTime::update(unsigned long additionalMicros) {
 }
 
 
-inline bool operator< (microTime& lhs, microTime& rhs){ 
-  if(lhs.year() < rhs.year()) return true;
-  if(lhs.month() < rhs.month()) return true;
-  if(lhs.day() < rhs.day()) return true;
-  if(lhs.hour() < rhs.hour()) return true;
-  if(lhs.minute() < rhs.minute()) return true;
-  if(lhs.second() < rhs.second()) return true;
-  if(lhs.microSecond() < rhs.microSecond()) return true;
+bool microTime::operator< (microTime& rhs){ 
+  if(this->year() < rhs.year()) return true;
+  if(this->month() < rhs.month()) return true;
+  if(this->day() < rhs.day()) return true;
+  if(this->hour() < rhs.hour()) return true;
+  if(this->minute() < rhs.minute()) return true;
+  if(this->second() < rhs.second()) return true;
+  if(this->microSecond() < rhs.microSecond()) return true;
   return false;
 }
 
-inline bool operator> (microTime& lhs, microTime& rhs) { 
-  return rhs < lhs; 
-}
-
-inline bool operator<=(microTime& lhs, microTime& rhs) { 
-  return !(lhs > rhs); 
-}
-
-inline bool operator>=(microTime& lhs, microTime& rhs) { 
-  return !(lhs < rhs); 
-}
+//bool microTime::operator> (microTime& lhs, microTime& rhs) { 
+//  return rhs < lhs; 
+//}
+//
+//bool microTime::operator<=(microTime& lhs, microTime& rhs) { 
+//  return !(lhs > rhs); 
+//}
+//
+//bool microTime::operator>=(microTime& lhs, microTime& rhs) { 
+//  return !(lhs < rhs); 
+//}
 
 /**
  *
@@ -173,6 +175,27 @@ void microTime::setTimeZone(char timeZone) {
 }
 
 /**
+ * Determine the current point of cascading for the number of days
+ */
+byte microTime::getCascadeDay(unsigned int years, byte months) {
+  if(months == 2) { // februari is special
+    // every year which can be divided by four is a year with a extra day
+    if(years % 4 == 0 && years % 100 != 0 && years % 400 == 0) { 
+      return CASCADE_DAY_FL;
+    }
+    else {
+      return CASCADE_DAY_FS;  
+    }
+  }
+  else if(months % 2 == 0) {
+    return CASCADE_DAY_S;  
+  }
+  else {
+    return CASCADE_DAY_L;
+  }
+}
+
+/**
  *
  */
 void microTime::cascadeMicroSecond() {
@@ -220,23 +243,7 @@ void microTime::cascadeHour() {
  *
  */
 void microTime::cascadeDay() {
-  byte currentCascade = 31;
-
-  if(months == 2) { // februari is special
-    // every year which can be divided by four is a year with a extra day
-    if(years % 4 == 0 && years % 100 != 0 && years % 400 == 0) { 
-      currentCascade = CASCADE_DAY_FL;
-    }
-    else {
-      currentCascade = CASCADE_DAY_FS;  
-    }
-  }
-  else if(months % 2 == 0) {
-    currentCascade = CASCADE_DAY_S;  
-  }
-  else {
-    currentCascade = CASCADE_DAY_L;
-  }
+  byte currentCascade = getCascadeDay(this->years, this->months);
   
   if(days >= currentCascade) {
     int increment = days / currentCascade;
