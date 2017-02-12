@@ -68,9 +68,15 @@ class microTime {
     void cascadeMonth();
   public:
   	microTime();
-    microTime(unsigned int year, byte month, byte day, byte hour, byte second, unsigned long microSecond);
+    microTime(unsigned int year, byte month, byte day, byte hour, byte minute, byte second);
+    microTime(unsigned int year, byte month, byte day, byte hour, byte minute, byte second, unsigned long microSecond);
 
     bool operator<(microTime& rhs);
+    bool operator>(microTime& rhs);
+    bool operator<=(microTime& rhs);
+    bool operator>=(microTime& rhs);
+    bool operator==(microTime& rhs);
+    bool operator!=(microTime& rhs);
 
   	void update(unsigned long additionalMicros);
   	bool isTimeSet();

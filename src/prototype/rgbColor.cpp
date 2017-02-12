@@ -22,6 +22,12 @@
 
 #include "rgbColor.h";
 
+rgbColor::rgbColor() {
+  this->red = 0;
+  this->green = 0;
+  this->blue = 0;
+}
+
 rgbColor::rgbColor(int value) {
   this->red = (value >> 16) & 0xff;
   this->green = (value >> 8) & 0xff;

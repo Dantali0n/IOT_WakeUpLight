@@ -32,17 +32,20 @@
  * Statefull lighting pattern for led strip.
  * Supports incremental state updates using deltaTime in microseconds
  * @TODO add enumerator for different modes
+ * @TODO add none linear interpolation for color transistions
  */
 class ledPattern {
   	private:
-  		unsigned int currentDuration;
-  		unsigned int finalDuration;
+      bool finished;
+  		unsigned long currentDuration;
+  		unsigned long finalDuration;
   		rgbColor currentColor;
   		rgbColor finalColor;
 	public:
-		ledPattern(rgbColor startColor, rgbColor endColor, unsigned int duration);
-		void update(unsigned int deltaTime);
+		ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration);
+		void update(unsigned long deltaTime);
 		rgbColor getColor();
+    bool isFinished();
 };
 
 #endif /* __cplusplus */

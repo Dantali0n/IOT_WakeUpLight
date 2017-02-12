@@ -41,5 +41,10 @@ alarm::alarm(microTime trigger, microTime interval) {
  *
  */
 bool alarm::check(microTime *current) {
-  return true;
+  if(*current > this->trigger) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }

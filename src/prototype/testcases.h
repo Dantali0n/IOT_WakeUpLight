@@ -27,6 +27,7 @@
 #include <Arduino.h>
 #include "wulTypedef.h"
 #include "microTime.h"
+#include "ledpattern.h"
 
 class wulTestCases {
   	private:
@@ -36,6 +37,38 @@ class wulTestCases {
 
   		void testMicroTime();
   		void testNtpClient();
+      void testLedPattern();
+
+      void haltFurtherExecution();
+
+      static const String MES_SPACE;
+      static const String MES_ASSRT;
+      static const String MES_RES;
+      static const String MES_TESTING;
+
+      static const String MES_MICROTIME;
+      static const String MES_NTPCLIENT;
+      static const String MES_LEDPATTERN;
+      
+      static const String MES_OPR_ABV;
+      static const String MES_OPR_BELOW;
+      static const String MES_OPR_ABV_EQ;
+      static const String MES_OPR_BELOW_EQ;
+      static const String MES_OPR_NOT_EQUAL;
+      static const String MES_OPR_EQUAL;
+      
+      static const String MES_CONSTRAINT;
+      
+      static const String MES_SUC;
+      static const String MES_FAIL;
+      
+      static const String MES_YEAR;
+      static const String MES_MONTH;
+      static const String MES_DAY;
+      static const String MES_HOUR;
+      static const String MES_MINUTE;
+      static const String MES_SECOND;
+      
   	public:
   		wulTestCases(HardwareSerial *serialRef);
 };

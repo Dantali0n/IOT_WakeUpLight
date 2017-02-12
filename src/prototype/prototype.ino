@@ -30,6 +30,7 @@
 #include "rgbColor.h" // library to hold a rgb color
 #include "springyValue.h" // library to interpolate values as a spring
 #include "testcases.h"
+#include "ledpattern.h"
 
 /* ========================== */
 /* === NOTE ABOUT PROGMEM === */
@@ -48,7 +49,7 @@ static const String SRL_INFO_IDN_ID = "Last 2 bytes of chip ID: ";
 
 static const String WIFI_NAME_CONCAT = "WakeUpLight_"; // String to prepend to the wifi name
 static const int OSCILLATION_TIME = 500; // used to oscillate the rgb led strip
-static const int REQUEST_DELAY = 200000; // minimum time between alarm checks and clock updates in micro seconds
+static const int REQUEST_DELAY = 20000; // minimum time between alarm checks and clock updates in micro seconds
 
 
 static const int MICROS_TO_SECONDS = 1000000; // constant value to convert micro seconds to seconds
@@ -79,8 +80,9 @@ String curNtpServer = ntpServerNames[0]; // current ntp timeserver
 int curTimeZone = 1; // timeZone for the current time
 
 // Timer timeKeeper; // our continous time keeper
-microTime activeTime; // current system time
+microTime activeTime = microTime(999, 12, 30, 23 , 59, 59); // current system time
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ400); // lights to wake up the user
+ledPattern *pattern = new ledPattern(rgbColor(250, 0, 0), rgbColor(0, 250, 0), 5000000UL);
 
 // declaration to prevent undeclared function error
 void setAllPixels(rgbColor color, float multiplier);
@@ -93,15 +95,15 @@ void setup()
   chipID = configureChipID();
   Serial.begin(115200);
 
-  wulTestCases wtc = wulTestCases(&Serial);
+  //wulTestCases wtc = wulTestCases(&Serial);
 
   strip.begin();
   strip.setBrightness(255);
 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   
-  rgbColor red = rgbColor(255,0,0);
-  rgbColor purple = rgbColor(0,255,255);
+  rgbColor red = rgbColor(254,0,0);
+  rgbColor purple = rgbColor(0,254,254);
 
   // Reset condition if the button is held down on power up
   int counter = 0;
@@ -171,6 +173,17 @@ void loop()
   if(currentMicros - previousMicros > REQUEST_DELAY) {
     updateTime(currentMicros - previousMicros);
     checkAlarms();
+
+    if(!pattern->isFinished()) {
+      Serial.print(pattern->getColor().getRed());
+      Serial.print(',');
+      Serial.print(pattern->getColor().getGreen());
+      Serial.print(',');
+      Serial.println(pattern->getColor().getBlue());
+      pattern->update(currentMicros - previousMicros);
+      setAllPixels(pattern->getColor(), 1.0);
+    }
+    
     previousMicros = currentMicros;
   }
 }
@@ -182,6 +195,12 @@ void loop()
 void updateTime(unsigned long timeBetweenUpdate) {
   activeTime.update(timeBetweenUpdate);
   Serial.println(timeBetweenUpdate);
+  Serial.print(activeTime.year());
+  Serial.print("-");
+  Serial.print(activeTime.month());
+  Serial.print("-");
+  Serial.print(activeTime.day());
+  Serial.print(" ");
   Serial.print(activeTime.hour());
   Serial.print(":");
   Serial.print(activeTime.minute());
@@ -212,7 +231,10 @@ void buttonPress() {
 //  value += (green << 8) & 0xff;
 //  value += blue & 0xff;
   
-  oscillate(random(0,100), (float)random(0,1000)/1000, rgbColor((int)random(0,255), (int)random(0,255), (int)random(0,255)));
+//oscillate(random(0,100), (float)random(0,1000)/1000, rgbColor((int)random(0,255), (int)random(0,255), (int)random(0,255)));
+
+  delete pattern;
+  pattern = new ledPattern(rgbColor(0, 0, 0), rgbColor(250, 250, 250), 10000000UL);
 }
 
 

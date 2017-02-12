@@ -30,6 +30,7 @@ class rgbColor {
   private:
     byte red, green, blue;   
   public:
+    rgbColor();
     rgbColor(int value);
     rgbColor(byte red, byte green, byte blue);
     rgbColor(int red, int green, int blue);

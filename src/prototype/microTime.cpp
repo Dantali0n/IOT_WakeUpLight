@@ -39,14 +39,37 @@ microTime::microTime() {
 
 /**
  * Initiate microTime with the provided date and time, will set isSet to true
- * @Param year full 4 digit year clamped between 0 and 9999
- * @Param month clamped between 1 and 12
- * @Param day clamped between 1 and 31
- * @Param hour clamped between 0 and 23
- * @Param second clamped between 0 and 59
- * @Param microSecond clamped between 0 and 999999
+ * @Param years full 4 digit year clamped between 0 and 9999
+ * @Param months clamped between 1 and 12
+ * @Param days clamped between 1 and 31
+ * @Param hours clamped between 0 and 23
+ * @Param minutes clamped between 0 and 59
+ * @Param seconds clamped between 0 and 59
  */
-microTime::microTime(unsigned int years, byte months, byte days, byte hours, byte seconds, unsigned long microSeconds) {
+microTime::microTime(unsigned int years, byte months, byte days, byte hours, byte minutes, byte seconds) {
+  this->timeZone = 0;
+  this->years = constrain(years, 1970, 9999);
+  this->months = constrain(months, 1, 12);
+  
+  byte currentCascadeDay = getCascadeDay(this->years, this->months); // only works if year and month are available hence it is not on top of this method.
+  this->days = constrain(days, 1, currentCascadeDay);
+  this->hours = constrain(hours, 0 , CASCADE_HOUR -1);
+  this->minutes = constrain(minutes, 0 , CASCADE_MINUTE -1);
+  this->seconds = constrain(seconds, 0 , CASCADE_MINUTE -1);
+  this->timeSet = true;
+}
+
+/**
+ * Initiate microTime with the provided date and time, will set isSet to true
+ * @Param years full 4 digit year clamped between 0 and 9999
+ * @Param months clamped between 1 and 12
+ * @Param days clamped between 1 and 31
+ * @Param hours clamped between 0 and 23
+ * @Param minutes clamped between 0 and 59
+ * @Param seconds clamped between 0 and 59
+ * @Param microSeconds clamped between 0 and 999999
+ */
+microTime::microTime(unsigned int years, byte months, byte days, byte hours, byte minutes, byte seconds, unsigned long microSeconds) {
 	this->timeZone = 0;
 	this->years = constrain(years, 1970, 9999);
 	this->months = constrain(months, 1, 12);
@@ -54,7 +77,8 @@ microTime::microTime(unsigned int years, byte months, byte days, byte hours, byt
   byte currentCascadeDay = getCascadeDay(this->years, this->months); // only works if year and month are available hence it is not on top of this method.
 	this->days = constrain(days, 1, currentCascadeDay);
 	this->hours = constrain(hours, 0 , CASCADE_HOUR -1);
-	this->seconds = constrain(seconds, 0 , CASCADE_MINUTE -1);
+  this->minutes = constrain(minutes, 0 , CASCADE_MINUTE -1);
+	this->seconds = constrain(seconds, 0 , CASCADE_SECOND -1);
 	this->microSeconds = constrain(microSeconds, 0, CASCADE_MICRO -1);
 	this->timeSet = true;
 }
@@ -85,17 +109,32 @@ bool microTime::operator< (microTime& rhs){
   return false;
 }
 
-//bool microTime::operator> (microTime& lhs, microTime& rhs) { 
-//  return rhs < lhs; 
-//}
-//
-//bool microTime::operator<=(microTime& lhs, microTime& rhs) { 
-//  return !(lhs > rhs); 
-//}
-//
-//bool microTime::operator>=(microTime& lhs, microTime& rhs) { 
-//  return !(lhs < rhs); 
-//}
+bool microTime::operator> (microTime& rhs) { 
+  return rhs < *this; 
+}
+
+bool microTime::operator<=(microTime& rhs) { 
+  return !(*this > rhs); 
+}
+
+bool microTime::operator>=(microTime& rhs) { 
+  return !(*this < rhs); 
+}
+
+bool microTime::operator==(microTime& rhs){ 
+  if(this->year() != rhs.year()) return false;
+  if(this->month() != rhs.month()) return false;
+  if(this->day() != rhs.day()) return false;
+  if(this->hour() != rhs.hour()) return false;
+  if(this->minute() != rhs.minute()) return false;
+  if(this->second() != rhs.second()) return false;
+  if(this->microSecond() != rhs.microSecond()) return false;
+  return true;
+}
+
+bool microTime::operator!=(microTime& rhs){ 
+  return !(*this == rhs);
+}
 
 /**
  *
