@@ -65,24 +65,39 @@ void ledPattern::update(unsigned long deltaTime) {
     intermediateRed = this->finalColor.getRed() - this->currentColor.getRed();
     if(intermediateRed != 0) {
         stepRed = floor(intermediateRed / stepsRemaining); // large step logic
-        if(stepRed == 0 && intermediateRed / (float)stepsRemaining >= 0.5 || stepRed == 0 && intermediateRed / (float)stepsRemaining <= -0.5) { // small step logic
+        
+        // small step logic
+        if(stepRed == 0 && intermediateRed / (float)stepsRemaining >= 0.5) { 
           stepRed = 1;
+        }
+        if( stepRed == 0 && intermediateRed / (float)stepsRemaining <= -0.5) {
+          stepRed = -1;
         }
     }
 
     intermediateGreen = this->finalColor.getGreen() - this->currentColor.getGreen();
     if(intermediateGreen != 0) {
         stepGreen = floor(intermediateGreen / stepsRemaining); // large step logic
-        if(stepGreen == 0 && intermediateGreen / (float)stepsRemaining >= 0.5 || stepGreen == 0 && intermediateGreen / (float)stepsRemaining <= -0.5) { // small step logic
+
+        // small step logic
+        if(stepGreen == 0 && intermediateGreen / (float)stepsRemaining >= 0.5) { 
           stepGreen = 1;
+        }
+        if( stepGreen == 0 && intermediateGreen / (float)stepsRemaining <= -0.5) {
+          stepGreen = -1;
         }
     }
 
     intermediateBlue = this->finalColor.getBlue() - this->currentColor.getBlue();
     if(intermediateBlue != 0) {
         stepBlue = floor(intermediateBlue / stepsRemaining); // large step logic
-        if(stepBlue == 0 && intermediateBlue / (float)stepsRemaining >= 0.5 || stepBlue == 0 && intermediateBlue / (float)stepsRemaining <= -0.5) { // small step logic
+        
+        // small step logic
+        if(stepBlue == 0 && intermediateBlue / (float)stepsRemaining >= 0.5) { 
           stepBlue = 1;
+        }
+        if( stepBlue == 0 && intermediateBlue / (float)stepsRemaining <= -0.5) {
+          stepBlue = -1;
         }
     }
   
