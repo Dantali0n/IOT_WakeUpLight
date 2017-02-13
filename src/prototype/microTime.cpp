@@ -97,7 +97,9 @@ void microTime::update(unsigned long additionalMicros) {
   cascadeMonth();
 }
 
-
+/**
+ * 
+ */
 bool microTime::operator< (microTime& rhs){ 
   if(this->year() < rhs.year()) return true;
   if(this->month() < rhs.month()) return true;
@@ -109,18 +111,30 @@ bool microTime::operator< (microTime& rhs){
   return false;
 }
 
+/**
+ * 
+ */
 bool microTime::operator> (microTime& rhs) { 
   return rhs < *this; 
 }
 
+/**
+ * 
+ */
 bool microTime::operator<=(microTime& rhs) { 
   return !(*this > rhs); 
 }
 
+/**
+ * 
+ */
 bool microTime::operator>=(microTime& rhs) { 
   return !(*this < rhs); 
 }
 
+/**
+ * 
+ */
 bool microTime::operator==(microTime& rhs){ 
   if(this->year() != rhs.year()) return false;
   if(this->month() != rhs.month()) return false;
@@ -132,8 +146,32 @@ bool microTime::operator==(microTime& rhs){
   return true;
 }
 
+/**
+ * 
+ */
 bool microTime::operator!=(microTime& rhs){ 
   return !(*this == rhs);
+}
+
+/**
+ * 
+ * @UNTESTED
+ */
+void microTime::operator+=(microTime& rhs){
+  this->years += rhs.year();
+  this->months += rhs.month();
+  this->days += rhs.day();
+  this->hours += rhs.hour();
+  this->minutes += rhs.minute();
+  this->seconds += rhs.second();
+  this->microSeconds += rhs.microSecond();
+
+  cascadeMicroSecond();
+  cascadeSecond();
+  cascadeMinute();
+  cascadeHour();
+  cascadeDay();
+  cascadeMonth();
 }
 
 /**
@@ -215,6 +253,8 @@ void microTime::setTimeZone(char timeZone) {
 
 /**
  * Determine the current point of cascading for the number of days
+ * @Param years the year to determine cascading for
+ * @Param months the month to determine cascading for
  */
 byte microTime::getCascadeDay(unsigned int years, byte months) {
   if(months == 2) { // februari is special

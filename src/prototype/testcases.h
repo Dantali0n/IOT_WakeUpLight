@@ -45,12 +45,13 @@ class wulTestCases {
       static const String MES_ASSRT;
       static const String MES_RES;
       static const String MES_TESTING;
+      static const String MES_EXPECT;
 
       static const String MES_MICROTIME;
       static const String MES_NTPCLIENT;
       static const String MES_LEDPATTERN;
       
-      static const String MES_OPR_ABV;
+      static const String MES_OPR_ABOVE;
       static const String MES_OPR_BELOW;
       static const String MES_OPR_ABV_EQ;
       static const String MES_OPR_BELOW_EQ;
@@ -58,6 +59,8 @@ class wulTestCases {
       static const String MES_OPR_EQUAL;
       
       static const String MES_CONSTRAINT;
+      static const String MES_INCREASE;
+      static const String MES_DECREASE;
       
       static const String MES_SUC;
       static const String MES_FAIL;

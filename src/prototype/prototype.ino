@@ -82,7 +82,7 @@ int curTimeZone = 1; // timeZone for the current time
 // Timer timeKeeper; // our continous time keeper
 microTime activeTime = microTime(999, 12, 30, 23 , 59, 59); // current system time
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ400); // lights to wake up the user
-ledPattern *pattern = new ledPattern(rgbColor(250, 0, 0), rgbColor(0, 250, 0), 5000000UL);
+ledPattern *pattern = new ledPattern(rgbColor(250, 0, 0), rgbColor(0, 250, 0), 10000000UL);
 
 // declaration to prevent undeclared function error
 void setAllPixels(rgbColor color, float multiplier);

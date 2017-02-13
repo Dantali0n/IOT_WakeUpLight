@@ -26,12 +26,13 @@ const String wulTestCases::MES_SPACE = " ";
 const String wulTestCases::MES_ASSRT = "Assert ";
 const String wulTestCases::MES_RES = " : ";
 const String wulTestCases::MES_TESTING = "testing ";
+const String wulTestCases::MES_EXPECT = "expect ";
 
 const String wulTestCases::MES_MICROTIME = "microTime";
 const String wulTestCases::MES_NTPCLIENT = "ntpClient";
 const String wulTestCases::MES_LEDPATTERN = "ledPattern";
 
-const String wulTestCases::MES_OPR_ABV = " > ";
+const String wulTestCases::MES_OPR_ABOVE = " > ";
 const String wulTestCases::MES_OPR_BELOW = " < ";
 const String wulTestCases::MES_OPR_ABV_EQ = " >= ";
 const String wulTestCases::MES_OPR_BELOW_EQ = " <= ";
@@ -39,6 +40,8 @@ const String wulTestCases::MES_OPR_EQUAL = " == ";
 const String wulTestCases::MES_OPR_NOT_EQUAL = " != ";
 
 const String wulTestCases::MES_CONSTRAINT = " constraints ";
+const String wulTestCases::MES_INCREASE = " increase ";
+const String wulTestCases::MES_DECREASE = " decrease ";
 
 const String wulTestCases::MES_SUC = "SUCCESS";
 const String wulTestCases::MES_FAIL = "FAILED";
@@ -90,7 +93,7 @@ void wulTestCases::testMicroTime() {
   serialRef->print(MES_ASSRT);
   serialRef->print(MES_YEAR);
   serialRef->print(1994);
-  serialRef->print(MES_OPR_ABV);
+  serialRef->print(MES_OPR_ABOVE);
   serialRef->print(MES_YEAR);
   serialRef->print(1995);
   serialRef->print(MES_RES);
@@ -113,7 +116,7 @@ void wulTestCases::testMicroTime() {
   serialRef->print(MES_ASSRT);
   serialRef->print(MES_MONTH);
   serialRef->print(1);
-  serialRef->print(MES_OPR_ABV);
+  serialRef->print(MES_OPR_ABOVE);
   serialRef->print(MES_MONTH);
   serialRef->print(2);
   serialRef->print(MES_RES);
@@ -135,7 +138,7 @@ void wulTestCases::testMicroTime() {
   serialRef->print(MES_ASSRT);
   serialRef->print(MES_DAY);
   serialRef->print(1);
-  serialRef->print(MES_OPR_ABV);
+  serialRef->print(MES_OPR_ABOVE);
   serialRef->print(MES_DAY);
   serialRef->print(2);
   serialRef->print(MES_RES);
@@ -157,7 +160,7 @@ void wulTestCases::testMicroTime() {
   serialRef->print(MES_ASSRT);
   serialRef->print(MES_HOUR);
   serialRef->print(0);
-  serialRef->print(MES_OPR_ABV);
+  serialRef->print(MES_OPR_ABOVE);
   serialRef->print(MES_HOUR);
   serialRef->print(1);
   serialRef->print(MES_RES);
@@ -179,7 +182,7 @@ void wulTestCases::testMicroTime() {
   serialRef->print(MES_ASSRT);
   serialRef->print(MES_MINUTE);
   serialRef->print(0);
-  serialRef->print(MES_OPR_ABV);
+  serialRef->print(MES_OPR_ABOVE);
   serialRef->print(MES_MINUTE);
   serialRef->print(1);
   serialRef->print(MES_RES);
@@ -201,7 +204,7 @@ void wulTestCases::testMicroTime() {
   serialRef->print(MES_ASSRT);
   serialRef->print(MES_SECOND);
   serialRef->print(0);
-  serialRef->print(MES_OPR_ABV);
+  serialRef->print(MES_OPR_ABOVE);
   serialRef->print(MES_SECOND);
   serialRef->print(1);
   serialRef->print(MES_RES);
@@ -276,19 +279,37 @@ void wulTestCases::testMicroTime() {
   if(mt13->year() == 1970) {  // lower year contraint
   }
   else {
-    serialRef->println(MES_FAIL);
+    serialRef->print(MES_OPR_BELOW);
+    serialRef->print(MES_YEAR);
+    serialRef->print(MES_FAIL);
+    serialRef->print(MES_EXPECT);
+    serialRef->print(1970);
+    serialRef->print(MES_RES);
+    serialRef->print(mt13->year());
     haltFurtherExecution();
   }
   if(mt13->month() == 12) { // upper month constraint
   }
   else {
-    serialRef->println(MES_FAIL);
+    serialRef->print(MES_OPR_ABOVE);
+    serialRef->print(MES_MONTH);
+    serialRef->print(MES_FAIL);
+    serialRef->print(MES_EXPECT);
+    serialRef->print(12);
+    serialRef->print(MES_RES);
+    serialRef->print(mt13->month());
     haltFurtherExecution();
   }
   if(mt13->day() == 31) { // upper day constraint
   }
   else {
-    serialRef->println(MES_FAIL);
+    serialRef->print(MES_OPR_ABOVE);
+    serialRef->print(MES_DAY);
+    serialRef->print(MES_FAIL);
+    serialRef->print(MES_EXPECT);
+    serialRef->print(31);
+    serialRef->print(MES_RES);
+    serialRef->print(mt13->day());
     haltFurtherExecution();
   }
   serialRef->println(MES_SUC);
@@ -299,7 +320,9 @@ void wulTestCases::testMicroTime() {
  *
  */
 void wulTestCases::testNtpClient() {
-	serialRef->println("Testing NtpClient:");
+	serialRef->print(MES_TESTING);
+  serialRef->print(MES_NTPCLIENT);
+  serialRef->println(MES_RES);
 }
 
 /**
@@ -310,20 +333,55 @@ void wulTestCases::testLedPattern() {
   serialRef->print(MES_LEDPATTERN);
   serialRef->println(MES_RES);
 
+  rgbColor hiCol = rgbColor(250, 250, 250);
+  rgbColor lowCol = rgbColor(100, 100, 100);
+
   // move from #646464 to #FAFAFA over a period of 1000 microseconds
-  ledPattern ld1 = ledPattern(rgbColor(100, 100, 100), rgbColor(250, 250, 250), 1000UL);
+  ledPattern ld1 = ledPattern(lowCol, hiCol, 1000);
   ld1.update(100); // update 100 microseconds so linear color shift should be at: #737373 (115, 115, 155)
+
+  /**
+   * MATH EXPLAIN
+   * We transition from 100 to 250 giving a 150 difference. This transistion of 150 units happens over a period of 1000
+   * we move 100 meaning we have transistioned 1/10 of the total way.
+   * 150/10 gives 15 and 100 + 15 = 115
+   * So in a linear transistion we expect to have moved from 100 to 115
+   */
 
   serialRef->print(MES_ASSRT);
   serialRef->print(MES_LEDPATTERN);
+  serialRef->print(MES_INCREASE);
   serialRef->print(MES_RES);
   
   if(ld1.getColor().getRed() == 115) {
     serialRef->println(MES_SUC);
   }
   else {
-    serialRef->println(MES_FAIL);
+    serialRef->print(MES_FAIL);
+    serialRef->print(MES_EXPECT);
+    serialRef->print(115);
+    serialRef->print(MES_RES);
     serialRef->println(ld1.getColor().getRed());
+    haltFurtherExecution();
+  }
+
+  ledPattern ld2 = ledPattern(hiCol, lowCol, 1000);
+  ld2.update(100);
+
+  serialRef->print(MES_ASSRT);
+  serialRef->print(MES_LEDPATTERN);
+  serialRef->print(MES_DECREASE);
+  serialRef->print(MES_RES);
+
+  if(ld2.getColor().getRed() == 235) {
+    serialRef->println(MES_SUC);
+  }
+  else {
+    serialRef->print(MES_FAIL);
+    serialRef->print(MES_EXPECT);
+    serialRef->print(235);
+    serialRef->print(MES_RES);
+    serialRef->println(ld2.getColor().getRed());
     haltFurtherExecution();
   }
 }

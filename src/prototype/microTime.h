@@ -77,6 +77,7 @@ class microTime {
     bool operator>=(microTime& rhs);
     bool operator==(microTime& rhs);
     bool operator!=(microTime& rhs);
+    void operator+=(microTime& rhs);
 
   	void update(unsigned long additionalMicros);
   	bool isTimeSet();

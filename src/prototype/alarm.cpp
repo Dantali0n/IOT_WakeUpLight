@@ -35,6 +35,7 @@ alarm::alarm(microTime trigger) {
 alarm::alarm(microTime trigger, microTime interval) {
 	this->trigger = trigger;
 	this->interval = interval;
+  this->hasInterval = true;
 }
 
 /**
@@ -42,6 +43,9 @@ alarm::alarm(microTime trigger, microTime interval) {
  */
 bool alarm::check(microTime *current) {
   if(*current > this->trigger) {
+    if(this->hasInterval) {
+      this->trigger += this->interval;
+    }
     return true;
   }
   else {
