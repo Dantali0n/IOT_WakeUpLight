@@ -25,14 +25,16 @@
 /**
  * 
  */
-alarm::alarm(microTime trigger) {
+alarm::alarm(microTime trigger, ledPattern &alarmPattern) {
+  this->alarmPattern = &alarmPattern;
 	this->trigger = trigger;
 }
 
 /**
  * 
  */
-alarm::alarm(microTime trigger, microTime interval) {
+alarm::alarm(microTime trigger, microTime interval, ledPattern &alarmPattern) {
+  this->alarmPattern = &alarmPattern;
 	this->trigger = trigger;
 	this->interval = interval;
   this->hasInterval = true;
@@ -51,4 +53,13 @@ bool alarm::check(microTime *current) {
   else {
     return false;
   }
+}
+
+/**
+ * retrieves an pointer to the ledPattern that should be activated when the alarm triggers
+ * @Return ledPattern pointer
+ * @TODO maybe should not be pointer, better parse by value and make sure new ledPattern is copy of internal ledPattern pointer content
+ */
+ledPattern * alarm::getAlarmPattern() {
+  return alarmPattern;
 }

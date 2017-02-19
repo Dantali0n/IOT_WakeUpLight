@@ -27,19 +27,45 @@
  * @Param startColor the initial rgb color of the pattern
  * @Param endColor the final rgb color of the pattern
  * @Param duration the time to transistion from start to finish in microseconds
+ * @Param patternMode the interpolation mode for the color transistion, see ledPattern::patternModes for options
  */
-ledPattern::ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration) {
+ledPattern::ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration, ledPattern::patternModes patternMode) {
   this->finished = false;
+  this->currentPercentage = 0;
 	this->currentDuration = 0UL;
 	this->finalDuration = duration;
+  this->startColor = startColor;
 	this->currentColor = startColor;
 	this->finalColor = endColor;
+  this->patternMode = patternMode;
+
+  /**
+   * @TODO Calculate color difference per rgb by percentage
+   * See variables stepsRed, stepsGreen and stepsBlue
+   * It is extremely likely the precalculating of steps will make individual update methods per mode redundant!
+   */
+  switch(this->patternMode) {
+    case linear:
+      break;
+    case cubic:
+      break;
+    case bicubic:
+      break;
+    case polynomial:
+      break;
+    case cspline:
+      break;
+    case akima:
+      break;
+    default:
+      break;
+  }
 }
 
 /**
  * Update the state of the ledpattern by incrementing the time in microseconds
  * @Param deltaTime the time in microseconds to progress the ledPattern
- * @TODO improve math -> size of early increments is to low
+ * @TODO improve math -> increments start big get smaller towards the end problem resides in stepsize logic
  */
 void ledPattern::update(unsigned long deltaTime) {
   if(this->currentDuration >= this->finalDuration) {
@@ -48,67 +74,90 @@ void ledPattern::update(unsigned long deltaTime) {
   }
   
   if(deltaTime > 0) { // prevent division by zero
-    int timeRemaining = this->finalDuration - this->currentDuration;
-    int stepRed = 0;
-    int stepGreen = 0;
-    int stepBlue = 0;
-    
-    int intermediateRed = 0;
-    int intermediateGreen = 0;
-    int intermediateBlue = 0;
-    
-    if(timeRemaining <= 0) return; // nothing left to do
-    
-    int stepsRemaining = ceil(timeRemaining / deltaTime);
-    this->currentDuration += deltaTime;
-
-    intermediateRed = this->finalColor.getRed() - this->currentColor.getRed();
-    if(intermediateRed != 0) {
-        stepRed = floor(intermediateRed / stepsRemaining); // large step logic
-        
-        // small step logic
-        if(stepRed == 0 && intermediateRed / (float)stepsRemaining >= 0.5) { 
-          stepRed = 1;
-        }
-        if( stepRed == 0 && intermediateRed / (float)stepsRemaining <= -0.5) {
-          stepRed = -1;
-        }
+    switch(patternMode) {
+      case linear:
+        updateLinear(deltaTime);
+        break;
+      case cubic:
+        break;
+      case bicubic:
+        break;
+      case polynomial:
+        break;
+      case cspline:
+        break;
+      case akima:
+        break;
+      default:
+        break;
     }
-
-    intermediateGreen = this->finalColor.getGreen() - this->currentColor.getGreen();
-    if(intermediateGreen != 0) {
-        stepGreen = floor(intermediateGreen / stepsRemaining); // large step logic
-
-        // small step logic
-        if(stepGreen == 0 && intermediateGreen / (float)stepsRemaining >= 0.5) { 
-          stepGreen = 1;
-        }
-        if( stepGreen == 0 && intermediateGreen / (float)stepsRemaining <= -0.5) {
-          stepGreen = -1;
-        }
-    }
-
-    intermediateBlue = this->finalColor.getBlue() - this->currentColor.getBlue();
-    if(intermediateBlue != 0) {
-        stepBlue = floor(intermediateBlue / stepsRemaining); // large step logic
-        
-        // small step logic
-        if(stepBlue == 0 && intermediateBlue / (float)stepsRemaining >= 0.5) { 
-          stepBlue = 1;
-        }
-        if( stepBlue == 0 && intermediateBlue / (float)stepsRemaining <= -0.5) {
-          stepBlue = -1;
-        }
-    }
-  
-    byte newRed = constrain((int)this->currentColor.getRed() + stepRed, 0, 255);
-    byte newGreen = constrain((int)this->currentColor.getGreen() + stepGreen, 0, 255);
-    byte newBlue = constrain((int)this->currentColor.getBlue() + stepBlue, 0, 255);
-    
-    this->currentColor.setRed(newRed);
-    this->currentColor.setGreen(newGreen);
-    this->currentColor.setBlue(newBlue);
   }
+}
+
+
+void ledPattern::updateLinear(unsigned long deltaTime) {
+  int timeRemaining = this->finalDuration - this->currentDuration;
+  int stepRed = 0;
+  int stepGreen = 0;
+  int stepBlue = 0;
+  
+  int intermediateRed = 0;
+  int intermediateGreen = 0;
+  int intermediateBlue = 0;
+  
+  if(timeRemaining <= 0) {
+    this->currentColor.setRed(this->finalColor.getRed());
+    this->currentColor.setGreen(this->finalColor.getGreen());
+    this->currentColor.setBlue(this->finalColor.getBlue());
+    return; // nothing left to do
+  }
+
+  this->currentDuration += deltaTime;
+  double percentRemaining = 100 - ((double)this->currentDuration / this->finalDuration) * 100;
+  
+
+  intermediateRed = this->finalColor.getRed() - this->startColor.getRed();
+  if(intermediateRed != 0) {
+      stepRed = round(intermediateRed / percentRemaining); // large step logic
+  }
+
+  intermediateGreen = this->finalColor.getGreen() - this->currentColor.getGreen();
+  if(intermediateGreen != 0) {
+      stepGreen = round(intermediateGreen / percentRemaining); // large step logic
+  }
+
+  intermediateBlue = this->finalColor.getBlue() - this->startColor.getBlue();
+  if(intermediateBlue != 0) {
+      stepBlue = round(intermediateBlue / percentRemaining); // large step logic
+  }
+
+  byte newRed = constrain(stepRed, 0, 255);
+  byte newGreen = constrain(stepGreen, 0, 255);
+  byte newBlue = constrain(stepBlue, 0, 255);
+  
+  this->currentColor.setRed(newRed);
+  this->currentColor.setGreen(newGreen);
+  this->currentColor.setBlue(newBlue);
+}
+
+void ledPattern::updateCubic(unsigned long deltaTime) {
+  
+}
+
+void ledPattern::updateBiCubic(unsigned long deltaTime) {
+  
+}
+
+void ledPattern::updatePolynomial(unsigned long deltaTime) {
+  
+}
+
+void ledPattern::updateCspline(unsigned long deltaTime) {
+  
+}
+
+void ledPattern::updateAkima(unsigned long deltaTime) {
+  
 }
 
 /**

@@ -26,6 +26,7 @@
 
 // #include <Arduino.h> // needed for PROGMEM support -> if applicable to microcontroller architecture.
 #include "wulTypedef.h"
+#include "ledpattern.h"
 #include "microTime.h"
 
 /**
@@ -37,14 +38,17 @@
  */
 class alarm {
 	private:
+    ledPattern *alarmPattern; // @TODO not store internal ledPattern as pointer since alarm should be owner of ledPattern object
 		microTime trigger;
 		microTime interval;
 		microTime lastCheck;
 		bool hasInterval;
 	public:
-	  alarm(microTime trigger);
-		alarm(microTime trigger, microTime interval);
+	  alarm(microTime trigger, ledPattern &alarmPattern);
+		alarm(microTime trigger, microTime interval, ledPattern &alarmPattern);
 		bool check(microTime *current);
+    ledPattern * getAlarmPattern();
+
 };
 
 #endif /* __cplusplus */

@@ -35,14 +35,39 @@
  * @TODO add none linear interpolation for color transistions
  */
 class ledPattern {
+    public:
+      enum patternModes {
+        linear,
+        cubic,
+        bicubic,
+        polynomial,
+        cspline,
+        akima
+      };
   	private:
       bool finished;
   		unsigned long currentDuration;
   		unsigned long finalDuration;
+      byte currentPercentage;
+      
+      char stepsRed[100]; 
+      char stepsGreen[100]; 
+      char stepsBlue[100]; 
+      
+      rgbColor startColor;
   		rgbColor currentColor;
   		rgbColor finalColor;
+      
+      patternModes patternMode;
+
+      void updateLinear(unsigned long deltaTime);
+      void updateCubic(unsigned long deltaTime);
+      void updateBiCubic(unsigned long deltaTime);
+      void updatePolynomial(unsigned long deltaTime);
+      void updateCspline(unsigned long deltaTime);
+      void updateAkima(unsigned long deltaTime);
 	public:
-		ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration);
+		ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration, patternModes patternMode);
 		void update(unsigned long deltaTime);
 		rgbColor getColor();
     bool isFinished();

@@ -337,7 +337,7 @@ void wulTestCases::testLedPattern() {
   rgbColor lowCol = rgbColor(100, 100, 100);
 
   // move from #646464 to #FAFAFA over a period of 1000 microseconds
-  ledPattern ld1 = ledPattern(lowCol, hiCol, 1000);
+  ledPattern ld1 = ledPattern(lowCol, hiCol, 1000, ledPattern::patternModes::linear);
   ld1.update(100); // update 100 microseconds so linear color shift should be at: #737373 (115, 115, 155)
 
   /**
@@ -365,7 +365,7 @@ void wulTestCases::testLedPattern() {
     haltFurtherExecution();
   }
 
-  ledPattern ld2 = ledPattern(hiCol, lowCol, 1000);
+  ledPattern ld2 = ledPattern(hiCol, lowCol, 1000, ledPattern::patternModes::linear);
   ld2.update(100);
 
   serialRef->print(MES_ASSRT);
