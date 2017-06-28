@@ -25,10 +25,10 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
 #include <Adafruit_NeoPixel.h> // library to control rgb neopixels
-#include "microTime.h" // library to keep track of time 
-#include "ntpClient.h" // library to communicate with ntp servers
-#include "rgbColor.h" // library to hold a rgb color
-#include "springyValue.h" // library to interpolate values as a spring
+#include "microtime.h" // library to keep track of time 
+#include "ntpclient.h" // library to communicate with ntp servers
+#include "rgbcolor.h" // library to hold a rgb color
+#include "springyvalue.h" // library to interpolate values as a spring
 #include "testcases.h"
 #include "ledpattern.h"
 
@@ -156,7 +156,7 @@ void loop()
     buttonBounce = true;
     buttonPress();
   }
-  else if(buttonBounce == true) {
+  else if(buttonBounce == true && digitalRead(BUTTON_PIN) == HIGH) {
     Serial.println("Button bounce back");
     buttonBounce = false; // reset bounce condition
   }
@@ -179,7 +179,11 @@ void loop()
       Serial.print(',');
       Serial.print(pattern->getColor().getGreen());
       Serial.print(',');
-      Serial.println(pattern->getColor().getBlue());
+      Serial.print(pattern->getColor().getBlue());
+      Serial.print(',');
+      Serial.print(pattern->getCurrentDuration());
+      Serial.print(',');
+      Serial.println(pattern->getFinalDuration());
       pattern->update(currentMicros - previousMicros);
       setAllPixels(pattern->getColor(), 1.0);
     }
@@ -234,7 +238,39 @@ void buttonPress() {
 //oscillate(random(0,100), (float)random(0,1000)/1000, rgbColor((int)random(0,255), (int)random(0,255), (int)random(0,255)));
 
   delete pattern;
-  pattern = new ledPattern(rgbColor((byte)random(0,255), (byte)random(0,255), (byte)random(0,255)), rgbColor((byte)random(0,255), (byte)random(0,255), (byte)random(0,255)), random(10, 65000) * 1000UL, ledPattern::patternModes::linear);
+//  byte newsRed = 0;
+//  byte newsBlue = 0;
+//  byte newsGreen = 0;
+//  byte newfRed = 255;
+//  byte newfBlue = 255;
+//  byte newfGreen = 255;
+//  unsigned long newTime = 10000000UL;
+
+  byte newsRed = (byte)random(0,255);
+  byte newsBlue = (byte)random(0,255);
+  byte newsGreen = (byte)random(0,255);
+  byte newfRed = (byte)random(0,255);
+  byte newfBlue = (byte)random(0,255);
+  byte newfGreen = (byte)random(0,255);
+  unsigned long newTime = random(10, 6500) * 1000UL;
+  rgbColor newColor = rgbColor(newsRed, newsBlue, newsGreen);
+  rgbColor endColor = rgbColor(newfRed, newfBlue, newfGreen);
+  
+  Serial.print(newColor.getRed());
+  Serial.print(',');
+  Serial.print(newColor.getGreen());
+  Serial.print(',');
+  Serial.print(newColor.getBlue());
+  Serial.print(',');
+  Serial.print(endColor.getRed());
+  Serial.print(',');
+  Serial.print(endColor.getGreen());
+  Serial.print(',');
+  Serial.print(endColor.getBlue());
+  Serial.print(',');
+  Serial.println(newTime);
+  
+  pattern = new ledPattern(newColor, endColor, newTime, ledPattern::patternModes::linear);
 }
 
 

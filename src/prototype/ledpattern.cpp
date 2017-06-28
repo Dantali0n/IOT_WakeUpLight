@@ -23,6 +23,10 @@
 #include "ledpattern.h"
 
 /**
+ * If being bombarded with serial debug messages please check ledpattern.h for the debug constant and change it to false
+ */
+
+/**
  * Initiate ledPattern
  * @Param startColor the initial rgb color of the pattern
  * @Param endColor the final rgb color of the pattern
@@ -31,7 +35,6 @@
  */
 ledPattern::ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration, ledPattern::patternModes patternMode) {
   this->finished = false;
-  this->currentPercentage = 0;
 	this->currentDuration = 0UL;
 	this->finalDuration = duration;
   this->startColor = startColor;
@@ -95,50 +98,120 @@ void ledPattern::update(unsigned long deltaTime) {
 }
 
 
+/**
+ * 
+ * @math endtime / currenttime = divTime
+ * @math endcolor - scolor = divColor
+ * @math divcolor / divTime = currentcolor
+ */
 void ledPattern::updateLinear(unsigned long deltaTime) {
-  int timeRemaining = this->finalDuration - this->currentDuration;
-  int stepRed = 0;
-  int stepGreen = 0;
-  int stepBlue = 0;
+  this->currentDuration += deltaTime;
+  if(this->currentDuration > this->finalDuration) { this->currentDuration = this->finalDuration; } // clamp duration
+
+  double divTime = this->finalDuration / (double)this->currentDuration;
   
+  int newRed = 0;
+  int newGreen = 0;
+  int newBlue = 0;  
+
   int intermediateRed = 0;
   int intermediateGreen = 0;
   int intermediateBlue = 0;
-  
-  if(timeRemaining <= 0) {
-    this->currentColor.setRed(this->finalColor.getRed());
-    this->currentColor.setGreen(this->finalColor.getGreen());
-    this->currentColor.setBlue(this->finalColor.getBlue());
-    return; // nothing left to do
-  }
 
-  this->currentDuration += deltaTime;
-  double percentRemaining = 100 - ((double)this->currentDuration / this->finalDuration) * 100;
-  
-
-  intermediateRed = this->finalColor.getRed() - this->startColor.getRed();
+  //intermediateRed = (int)this->finalColor.getRed() - (int)this->currentColor.getRed();
+  intermediateRed = (int)this->finalColor.getRed() - (int)this->startColor.getRed();
+  //if(debug) { Serial.print(intermediateRed); Serial.print('|'); }
   if(intermediateRed != 0) {
-      stepRed = round(intermediateRed / percentRemaining); // large step logic
+      newRed = round(intermediateRed / divTime); // large step logic
   }
 
-  intermediateGreen = this->finalColor.getGreen() - this->currentColor.getGreen();
+  //intermediateGreen = (int)this->finalColor.getGreen() - (int)this->currentColor.getGreen();
+  intermediateGreen = (int)this->finalColor.getGreen() - (int)this->startColor.getGreen();
+  //if(debug) { Serial.print(intermediateGreen); Serial.print('|'); }
   if(intermediateGreen != 0) {
-      stepGreen = round(intermediateGreen / percentRemaining); // large step logic
+      newGreen = round(intermediateGreen / divTime); // large step logic
   }
 
-  intermediateBlue = this->finalColor.getBlue() - this->startColor.getBlue();
+  // intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
+  intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
+  //if(debug) { Serial.println(intermediateBlue); }
   if(intermediateBlue != 0) {
-      stepBlue = round(intermediateBlue / percentRemaining); // large step logic
+      newBlue = round(intermediateBlue / divTime); // large step logic
   }
 
-  byte newRed = constrain(stepRed, 0, 255);
-  byte newGreen = constrain(stepGreen, 0, 255);
-  byte newBlue = constrain(stepBlue, 0, 255);
-  
   this->currentColor.setRed(newRed);
   this->currentColor.setGreen(newGreen);
   this->currentColor.setBlue(newBlue);
 }
+
+//void ledPattern::updateLinear(unsigned long deltaTime) {
+//  int timeRemaining = this->finalDuration - this->currentDuration;
+//  int stepRed = 0;
+//  int stepGreen = 0;
+//  int stepBlue = 0;
+//  
+//  int intermediateRed = 0;
+//  int intermediateGreen = 0;
+//  int intermediateBlue = 0;
+//  
+//  if(timeRemaining <= 0) {
+//    if(debug) { Serial.print(this->finalColor.getRed()); Serial.print(this->finalColor.getGreen()); Serial.println(this->finalColor.getBlue()); }
+//    this->currentColor.setRed(this->finalColor.getRed());
+//    this->currentColor.setGreen(this->finalColor.getGreen());
+//    this->currentColor.setBlue(this->finalColor.getBlue());
+//    return; // nothing left to do
+//  }
+//
+//  this->currentDuration += deltaTime;
+//  double percentRemaining = 100 - ((double)this->currentDuration / this->finalDuration) * 100;
+//  currentPercentage = abs(percentRemaining - 100); // I know abs is pretty heavy but at 80mhz who cares really?
+//
+//  //intermediateRed = (int)this->finalColor.getRed() - (int)this->startColor.getRed();
+//  intermediateRed = (int)this->finalColor.getRed() - (int)this->currentColor.getRed();
+//  if(debug) { Serial.print(intermediateRed); Serial.print('|'); }
+//  if(intermediateRed != 0) {
+//      stepRed = round(intermediateRed / percentRemaining); // large step logic
+//  }
+//
+//  //intermediateGreen = (int)this->finalColor.getGreen() - (int)this->currentColor.getGreen();
+//  intermediateGreen = (int)this->finalColor.getGreen() - (int)this->currentColor.getGreen();
+//  if(debug) { Serial.print(intermediateGreen); Serial.print('|'); }
+//  if(intermediateGreen != 0) {
+//      stepGreen = round(intermediateGreen / percentRemaining); // large step logic
+//  }
+//
+//  // intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
+//  intermediateBlue = (int)this->finalColor.getBlue() - (int)this->currentColor.getBlue();
+//  if(debug) { Serial.println(intermediateBlue); }
+//  if(intermediateBlue != 0) {
+//      stepBlue = round(intermediateBlue / percentRemaining); // large step logic
+//  }
+//
+//  if(debug) {
+//    Serial.print("Steps:");
+//    Serial.print(stepRed);
+//    Serial.print(',');
+//    Serial.print(stepGreen);
+//    Serial.print(',');
+//    Serial.println(stepBlue);
+//  }
+//
+////  byte newRed = constrain(stepRed, 0, 255);
+////  byte newGreen = constrain(stepGreen, 0, 255);
+////  byte newBlue = constrain(stepBlue, 0, 255);
+//
+//  byte newRed = this->currentColor.getRed();
+//  byte newGreen = this->currentColor.getGreen();
+//  byte newBlue = this->currentColor.getBlue();
+//  
+//  newRed += stepRed;
+//  newGreen += stepGreen;
+//  newBlue += stepBlue;
+//  
+//  this->currentColor.setRed(newRed);
+//  this->currentColor.setGreen(newGreen);
+//  this->currentColor.setBlue(newBlue);
+//}
 
 void ledPattern::updateCubic(unsigned long deltaTime) {
   
@@ -166,6 +239,22 @@ void ledPattern::updateAkima(unsigned long deltaTime) {
  */
 rgbColor ledPattern::getColor() {
 	return this->currentColor;
+}
+
+/**
+ * returns the current duration of the ledPattern
+ * @Return unsigned long microtime duration
+ */
+unsigned long ledPattern::getCurrentDuration() {
+  return this->currentDuration;
+}
+
+/**
+ * returns the final duration of the ledPattern
+ * @Return unsigned long microtime duration
+ */
+unsigned long ledPattern::getFinalDuration() {
+  return this->finalDuration;
 }
 
 /**

@@ -25,8 +25,8 @@
 #define _Micro_Time_h
 
 #include <Arduino.h> // needed for PROGMEM support -> if applicable to microcontroller architecture.
-#include "timeLib.h"
-#include "wulTypedef.h"
+#include "timelib.h"
+#include "wultypedef.h"
 
 /**
  * MicroTime is a small time and date keeping class which can store time in intervals of microseconds.

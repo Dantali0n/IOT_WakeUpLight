@@ -25,8 +25,8 @@
 #define _Led_Pattern_h
 
 #include <Arduino.h>
-#include "wulTypedef.h"
-#include "rgbColor.h"
+#include "wultypedef.h"
+#include "rgbcolor.h"
 
 /**
  * Statefull lighting pattern for led strip.
@@ -45,10 +45,14 @@ class ledPattern {
         akima
       };
   	private:
+    
+      /**
+       * If being bombarded with serial debug messages please check ledpattern.h for the debug constant and change it to false
+       */
+      bool debug = true;
       bool finished;
   		unsigned long currentDuration;
   		unsigned long finalDuration;
-      byte currentPercentage;
       
       char stepsRed[100]; 
       char stepsGreen[100]; 
@@ -70,6 +74,9 @@ class ledPattern {
 		ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration, patternModes patternMode);
 		void update(unsigned long deltaTime);
 		rgbColor getColor();
+    byte getPercentage();
+    unsigned long getCurrentDuration();
+    unsigned long getFinalDuration();
     bool isFinished();
 };
 

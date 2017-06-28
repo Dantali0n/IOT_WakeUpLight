@@ -25,8 +25,8 @@
 #define _Wul_Test_Cases_h
 
 #include <Arduino.h>
-#include "wulTypedef.h"
-#include "microTime.h"
+#include "wultypedef.h"
+#include "microtime.h"
 #include "ledpattern.h"
 
 class wulTestCases {

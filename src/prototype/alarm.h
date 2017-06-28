@@ -25,9 +25,9 @@
 #define _Alarm_h
 
 // #include <Arduino.h> // needed for PROGMEM support -> if applicable to microcontroller architecture.
-#include "wulTypedef.h"
+#include "wultypedef.h"
 #include "ledpattern.h"
-#include "microTime.h"
+#include "microtime.h"
 
 /**
  * Alarms are predefined events which trigger when a specific moment in time has passed.
