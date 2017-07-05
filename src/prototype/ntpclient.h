@@ -24,11 +24,9 @@
 #ifdef __cplusplus
 #define _Ntp_Client_h
 
-// #include <Arduino.h>
+#include "wultypedef.h"
 #include <WiFiUdp.h>
 #include "microtime.h"
-
-typedef unsigned char byte;
 
 class ntpClient {
   private:

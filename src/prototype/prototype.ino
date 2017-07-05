@@ -31,6 +31,8 @@
 #include "springyvalue.h" // library to interpolate values as a spring
 #include "testcases.h"
 #include "ledpattern.h"
+#include "permconfig.h"
+#include "serialcommand.h"
 
 /* ========================== */
 /* === NOTE ABOUT PROGMEM === */
@@ -48,6 +50,7 @@ static const String SRL_INFO_RESET = "IOT wakeuplight reset";
 static const String SRL_INFO_IDN_ID = "Last 2 bytes of chip ID: ";
 
 static const String WIFI_NAME_CONCAT = "WakeUpLight_"; // String to prepend to the wifi name
+static const int FLASH_DELAY = 125;
 static const int OSCILLATION_TIME = 500; // used to oscillate the rgb led strip
 static const int REQUEST_DELAY = 5000; // minimum time between alarm checks and clock updates in micro seconds
 
@@ -74,13 +77,15 @@ static const String ntpServerNames[] = {
 String chipID; // used to store the chip id - used in wifi name if configured as access point
 
 bool buttonBounce = false; // boolean to bounce button so we prevent multiple triggers
+bool hasNotFlashed = false; // boolean to flash when the pattern is complete
 unsigned long currentMicros = 0; // used in loop to store micros
 unsigned long previousMicros = 0; // used in loop to store micros
 String curNtpServer = ntpServerNames[0]; // current ntp timeserver 
 int curTimeZone = 1; // timeZone for the current time
 
 // Timer timeKeeper; // our continous time keeper
-microTime activeTime = microTime(999, 12, 30, 23 , 59, 59); // current system time
+// microTime activeTime = microTime(999, 12, 30, 23 , 59, 59); // current system time
+microTime activeTime = microTime(2010, 8, 18, 15 , 00, 00); // current system time
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ400); // lights to wake up the user
 ledPattern *pattern = new ledPattern(rgbColor(250, 0, 0), rgbColor(0, 250, 0), 10000000UL, ledPattern::patternModes::linear);
 
@@ -121,7 +126,10 @@ void setup()
       ESP.reset();
     }
   }
-  delay(1000);
+
+  permConfig::saveCredentials("Fam.Lukken","D3rpPr%veM#Wrong");
+  
+  delay(2000);
 
   Serial.println();
   Serial.print(SRL_INFO_IDN_ID);
@@ -140,6 +148,8 @@ void setup()
   setAllPixels(purple, 1.0);
   fadeBrightness(purple, 0, 1, (OSCILLATION_TIME*4));
 
+  permConfig::loadCredentials();
+
   // run alarmUpdate at the rate specified by REQUEST_DELAY
   // timeKeeper.every(REQUEST_DELAY, alarmUpdate);
 }
@@ -147,50 +157,126 @@ void setup()
 /**
  * 
  */
+
+int lastMinute = 0;
 void loop() 
 {
-  //Check for button press and bounce
-  if(digitalRead(BUTTON_PIN) == LOW && buttonBounce == false)
-  {
-    Serial.println("Button press");    
-    buttonBounce = true;
-    buttonPress();
-  }
-  else if(buttonBounce == true && digitalRead(BUTTON_PIN) == HIGH) {
-    Serial.println("Button bounce back");
-    buttonBounce = false; // reset bounce condition
-  }
 
   currentMicros = micros();
 
   // micros overflow reset condition -> this happens about once every 70 minutes
   // this will mean we lose some time data because of the missing microseconds around the overflow condition.
+  // In order to minimize the amount of microseconds lost keep REQUEST_DELAY as small as possible.
   if(previousMicros > currentMicros) {
     Serial.println("Micros overflow");
     previousMicros = currentMicros;
   }
   
   if(currentMicros - previousMicros > REQUEST_DELAY) {
+    serialCommand::processCommands();
     updateTime(currentMicros - previousMicros);
     checkAlarms();
 
-    if(!pattern->isFinished()) {
-      Serial.print(pattern->getColor().getRed());
-      Serial.print(',');
-      Serial.print(pattern->getColor().getGreen());
-      Serial.print(',');
-      Serial.print(pattern->getColor().getBlue());
-      Serial.print(',');
-      Serial.print(pattern->getCurrentDuration());
-      Serial.print(',');
-      Serial.println(pattern->getFinalDuration());
+    if(pattern->isFinished()) {
+      
+      byte newfRed = (byte)random(0,255);
+      byte newfBlue = (byte)random(0,255);
+      byte newfGreen = (byte)random(0,255);
+      unsigned long newTime = random(1000, 10000) * 500UL;
+      rgbColor newColor = pattern->getColor();
+      rgbColor endColor = rgbColor(newfRed, newfBlue, newfGreen);
+
+      delete pattern;
+      pattern = new ledPattern(newColor, endColor, newTime, ledPattern::patternModes::linear);
+    } else {
       pattern->update(currentMicros - previousMicros);
+      setAllPixels(pattern->getColor(), 1.0);
+    }
+    
+    if(lastMinute != activeTime.minute()) {
+      lastMinute = activeTime.minute();
+      Serial.print(activeTime.year());
+      Serial.print("-");
+      Serial.print(activeTime.month());
+      Serial.print("-");
+      Serial.print(activeTime.day());
+      Serial.print(" ");
+      Serial.print(activeTime.hour());
+      Serial.print(":");
+      Serial.print(activeTime.minute());
+      Serial.print(":");
+      Serial.println(activeTime.second());
+      setAllPixels(rgbColor(0,0,0), 1.0);
+      delay(FLASH_DELAY);
+      setAllPixels(pattern->getColor(), 1.0);
+      delay(FLASH_DELAY);
+      setAllPixels(rgbColor(0,0,0), 1.0);
+      delay(FLASH_DELAY);
       setAllPixels(pattern->getColor(), 1.0);
     }
     
     previousMicros = currentMicros;
   }
 }
+ 
+//void loop() 
+//{
+//  // Check for button press and bounce
+//  // make sure a button press only calls buttonPress() once
+//  if(digitalRead(BUTTON_PIN) == LOW && buttonBounce == false)
+//  {
+//    Serial.println("Button press");    
+//    buttonBounce = true;
+//  }
+//  else if(buttonBounce == true && digitalRead(BUTTON_PIN) == HIGH) {
+//    Serial.println("Button bounce back");
+//    buttonPress();
+//    buttonBounce = false; // reset bounce condition
+//  }
+//
+//  currentMicros = micros();
+//
+//  // micros overflow reset condition -> this happens about once every 70 minutes
+//  // this will mean we lose some time data because of the missing microseconds around the overflow condition.
+//  // In order to minimize the amount of microseconds lost keep REQUEST_DELAY as small as possible.
+//  if(previousMicros > currentMicros) {
+//    Serial.println("Micros overflow");
+//    previousMicros = currentMicros;
+//  }
+//  
+//  if(currentMicros - previousMicros > REQUEST_DELAY) {
+//    updateTime(currentMicros - previousMicros);
+//    checkAlarms();
+//
+//    if(!pattern->isFinished()) {
+//      hasNotFlashed = true;
+//      Serial.print(pattern->getColor().getRed());
+//      Serial.print(',');
+//      Serial.print(pattern->getColor().getGreen());
+//      Serial.print(',');
+//      Serial.print(pattern->getColor().getBlue());
+//      Serial.print(',');
+//      Serial.print(pattern->getCurrentDuration());
+//      Serial.print(',');
+//      Serial.println(pattern->getFinalDuration());
+//      pattern->update(currentMicros - previousMicros);
+//      setAllPixels(pattern->getColor(), 1.0);
+//    }
+//    // flash shortly twice to indicate the pattern has finished
+//    else if(hasNotFlashed) {
+//      hasNotFlashed = false;
+//      setAllPixels(rgbColor(0,0,0), 1.0);
+//      delay(FLASH_DELAY);
+//      setAllPixels(pattern->getColor(), 1.0);
+//      delay(FLASH_DELAY);
+//      setAllPixels(rgbColor(0,0,0), 1.0);
+//      delay(FLASH_DELAY);
+//      setAllPixels(pattern->getColor(), 1.0);
+//    }
+//    
+//    previousMicros = currentMicros;
+//  }
+//}
 
 /**
  * Update the system time using the Time library and the progress in microseconds
@@ -252,7 +338,7 @@ void buttonPress() {
   byte newfRed = (byte)random(0,255);
   byte newfBlue = (byte)random(0,255);
   byte newfGreen = (byte)random(0,255);
-  unsigned long newTime = random(10, 6500) * 1000UL;
+  unsigned long newTime = random(1000, 10000) * 500UL;
   rgbColor newColor = rgbColor(newsRed, newsBlue, newsGreen);
   rgbColor endColor = rgbColor(newfRed, newfBlue, newfGreen);
   

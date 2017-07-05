@@ -26,6 +26,9 @@
  * If being bombarded with serial debug messages please check ledpattern.h for the debug constant and change it to false
  */
 
+// amount of different colors the rainbow pattern will show during its lifetime
+int ledPattern::numColorsRainbow = 100;
+
 /**
  * Initiate ledPattern
  * @Param startColor the initial rgb color of the pattern
@@ -60,6 +63,8 @@ ledPattern::ledPattern(rgbColor startColor, rgbColor endColor, unsigned long dur
       break;
     case akima:
       break;
+    case rainbow:
+      break;
     default:
       break;
   }
@@ -91,6 +96,8 @@ void ledPattern::update(unsigned long deltaTime) {
         break;
       case akima:
         break;
+      case rainbow:
+        break;
       default:
         break;
     }
@@ -120,23 +127,26 @@ void ledPattern::updateLinear(unsigned long deltaTime) {
 
   //intermediateRed = (int)this->finalColor.getRed() - (int)this->currentColor.getRed();
   intermediateRed = (int)this->finalColor.getRed() - (int)this->startColor.getRed();
-  //if(debug) { Serial.print(intermediateRed); Serial.print('|'); }
+  //if(WUL_DEBUG) { Serial.print(intermediateRed); Serial.print('|'); }
   if(intermediateRed != 0) {
       newRed = round(intermediateRed / divTime); // large step logic
+      newRed += this->startColor.getRed();
   }
 
   //intermediateGreen = (int)this->finalColor.getGreen() - (int)this->currentColor.getGreen();
   intermediateGreen = (int)this->finalColor.getGreen() - (int)this->startColor.getGreen();
-  //if(debug) { Serial.print(intermediateGreen); Serial.print('|'); }
+  //if(WUL_DEBUG) { Serial.print(intermediateGreen); Serial.print('|'); }
   if(intermediateGreen != 0) {
       newGreen = round(intermediateGreen / divTime); // large step logic
+      newGreen += this->startColor.getGreen();
   }
 
   // intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
   intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
-  //if(debug) { Serial.println(intermediateBlue); }
+  //if(WUL_DEBUG) { Serial.println(intermediateBlue); }
   if(intermediateBlue != 0) {
       newBlue = round(intermediateBlue / divTime); // large step logic
+      newBlue += this->startColor.getBlue();
   }
 
   this->currentColor.setRed(newRed);
@@ -155,7 +165,7 @@ void ledPattern::updateLinear(unsigned long deltaTime) {
 //  int intermediateBlue = 0;
 //  
 //  if(timeRemaining <= 0) {
-//    if(debug) { Serial.print(this->finalColor.getRed()); Serial.print(this->finalColor.getGreen()); Serial.println(this->finalColor.getBlue()); }
+//    if(WUL_DEBUG) { Serial.print(this->finalColor.getRed()); Serial.print(this->finalColor.getGreen()); Serial.println(this->finalColor.getBlue()); }
 //    this->currentColor.setRed(this->finalColor.getRed());
 //    this->currentColor.setGreen(this->finalColor.getGreen());
 //    this->currentColor.setBlue(this->finalColor.getBlue());
@@ -168,26 +178,26 @@ void ledPattern::updateLinear(unsigned long deltaTime) {
 //
 //  //intermediateRed = (int)this->finalColor.getRed() - (int)this->startColor.getRed();
 //  intermediateRed = (int)this->finalColor.getRed() - (int)this->currentColor.getRed();
-//  if(debug) { Serial.print(intermediateRed); Serial.print('|'); }
+//  if(WUL_DEBUG) { Serial.print(intermediateRed); Serial.print('|'); }
 //  if(intermediateRed != 0) {
 //      stepRed = round(intermediateRed / percentRemaining); // large step logic
 //  }
 //
 //  //intermediateGreen = (int)this->finalColor.getGreen() - (int)this->currentColor.getGreen();
 //  intermediateGreen = (int)this->finalColor.getGreen() - (int)this->currentColor.getGreen();
-//  if(debug) { Serial.print(intermediateGreen); Serial.print('|'); }
+//  if(WUL_DEBUG) { Serial.print(intermediateGreen); Serial.print('|'); }
 //  if(intermediateGreen != 0) {
 //      stepGreen = round(intermediateGreen / percentRemaining); // large step logic
 //  }
 //
 //  // intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
 //  intermediateBlue = (int)this->finalColor.getBlue() - (int)this->currentColor.getBlue();
-//  if(debug) { Serial.println(intermediateBlue); }
+//  if(WUL_DEBUG) { Serial.println(intermediateBlue); }
 //  if(intermediateBlue != 0) {
 //      stepBlue = round(intermediateBlue / percentRemaining); // large step logic
 //  }
 //
-//  if(debug) {
+//  if(WUL_DEBUG) {
 //    Serial.print("Steps:");
 //    Serial.print(stepRed);
 //    Serial.print(',');
@@ -230,6 +240,10 @@ void ledPattern::updateCspline(unsigned long deltaTime) {
 }
 
 void ledPattern::updateAkima(unsigned long deltaTime) {
+  
+}
+
+void ledPattern::updateRainbow(unsigned long deltaTime) {
   
 }
 

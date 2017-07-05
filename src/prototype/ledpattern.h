@@ -31,7 +31,6 @@
 /**
  * Statefull lighting pattern for led strip.
  * Supports incremental state updates using deltaTime in microseconds
- * @TODO add enumerator for different modes
  * @TODO add none linear interpolation for color transistions
  */
 class ledPattern {
@@ -42,21 +41,23 @@ class ledPattern {
         bicubic,
         polynomial,
         cspline,
-        akima
+        akima,
+        rainbow
       };
+
+      static int numColorsRainbow;
   	private:
     
       /**
        * If being bombarded with serial debug messages please check ledpattern.h for the debug constant and change it to false
        */
-      bool debug = true;
       bool finished;
   		unsigned long currentDuration;
   		unsigned long finalDuration;
       
-      char stepsRed[100]; 
-      char stepsGreen[100]; 
-      char stepsBlue[100]; 
+      //char stepsRed[100]; 
+      //char stepsGreen[100]; 
+      //char stepsBlue[100]; 
       
       rgbColor startColor;
   		rgbColor currentColor;
@@ -70,11 +71,12 @@ class ledPattern {
       void updatePolynomial(unsigned long deltaTime);
       void updateCspline(unsigned long deltaTime);
       void updateAkima(unsigned long deltaTime);
+      void updateRainbow(unsigned long deltaTime);
 	public:
 		ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration, patternModes patternMode);
 		void update(unsigned long deltaTime);
 		rgbColor getColor();
-    byte getPercentage();
+    // byte getPercentage();
     unsigned long getCurrentDuration();
     unsigned long getFinalDuration();
     bool isFinished();

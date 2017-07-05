@@ -20,35 +20,26 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _Rgb_Color_h
-#ifdef __cplusplus
-#define _Rgb_Color_h
 
+#ifndef _Serial_Command_h
+#ifdef __cplusplus
+#define _Serial_Command_h
+
+#include <Arduino.h>
 #include "wultypedef.h"
 
-class rgbColor {
+class serialCommand {
   private:
-    byte red, green, blue;   
+    static String currentCommand;
   public:
-    rgbColor();
-    rgbColor(int value);
-    rgbColor(byte red, byte green, byte blue);
-    rgbColor(int red, int green, int blue);
-
-    static byte intColorToByte(int color);
-
-    byte getRed();
-    void setRed(int red);
-    void setRed(byte red);
+    enum COMMANDS_ENUM {
+      apple, orange, grape, banana, set_time
+    };
     
-    byte getGreen();
-    void setGreen(int green);
-    void setGreen(byte red);
+    static const char *COMMANDS_STRING[];
     
-    byte getBlue();
-    void setBlue(int blue);
-    void setBlue(byte blue);
+    static void processCommands();
 };
 
 #endif /* __cplusplus */
-#endif /* _Rgb_Color_h */
+#endif /* _Serial_Command_h */

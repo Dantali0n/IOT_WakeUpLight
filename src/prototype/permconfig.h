@@ -20,35 +20,24 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _Rgb_Color_h
+#ifndef _Perm_Config_h
 #ifdef __cplusplus
-#define _Rgb_Color_h
+#define _Perm_Config_h
 
+#include <Arduino.h>
+#include <EEPROM.h>
 #include "wultypedef.h"
 
-class rgbColor {
+class permConfig {
   private:
-    byte red, green, blue;   
+    static char ssid[32];
+    static char password[32];
   public:
-    rgbColor();
-    rgbColor(int value);
-    rgbColor(byte red, byte green, byte blue);
-    rgbColor(int red, int green, int blue);
-
-    static byte intColorToByte(int color);
-
-    byte getRed();
-    void setRed(int red);
-    void setRed(byte red);
-    
-    byte getGreen();
-    void setGreen(int green);
-    void setGreen(byte red);
-    
-    byte getBlue();
-    void setBlue(int blue);
-    void setBlue(byte blue);
+  	static void loadCredentials();
+    static void saveCredentials(String ssid, String password);
+    static String getSsid();
+    static String getPassword();
 };
 
 #endif /* __cplusplus */
-#endif /* _Rgb_Color_h */
+#endif /* _Perm_Config_h */
