@@ -31,6 +31,7 @@
 class serialCommand {
   private:
     static String currentCommand;
+    static void processSetTime();
   public:
     enum COMMANDS_ENUM {
       apple, orange, grape, banana, set_time

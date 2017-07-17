@@ -30,6 +30,7 @@
 
 class permConfig {
   private:
+    const static int CREDENTIAL_OFFSET = 68;
     static char ssid[32];
     static char password[32];
   public:

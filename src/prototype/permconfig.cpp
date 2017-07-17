@@ -27,10 +27,10 @@ char permConfig::password[] = {};
 
 void permConfig::loadCredentials() {
   EEPROM.begin(512);
-  EEPROM.get(0, ssid);
-  EEPROM.get(0+sizeof(ssid), password);
+  EEPROM.get(CREDENTIAL_OFFSET, ssid);
+  EEPROM.get(CREDENTIAL_OFFSET + 32, password);
   char ok[2+1];
-  EEPROM.get(0+sizeof(ssid)+sizeof(password), ok);
+  EEPROM.get(CREDENTIAL_OFFSET + 64, ok);
   EEPROM.end();
   if (String(ok) != String("OK")) {
     Serial.println("EEPROM does not have OK param present!");
@@ -50,14 +50,14 @@ void permConfig::saveCredentials(String ssid, String password) {
   }
   
   EEPROM.begin(512);
-  EEPROM.put(0, ssid);
+  EEPROM.put(CREDENTIAL_OFFSET, ssid);
   Serial.print("Put: ");
   Serial.print(ssid);
   Serial.print(",of size: ");
-  Serial.println(sizeof(ssid));
-  EEPROM.put(0+sizeof(ssid), password);
+  Serial.println(ssid.length());
+  EEPROM.put(CREDENTIAL_OFFSET + 32, password);
   char ok[2+1] = "OK";
-  EEPROM.put(0+sizeof(ssid)+sizeof(password), ok);
+  EEPROM.put(CREDENTIAL_OFFSET + 64, ok);
   EEPROM.commit();
   EEPROM.end();
 }

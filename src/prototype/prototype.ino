@@ -97,6 +97,10 @@ void setAllPixels(rgbColor color, float multiplier);
  */
 void setup() 
 {
+
+  // disable wifi
+  WiFi.forceSleepBegin(); 
+
   chipID = configureChipID();
   Serial.begin(115200);
 

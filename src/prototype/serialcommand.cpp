@@ -78,6 +78,11 @@ void serialCommand::processCommands() {
       } 
       else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::set_time])) {
         Serial.println(COMMANDS_STRING[COMMANDS_ENUM::set_time]);
+
+        // the residual command is whats left after the first space character
+        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::set_time]).length() +1); 
+        Serial.println(currentCommand);
+        processSetTime();
       }
       else {
         Serial.println("Invalid command!");
@@ -86,5 +91,32 @@ void serialCommand::processCommands() {
       currentCommand = "";
     }
   }
+}
+
+void serialCommand::processSetTime() {
+  int year = currentCommand.substring(0,4).toInt();
+  Serial.print("year: ");
+  Serial.println(year);
+  
+  int month = currentCommand.substring(5,7).toInt();
+  Serial.print("month: ");
+  Serial.println(month);
+  
+  int day = currentCommand.substring(8,10).toInt();
+  Serial.print("day: ");
+  Serial.println(day);
+  
+  int hours = currentCommand.substring(11,13).toInt();
+  Serial.print("hours: ");
+  Serial.println(hours);
+  
+  int minutes = currentCommand.substring(14,16).toInt();
+  Serial.print("minutes: ");
+  Serial.println(minutes);
+  
+  int seconds = currentCommand.substring(17,19).toInt();
+  Serial.print("seconds: ");
+  Serial.println(seconds);
+  
 }
 
