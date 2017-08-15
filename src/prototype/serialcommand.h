@@ -27,20 +27,34 @@
 
 #include <Arduino.h>
 #include "wultypedef.h"
+#include "microtime.h"
+
+/**
+ * Abstract delegate to allow outside of serialCommand processing of events
+ */
+class serialCommandDelegate {
+	public:
+		virtual void eventSetTime(microTime newTime) = 0;
+
+};
 
 class serialCommand {
   private:
-    static String currentCommand;
-    static void processSetTime();
+  	serialCommandDelegate *eventHandler;
+    String currentCommand;
+    void processSetTime();
   public:
     enum COMMANDS_ENUM {
       apple, orange, grape, banana, set_time
     };
     
     static const char *COMMANDS_STRING[];
+
+    serialCommand(serialCommandDelegate *eventHandler);
     
-    static void processCommands();
+    void processCommands();
 };
+
 
 #endif /* __cplusplus */
 #endif /* _Serial_Command_h */

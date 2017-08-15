@@ -22,11 +22,17 @@
 
 #include "serialcommand.h"
 
-String serialCommand::currentCommand = "";
-
 const char *serialCommand::COMMANDS_STRING[] = {
     "apple", "orange", "grape", "banana", "set_time"
 };
+
+/**
+ * Assign instance of delegate upon object construction, do not allow serialCommand to exist without a delegate object
+ */
+serialCommand::serialCommand(serialCommandDelegate *eventHandler) {
+  currentCommand = "";
+  this->eventHandler = eventHandler;
+}
 
 void serialCommand::processCommands() {
   bool isComplete = false;
@@ -118,5 +124,6 @@ void serialCommand::processSetTime() {
   Serial.print("seconds: ");
   Serial.println(seconds);
   
+  eventHandler->eventSetTime(microTime(year, month, day, hours, minutes, seconds));
 }
 
