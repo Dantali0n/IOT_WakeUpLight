@@ -44,7 +44,7 @@ alarm::alarm(microTime trigger, microTime interval, ledPattern &alarmPattern) {
  *
  */
 bool alarm::check(microTime *current) {
-  if(*current > this->trigger) {
+  if(current > this->trigger) {
     if(this->hasInterval) {
       this->trigger += this->interval;
     }

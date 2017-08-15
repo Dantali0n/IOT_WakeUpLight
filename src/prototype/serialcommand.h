@@ -33,8 +33,9 @@
  * Abstract delegate to allow outside of serialCommand processing of events
  */
 class serialCommandDelegate {
-	public:
-		virtual void eventSetTime(microTime newTime) = 0;
+  public:
+    virtual void eventSetTime(microTime newTime) = 0;
+    virtual void eventSetMinuteFlicker(bool newFlicker) = 0;
 
 };
 
@@ -45,7 +46,7 @@ class serialCommand {
     void processSetTime();
   public:
     enum COMMANDS_ENUM {
-      apple, orange, grape, banana, set_time
+      apple, orange, grape, banana, set_time, minute_flicker
     };
     
     static const char *COMMANDS_STRING[];

@@ -23,7 +23,7 @@
 #include "serialcommand.h"
 
 const char *serialCommand::COMMANDS_STRING[] = {
-    "apple", "orange", "grape", "banana", "set_time"
+    "apple", "orange", "grape", "banana", "set_time", "minute_flicker"
 };
 
 /**
@@ -89,6 +89,16 @@ void serialCommand::processCommands() {
         currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::set_time]).length() +1); 
         Serial.println(currentCommand);
         processSetTime();
+      }
+      else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::minute_flicker])) {
+        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::minute_flicker]).length() +1);
+        bool newFlicker = currentCommand.substring(0,1).equals("1");
+        
+        Serial.print(COMMANDS_STRING[COMMANDS_ENUM::minute_flicker]);
+        Serial.print(": ");
+        Serial.println(newFlicker);
+        
+        eventHandler->eventSetMinuteFlicker(newFlicker);
       }
       else {
         Serial.println("Invalid command!");

@@ -83,6 +83,11 @@ unsigned long previousMicros = 0; // used in loop to store micros
 String curNtpServer = ntpServerNames[0]; // current ntp timeserver 
 int curTimeZone = 1; // timeZone for the current time
 
+/* ====================== Settings ==================== */
+bool minuteFlicker = true; // boolean to enable or disable flashing everyminute
+
+/* ====================== Instances ====================== */
+
 // Timer timeKeeper; // our continous time keeper
 // microTime activeTime = microTime(999, 12, 30, 23 , 59, 59); // current system time
 microTime activeTime = microTime(2010, 8, 18, 15 , 00, 00); // current system time
@@ -96,6 +101,10 @@ void setAllPixels(rgbColor color, float multiplier);
 class serialCommandHandler: public serialCommandDelegate {
   void eventSetTime(microTime newTime) {
     activeTime = newTime;
+  }
+
+  void eventSetMinuteFlicker(bool newFlicker) {
+    minuteFlicker = newFlicker;
   }
 };
 
@@ -220,17 +229,21 @@ void loop()
       Serial.print(activeTime.minute());
       Serial.print(":");
       Serial.println(activeTime.second());
-      setAllPixels(rgbColor(0,0,0), 1.0);
-      delay(FLASH_DELAY);
-      setAllPixels(pattern->getColor(), 1.0);
-      delay(FLASH_DELAY);
-      setAllPixels(rgbColor(0,0,0), 1.0);
-      delay(FLASH_DELAY);
-      setAllPixels(pattern->getColor(), 1.0);
-      delay(FLASH_DELAY);
-      setAllPixels(rgbColor(0,0,0), 1.0);
-      delay(FLASH_DELAY);
-      setAllPixels(pattern->getColor(), 1.0);
+      
+      // Only flicker if minuteFlicker is enabled
+      if(minuteFlicker) {
+        setAllPixels(rgbColor(0,0,0), 1.0);
+        delay(FLASH_DELAY);
+        setAllPixels(pattern->getColor(), 1.0);
+        delay(FLASH_DELAY);
+        setAllPixels(rgbColor(0,0,0), 1.0);
+        delay(FLASH_DELAY);
+        setAllPixels(pattern->getColor(), 1.0);
+        delay(FLASH_DELAY);
+        setAllPixels(rgbColor(0,0,0), 1.0);
+        delay(FLASH_DELAY);
+        setAllPixels(pattern->getColor(), 1.0);
+      }
     }
     
     previousMicros = currentMicros;
