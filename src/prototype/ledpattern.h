@@ -52,6 +52,7 @@ class ledPattern {
        * If being bombarded with serial debug messages please check ledpattern.h for the debug constant and change it to false
        */
       bool finished;
+      bool safeDelete;
   		unsigned long currentDuration;
   		unsigned long finalDuration;
       
@@ -75,12 +76,16 @@ class ledPattern {
 	public:
 		ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration, patternModes patternMode);
 		void update(unsigned long deltaTime);
+    void reset();
 		rgbColor getColor();
     // byte getPercentage();
     unsigned long getCurrentDuration();
     unsigned long getFinalDuration();
     bool isFinished();
+    bool isSafeDelete();
+    void setSafeDelete(bool safeDelete);
 };
 
 #endif /* __cplusplus */
 #endif /* _Led_Pattern_h */
+

@@ -40,16 +40,18 @@ class alarm {
 	private:
     ledPattern *alarmPattern; // @TODO not store internal ledPattern as pointer since alarm should be owner of ledPattern object
 		microTime trigger;
-		microTime interval;
-		microTime lastCheck;
+    microTime lastCheck;
+		unsigned long interval;
 		bool hasInterval;
 	public:
 	  alarm(microTime trigger, ledPattern &alarmPattern);
-		alarm(microTime trigger, microTime interval, ledPattern &alarmPattern);
-		bool check(microTime *current);
+		alarm(microTime trigger, unsigned long interval, ledPattern &alarmPattern);
+		bool check(microTime &current);
+    bool getInterval();
     ledPattern * getAlarmPattern();
 
 };
 
 #endif /* __cplusplus */
 #endif /* _Alarm_h */
+

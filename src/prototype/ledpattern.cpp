@@ -38,6 +38,7 @@ int ledPattern::numColorsRainbow = 100;
  */
 ledPattern::ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration, ledPattern::patternModes patternMode) {
   this->finished = false;
+  this->safeDelete = false;
 	this->currentDuration = 0UL;
 	this->finalDuration = duration;
   this->startColor = startColor;
@@ -102,6 +103,15 @@ void ledPattern::update(unsigned long deltaTime) {
         break;
     }
   }
+}
+
+/**
+ * Resets the pattern for another round from the start
+ */
+void ledPattern::reset() {
+  this->finished = false;
+  this->currentDuration = 0UL;
+  this->currentColor = this->startColor;
 }
 
 
@@ -278,3 +288,19 @@ unsigned long ledPattern::getFinalDuration() {
 bool ledPattern::isFinished() {
   return this->finished;
 }
+
+/**
+ * returns if the pattern has finished
+ * @Return if the pattern has finished
+ */
+bool ledPattern::isSafeDelete() {
+  return this->safeDelete;
+}
+
+/**
+ * 
+ */
+void ledPattern::setSafeDelete(bool safeDelete) {
+  this->safeDelete = safeDelete;
+}
+

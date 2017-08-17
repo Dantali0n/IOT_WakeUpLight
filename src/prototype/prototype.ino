@@ -20,11 +20,18 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+// Not available on ESP8266
+// #include <ArduinoSTL.h>
+// #include <list>
+
 #include <ESP8266HTTPClient.h>
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
+
 #include <Adafruit_NeoPixel.h> // library to control rgb neopixels
+
+#include "alarm.h"
 #include "microtime.h" // library to keep track of time 
 #include "ntpclient.h" // library to communicate with ntp servers
 #include "rgbcolor.h" // library to hold a rgb color
@@ -57,6 +64,10 @@ static const int REQUEST_DELAY = 5000; // minimum time between alarm checks and 
 
 static const int MICROS_TO_SECONDS = 1000000; // constant value to convert micro seconds to seconds
 
+const static rgbColor SITAHS_FAVORITE_MINT_GREEN = rgbColor(0, 255, 75);
+const static rgbColor MARKS_FAVORITE_PINK = rgbColor(255, 100, 83);
+const static rgbColor RICOS_FAVORITE_BLUE = rgbColor(0, 72, 251);
+
 // Default available NTP Servers:
 // pool.ntp.org servers determine closest available server automaticly. 
 static const String ntpServerNames[] = { 
@@ -82,9 +93,16 @@ unsigned long currentMicros = 0; // used in loop to store micros
 unsigned long previousMicros = 0; // used in loop to store micros
 String curNtpServer = ntpServerNames[0]; // current ntp timeserver 
 int curTimeZone = 1; // timeZone for the current time
+int lastMinute = 0;
+
+// std::list<alarm> alarms = std::list<alarm>();
+ledPattern alarmPattern = ledPattern(MARKS_FAVORITE_PINK, RICOS_FAVORITE_BLUE, 90000000UL, ledPattern::patternModes::linear);
+alarm testAlarm1 = alarm(microTime(2017, 8, 15, 19, 1, 0), 180, alarmPattern);
+alarm testAlarm2 = alarm(microTime(2017, 8, 15, 19, 0, 0), alarmPattern);
 
 /* ====================== Settings ==================== */
 bool minuteFlicker = true; // boolean to enable or disable flashing everyminute
+unsigned int numMinuteFlicker = 3; // amount of times to flicker every minute
 
 /* ====================== Instances ====================== */
 
@@ -105,6 +123,10 @@ class serialCommandHandler: public serialCommandDelegate {
 
   void eventSetMinuteFlicker(bool newFlicker) {
     minuteFlicker = newFlicker;
+  }
+
+  void eventSetNumMinuteFlicker(int newFlicker) {
+    numMinuteFlicker = newFlicker;
   }
 };
 
@@ -151,6 +173,9 @@ void setup()
   }
 
   permConfig::saveCredentials("Fam.Lukken","D3rpPr%veM#Wrong");
+
+  // alarms.push_front(testAlarm1);
+  // alarms.push_front(testAlarm2);
   
   delay(2000);
 
@@ -180,8 +205,6 @@ void setup()
 /**
  * 
  */
-
-int lastMinute = 0;
 void loop() 
 {
 
@@ -335,7 +358,23 @@ void updateTime(unsigned long timeBetweenUpdate) {
  * 
  */
 void checkAlarms() {
-  
+
+// std::list unavailable on ESP8266 :(
+//  for (std::list<alarm>::iterator it = alarms.begin(); it != alarms.end(); it++) {
+//    if(it->check(activeTime)) {
+//      Serial.println("Sound the alarm");
+//      pattern = it->getAlarmPattern();
+//      pattern->reset();
+//
+//      // WARNING this could cause our ledPattern to be removed from existence since we pass it as an pointer
+//      // In this case it does not since the alarm is created during compile time and later assigned to the list.
+//      // Removing it from the list will not remove the alarm from memory and neither the ledPattern
+//      if(!it->getInterval()) {
+//        Serial.println("Erase the alarm");
+//        alarms.erase(it);
+//      }
+//    }
+//  }
 }
 
 /**

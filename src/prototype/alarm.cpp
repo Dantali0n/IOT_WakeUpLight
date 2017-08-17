@@ -33,7 +33,7 @@ alarm::alarm(microTime trigger, ledPattern &alarmPattern) {
 /**
  * 
  */
-alarm::alarm(microTime trigger, microTime interval, ledPattern &alarmPattern) {
+alarm::alarm(microTime trigger, unsigned long interval, ledPattern &alarmPattern) {
   this->alarmPattern = &alarmPattern;
 	this->trigger = trigger;
 	this->interval = interval;
@@ -43,9 +43,10 @@ alarm::alarm(microTime trigger, microTime interval, ledPattern &alarmPattern) {
 /**
  *
  */
-bool alarm::check(microTime *current) {
+bool alarm::check(microTime &current) {
   if(current > this->trigger) {
     if(this->hasInterval) {
+      Serial.println("Add interval to time");
       this->trigger += this->interval;
     }
     return true;
@@ -63,3 +64,11 @@ bool alarm::check(microTime *current) {
 ledPattern * alarm::getAlarmPattern() {
   return alarmPattern;
 }
+
+/**
+ * 
+ */
+bool alarm::getInterval() {
+  return hasInterval;
+}
+

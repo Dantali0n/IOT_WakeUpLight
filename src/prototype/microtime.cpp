@@ -101,14 +101,14 @@ void microTime::update(unsigned long additionalMicros) {
  * 
  */
 bool microTime::operator< (microTime& rhs){ 
-  if(this->year() < rhs.year()) return true;
-  if(this->month() < rhs.month()) return true;
-  if(this->day() < rhs.day()) return true;
-  if(this->hour() < rhs.hour()) return true;
-  if(this->minute() < rhs.minute()) return true;
-  if(this->second() < rhs.second()) return true;
-  if(this->microSecond() < rhs.microSecond()) return true;
-  return false;
+  if(this->year() > rhs.year()) return false;
+  if(this->month() > rhs.month()) return false;
+  if(this->day() > rhs.day()) return false;
+  if(this->hour() > rhs.hour()) return false;
+  if(this->minute() > rhs.minute()) return false;
+  if(this->second() > rhs.second()) return false;
+  if(this->microSecond() > rhs.microSecond()) return false;
+  return true;
 }
 
 /**
@@ -153,9 +153,19 @@ bool microTime::operator!=(microTime& rhs){
   return !(*this == rhs);
 }
 
+void microTime::operator+=(unsigned long seconds) {
+  this->seconds += seconds;
+  cascadeSecond();
+  cascadeMinute();
+  cascadeHour();
+  cascadeDay();
+  cascadeMonth();
+}
+
 /**
  * 
  * @UNTESTED
+ * @Warning this can never properly work because of the clamping inside microtime
  */
 void microTime::operator+=(microTime& rhs){
   this->years += rhs.year();
@@ -341,4 +351,5 @@ void microTime::cascadeMonth() {
     months -= increment * CASCADE_MONTH;
   } 
 }
+
 
