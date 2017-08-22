@@ -59,10 +59,10 @@ static const String SRL_INFO_IDN_ID = "Last 2 bytes of chip ID: ";
 static const String WIFI_NAME_CONCAT = "WakeUpLight_"; // String to prepend to the wifi name
 static const int FLASH_DELAY = 125;
 static const int OSCILLATION_TIME = 500; // used to oscillate the rgb led strip
-static const int REQUEST_DELAY = 5000; // minimum time between alarm checks and clock updates in micro seconds
+static const unsigned long REQUEST_DELAY = 3900; // minimum time between alarm checks and clock updates in micro seconds - 3900 microseconds = 255 fps
+// static const unsigned long REQUEST_DELAY = 500; // minimum time between alarm checks and clock updates in micro seconds - 500 microseconds = 2000 fps
 
-
-static const int MICROS_TO_SECONDS = 1000000; // constant value to convert micro seconds to seconds
+static const unsigned long MICROS_TO_SECONDS = 1000000; // constant value to convert micro seconds to seconds
 
 const static rgbColor SITAHS_FAVORITE_MINT_GREEN = rgbColor(0, 255, 75);
 const static rgbColor MARKS_FAVORITE_PINK = rgbColor(255, 100, 83);
@@ -94,6 +94,8 @@ unsigned long previousMicros = 0; // used in loop to store micros
 String curNtpServer = ntpServerNames[0]; // current ntp timeserver 
 int curTimeZone = 1; // timeZone for the current time
 int lastMinute = 0;
+unsigned int averageFramerate = 0;
+unsigned int numPatterns = 0;
 
 // std::list<alarm> alarms = std::list<alarm>();
 ledPattern alarmPattern = ledPattern(MARKS_FAVORITE_PINK, RICOS_FAVORITE_BLUE, 90000000UL, ledPattern::patternModes::linear);
@@ -101,7 +103,9 @@ alarm testAlarm1 = alarm(microTime(2017, 8, 15, 19, 1, 0), 180, alarmPattern);
 alarm testAlarm2 = alarm(microTime(2017, 8, 15, 19, 0, 0), alarmPattern);
 
 /* ====================== Settings ==================== */
-bool minuteFlicker = true; // boolean to enable or disable flashing everyminute
+bool autoTurnOff = false; // always turn lights off when their is no active pattern
+bool runningPatterns = true; // continious running patterns
+bool minuteFlicker = true; // boolean to enable or disable flashing every minute
 unsigned int numMinuteFlicker = 3; // amount of times to flicker every minute
 
 /* ====================== Instances ====================== */
@@ -121,12 +125,20 @@ class serialCommandHandler: public serialCommandDelegate {
     activeTime = newTime;
   }
 
+  void eventSetRunningPatterns(bool newRunningPatterns) {
+    runningPatterns = newRunningPatterns;
+  }
+
   void eventSetMinuteFlicker(bool newFlicker) {
     minuteFlicker = newFlicker;
   }
 
   void eventSetNumMinuteFlicker(int newFlicker) {
     numMinuteFlicker = newFlicker;
+  }
+
+  void eventSetLeds(bool newLeds) {
+    autoTurnOff = newLeds;
   }
 };
 
@@ -143,7 +155,7 @@ void setup()
   WiFi.forceSleepBegin(); 
 
   chipID = configureChipID();
-  Serial.begin(115200);
+  Serial.begin(230400);
 
   //wulTestCases wtc = wulTestCases(&Serial);
 
@@ -224,6 +236,7 @@ void loop()
     checkAlarms();
 
     if(pattern->isFinished()) {
+      numPatterns++;
       
       byte newfRed = (byte)random(0,255);
       byte newfBlue = (byte)random(0,255);
@@ -251,7 +264,16 @@ void loop()
       Serial.print(":");
       Serial.print(activeTime.minute());
       Serial.print(":");
-      Serial.println(activeTime.second());
+      Serial.print(activeTime.second());
+
+      averageFramerate = floor(averageFramerate / 60);
+      Serial.print(" averageFramerate: ");
+      Serial.print(averageFramerate);
+      averageFramerate = 0;
+
+      Serial.print(" numPatterns: ");
+      Serial.println(numPatterns);
+      numPatterns = 0;
       
       // Only flicker if minuteFlicker is enabled
       if(minuteFlicker) {
@@ -268,7 +290,8 @@ void loop()
         setAllPixels(pattern->getColor(), 1.0);
       }
     }
-    
+
+    averageFramerate++;
     previousMicros = currentMicros;
   }
 }
