@@ -56,6 +56,7 @@ microTime::microTime(unsigned int years, byte months, byte days, byte hours, byt
   this->hours = constrain(hours, 0 , CASCADE_HOUR -1);
   this->minutes = constrain(minutes, 0 , CASCADE_MINUTE -1);
   this->seconds = constrain(seconds, 0 , CASCADE_MINUTE -1);
+  this->microSeconds = 0;
   this->timeSet = true;
 }
 
