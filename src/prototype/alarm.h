@@ -49,9 +49,10 @@ class alarm {
 		bool check(microTime &current);
     bool getInterval();
     ledPattern * getAlarmPattern();
-
+    microTime * getTrigger();
 };
 
 #endif /* __cplusplus */
 #endif /* _Alarm_h */
+
 
