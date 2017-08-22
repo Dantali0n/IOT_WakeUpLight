@@ -137,31 +137,36 @@ void ledPattern::updateLinear(unsigned long deltaTime) {
 
   //intermediateRed = (int)this->finalColor.getRed() - (int)this->currentColor.getRed();
   intermediateRed = (int)this->finalColor.getRed() - (int)this->startColor.getRed();
-  //if(WUL_DEBUG) { Serial.print(intermediateRed); Serial.print('|'); }
+  // if(WUL_DEBUG) { Serial.print(intermediateRed); Serial.print('|'); }
   if(intermediateRed != 0) {
       newRed = round(intermediateRed / divTime); // large step logic
+      if(WUL_DEBUG) { Serial.print(newRed); Serial.print('|'); }
       newRed += this->startColor.getRed();
   }
 
   //intermediateGreen = (int)this->finalColor.getGreen() - (int)this->currentColor.getGreen();
   intermediateGreen = (int)this->finalColor.getGreen() - (int)this->startColor.getGreen();
-  //if(WUL_DEBUG) { Serial.print(intermediateGreen); Serial.print('|'); }
+  // if(WUL_DEBUG) { Serial.print(intermediateGreen); Serial.print('|'); }
   if(intermediateGreen != 0) {
       newGreen = round(intermediateGreen / divTime); // large step logic
+      if(WUL_DEBUG) { Serial.print(newGreen); Serial.print('|'); }
       newGreen += this->startColor.getGreen();
   }
 
   // intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
   intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
-  //if(WUL_DEBUG) { Serial.println(intermediateBlue); }
+  // if(WUL_DEBUG) { Serial.println(intermediateBlue); }
   if(intermediateBlue != 0) {
       newBlue = round(intermediateBlue / divTime); // large step logic
+      if(WUL_DEBUG) { Serial.print(newBlue); }
       newBlue += this->startColor.getBlue();
   }
 
-  this->currentColor.setRed(newRed);
-  this->currentColor.setGreen(newGreen);
-  this->currentColor.setBlue(newBlue);
+  if(WUL_DEBUG) { Serial.println(); }
+
+  if(intermediateRed != 0) this->currentColor.setRed(newRed);
+  if(intermediateGreen != 0) this->currentColor.setGreen(newGreen);
+  if(intermediateBlue != 0) this->currentColor.setBlue(newBlue);
 }
 
 //void ledPattern::updateLinear(unsigned long deltaTime) {
@@ -303,4 +308,5 @@ bool ledPattern::isSafeDelete() {
 void ledPattern::setSafeDelete(bool safeDelete) {
   this->safeDelete = safeDelete;
 }
+
 
