@@ -35,18 +35,20 @@
 class serialCommandDelegate {
   public:
     virtual void eventSetTime(microTime newTime) = 0;
+    virtual void eventSetLeds(bool on) = 0;
+    virtual void eventSetRunningPatterns(bool newRunningPatterns) = 0;
     virtual void eventSetMinuteFlicker(bool newFlicker) = 0;
-
+    virtual void eventSetNumMinuteFlicker(int newNumFlicker) = 0;
 };
 
 class serialCommand {
   private:
-  	serialCommandDelegate *eventHandler;
+    serialCommandDelegate *eventHandler;
     String currentCommand;
     void processSetTime();
   public:
     enum COMMANDS_ENUM {
-      apple, orange, grape, banana, set_time, minute_flicker
+      set_time, running_patterns, minute_flicker, num_minute_flicker, leds
     };
     
     static const char *COMMANDS_STRING[];
@@ -56,6 +58,7 @@ class serialCommand {
     void processCommands();
 };
 
-
 #endif /* __cplusplus */
 #endif /* _Serial_Command_h */
+
+

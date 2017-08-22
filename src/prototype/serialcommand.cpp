@@ -23,7 +23,7 @@
 #include "serialcommand.h"
 
 const char *serialCommand::COMMANDS_STRING[] = {
-    "apple", "orange", "grape", "banana", "set_time", "minute_flicker"
+    "set_time", "running_patterns", "minute_flicker", "num_minute_flicker", "leds"
 };
 
 /**
@@ -37,9 +37,11 @@ serialCommand::serialCommand(serialCommandDelegate *eventHandler) {
 void serialCommand::processCommands() {
   bool isComplete = false;
   if (Serial.available()) {
+    if(WUL_DEBUG) Serial.print("processCommands - have serial - ");
     int i = 0;
     char bytes[64] = {};
     while(Serial.available()) {
+       if(WUL_DEBUG) Serial.print("b");
        bytes[i] = Serial.read();
        i++;
     }
@@ -48,6 +50,7 @@ void serialCommand::processCommands() {
 
     // remove everything after the line ending and the line ending itself
     if(substr > 0) {
+      if(WUL_DEBUG) Serial.print(" - have line ending");
       
       // Serial.print("Before: ");
       // Serial.println(bytes);
@@ -61,8 +64,10 @@ void serialCommand::processCommands() {
       
       isComplete = true;
     }
-    
+
     currentCommand += String(bytes);
+    if(WUL_DEBUG) Serial.print(" ");
+    if(WUL_DEBUG) Serial.println(currentCommand);
 
     // Serial.print("Command: ");
     // Serial.println(currentCommand);
@@ -70,19 +75,7 @@ void serialCommand::processCommands() {
     // Command has lineending and is complete and thus ready for processing
     if(isComplete) {
       
-      if(currentCommand == COMMANDS_STRING[COMMANDS_ENUM::apple]) {
-        Serial.println(COMMANDS_STRING[COMMANDS_ENUM::apple]);
-      }
-      else if(currentCommand == COMMANDS_STRING[COMMANDS_ENUM::orange]) {
-        Serial.println(COMMANDS_STRING[COMMANDS_ENUM::orange]);
-      }
-      else if(currentCommand == COMMANDS_STRING[COMMANDS_ENUM::grape]) {
-        Serial.println(COMMANDS_STRING[COMMANDS_ENUM::grape]);
-      }
-      else if(currentCommand == COMMANDS_STRING[COMMANDS_ENUM::banana]) {
-        Serial.println(COMMANDS_STRING[COMMANDS_ENUM::banana]);
-      } 
-      else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::set_time])) {
+      if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::set_time])) {
         Serial.println(COMMANDS_STRING[COMMANDS_ENUM::set_time]);
 
         // the residual command is whats left after the first space character
@@ -100,7 +93,38 @@ void serialCommand::processCommands() {
         
         eventHandler->eventSetMinuteFlicker(newFlicker);
       }
+      else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::num_minute_flicker])) {
+        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::num_minute_flicker]).length() +1);
+        int newFlicker = currentCommand.toInt();
+        
+        Serial.print(COMMANDS_STRING[COMMANDS_ENUM::num_minute_flicker]);
+        Serial.print(": ");
+        Serial.println(newFlicker);
+        
+        eventHandler->eventSetNumMinuteFlicker(newFlicker);
+      }
+      else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::running_patterns])) {
+        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::running_patterns]).length() +1);
+        bool newRunningPatterns = currentCommand.substring(0,1).equals("1");
+        
+        Serial.print(COMMANDS_STRING[COMMANDS_ENUM::running_patterns]);
+        Serial.print(": ");
+        Serial.println(newRunningPatterns);
+        
+        eventHandler->eventSetRunningPatterns(newRunningPatterns);
+      }
+      else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::leds])) {
+        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::leds]).length() +1);
+        bool newLeds = currentCommand.substring(0,1).equals("1");
+        
+        Serial.print(COMMANDS_STRING[COMMANDS_ENUM::leds]);
+        Serial.print(": ");
+        Serial.println(newLeds);
+        
+        eventHandler->eventSetLeds(newLeds);
+      }
       else {
+        Serial.println(currentCommand);
         Serial.println("Invalid command!");
       }
       
@@ -110,30 +134,32 @@ void serialCommand::processCommands() {
 }
 
 void serialCommand::processSetTime() {
-  int year = currentCommand.substring(0,4).toInt();
+  unsigned int year = (unsigned int) currentCommand.substring(0,4).toInt();
   Serial.print("year: ");
   Serial.println(year);
   
-  int month = currentCommand.substring(5,7).toInt();
+  byte month = (byte)currentCommand.substring(5,7).toInt();
   Serial.print("month: ");
   Serial.println(month);
   
-  int day = currentCommand.substring(8,10).toInt();
+  byte day = (byte)currentCommand.substring(8,10).toInt();
   Serial.print("day: ");
   Serial.println(day);
   
-  int hours = currentCommand.substring(11,13).toInt();
+  byte hours = (byte)currentCommand.substring(11,13).toInt();
   Serial.print("hours: ");
   Serial.println(hours);
   
-  int minutes = currentCommand.substring(14,16).toInt();
+  byte minutes = (byte)currentCommand.substring(14,16).toInt();
   Serial.print("minutes: ");
   Serial.println(minutes);
   
-  int seconds = currentCommand.substring(17,19).toInt();
+  byte seconds = (byte)currentCommand.substring(17,19).toInt();
   Serial.print("seconds: ");
   Serial.println(seconds);
   
   eventHandler->eventSetTime(microTime(year, month, day, hours, minutes, seconds));
 }
+
+
 
