@@ -76,52 +76,19 @@ void serialCommand::processCommands() {
     if(isComplete) {
       
       if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::set_time])) {
-        Serial.println(COMMANDS_STRING[COMMANDS_ENUM::set_time]);
-
-        // the residual command is whats left after the first space character
-        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::set_time]).length() +1); 
-        Serial.println(currentCommand);
         processSetTime();
       }
       else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::minute_flicker])) {
-        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::minute_flicker]).length() +1);
-        bool newFlicker = currentCommand.substring(0,1).equals("1");
-        
-        Serial.print(COMMANDS_STRING[COMMANDS_ENUM::minute_flicker]);
-        Serial.print(": ");
-        Serial.println(newFlicker);
-        
-        eventHandler->eventSetMinuteFlicker(newFlicker);
+        processSetMinuteFlicker();
       }
       else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::num_minute_flicker])) {
-        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::num_minute_flicker]).length() +1);
-        int newFlicker = currentCommand.toInt();
-        
-        Serial.print(COMMANDS_STRING[COMMANDS_ENUM::num_minute_flicker]);
-        Serial.print(": ");
-        Serial.println(newFlicker);
-        
-        eventHandler->eventSetNumMinuteFlicker(newFlicker);
+        processSetNumMinuteFlicker();
       }
       else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::running_patterns])) {
-        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::running_patterns]).length() +1);
-        bool newRunningPatterns = currentCommand.substring(0,1).equals("1");
-        
-        Serial.print(COMMANDS_STRING[COMMANDS_ENUM::running_patterns]);
-        Serial.print(": ");
-        Serial.println(newRunningPatterns);
-        
-        eventHandler->eventSetRunningPatterns(newRunningPatterns);
+        processSetRunningPatterns();
       }
       else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::leds])) {
-        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::leds]).length() +1);
-        bool newLeds = currentCommand.substring(0,1).equals("1");
-        
-        Serial.print(COMMANDS_STRING[COMMANDS_ENUM::leds]);
-        Serial.print(": ");
-        Serial.println(newLeds);
-        
-        eventHandler->eventSetLeds(newLeds);
+        processSetLeds();
       }
       else {
         Serial.println(currentCommand);
@@ -134,6 +101,12 @@ void serialCommand::processCommands() {
 }
 
 void serialCommand::processSetTime() {
+  Serial.println(COMMANDS_STRING[COMMANDS_ENUM::set_time]);
+
+  // the residual command is whats left after the first space character
+  currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::set_time]).length() +1); 
+  Serial.println(currentCommand);
+        
   unsigned int year = (unsigned int) currentCommand.substring(0,4).toInt();
   Serial.print("year: ");
   Serial.println(year);
@@ -159,6 +132,50 @@ void serialCommand::processSetTime() {
   Serial.println(seconds);
   
   eventHandler->eventSetTime(microTime(year, month, day, hours, minutes, seconds));
+}
+
+void serialCommand::processSetLeds() {
+  currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::leds]).length() +1);
+  bool newLeds = currentCommand.substring(0,1).equals("1");
+  
+  Serial.print(COMMANDS_STRING[COMMANDS_ENUM::leds]);
+  Serial.print(": ");
+  Serial.println(newLeds);
+  
+  eventHandler->eventSetLeds(newLeds);
+}
+
+void serialCommand::processSetRunningPatterns() {
+  currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::running_patterns]).length() +1);
+  bool newRunningPatterns = currentCommand.substring(0,1).equals("1");
+  
+  Serial.print(COMMANDS_STRING[COMMANDS_ENUM::running_patterns]);
+  Serial.print(": ");
+  Serial.println(newRunningPatterns);
+  
+  eventHandler->eventSetRunningPatterns(newRunningPatterns);
+}
+
+void serialCommand::processSetMinuteFlicker() {
+  currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::minute_flicker]).length() +1);
+  bool newFlicker = currentCommand.substring(0,1).equals("1");
+  
+  Serial.print(COMMANDS_STRING[COMMANDS_ENUM::minute_flicker]);
+  Serial.print(": ");
+  Serial.println(newFlicker);
+  
+  eventHandler->eventSetMinuteFlicker(newFlicker);
+}
+
+void serialCommand::processSetNumMinuteFlicker() {
+  currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::num_minute_flicker]).length() +1);
+  int newFlicker = currentCommand.toInt();
+  
+  Serial.print(COMMANDS_STRING[COMMANDS_ENUM::num_minute_flicker]);
+  Serial.print(": ");
+  Serial.println(newFlicker);
+  
+  eventHandler->eventSetNumMinuteFlicker(newFlicker);
 }
 
 

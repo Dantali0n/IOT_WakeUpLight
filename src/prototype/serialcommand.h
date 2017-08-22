@@ -46,6 +46,10 @@ class serialCommand {
     serialCommandDelegate *eventHandler;
     String currentCommand;
     void processSetTime();
+    void processSetLeds();
+    void processSetRunningPatterns();
+    void processSetMinuteFlicker();
+    void processSetNumMinuteFlicker();
   public:
     enum COMMANDS_ENUM {
       set_time, running_patterns, minute_flicker, num_minute_flicker, leds
