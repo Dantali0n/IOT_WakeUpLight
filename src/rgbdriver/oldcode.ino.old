@@ -1,0 +1,597 @@
+void selectPatternByNumber(int number, uint32_t c, uint8_t wait) {
+  switch(number) {
+    case 0:
+      leftToRightSwipe(c, wait);
+      break;
+    case 1:
+      leftToRightMasquerade(c, wait);
+      break;
+    case 2:
+      outsideToInside(c, wait);
+      break;
+    case 3:
+      randomOneByOne(c, wait);
+      break;
+    default:
+      break;
+  }
+}
+
+void RunningLights(uint32_t c, int WaveDelay) {
+
+  int Position = 0;
+
+  for(int i=0; i<strip.numPixels()*2; i++)
+
+  {
+
+      Position++; // = 0; //Position + Rate;
+
+      for(int i=0; i<strip.numPixels(); i++) {
+
+        // sine wave, 3 offset waves make a rainbow!
+
+        //float level = sin(i+Position) * 127 + 128;
+
+        //setPixel(i,level,0,0);
+
+        //float level = sin(i+Position) * 127 + 128;
+
+        strip.setPixelColor(i,strip.Color(((sin(i+Position) * 127 + 128)/255)* splitColor(c, 'r'),
+             ((sin(i+Position) * 127 + 128)/255)* splitColor(c, 'g'),
+             ((sin(i+Position) * 127 + 128)/255)* splitColor(c, 'b')));
+
+      }
+
+      strip.show();
+
+      delay(WaveDelay);
+
+  }
+
+}
+
+uint8_t splitColor(uint32_t c, char value) {
+  switch (value) {
+    case 'r': return (uint8_t)(c >> 16);
+    case 'g': return (uint8_t)(c >>  8);
+    case 'b': return (uint8_t)(c >>  0);
+    default:  return 0;
+  }
+}
+
+void Fire(int Cooling, int Sparking, int SpeedDelay) {
+
+  static byte heat[NUM_LEDS];
+
+  int cooldown;
+
+  // Step 1.  Cool down every cell a little
+
+  for( int i = 0; i < strip.numPixels(); i++) {
+
+    cooldown = random(0, ((Cooling * 10) / NUM_LEDS) + 2);
+
+    if(cooldown>heat[i]) {
+
+      heat[i]=0;
+
+    } else {
+
+      heat[i]=heat[i]-cooldown;
+
+    }
+
+  }
+
+  // Step 2.  Heat from each cell drifts 'up' and diffuses a little
+
+  for( int k= strip.numPixels() - 1; k >= 2; k--) {
+
+    heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2]) / 3;
+
+  }
+
+  // Step 3.  Randomly ignite new 'sparks' near the bottom
+
+  if( random(255) < Sparking ) {
+
+    int y = random(7);
+
+    heat[y] = heat[y] + random(160,255);
+
+    //heat[y] = random(160,255);
+
+  }
+
+  // Step 4.  Convert heat to LED colors
+
+  for( int j = 0; j < strip.numPixels(); j++) {
+
+    setPixelHeatColor(j, heat[j] );
+
+  }
+
+  strip.show();
+
+  delay(SpeedDelay);
+
+}
+
+
+
+void setPixelHeatColor (int Pixel, byte temperature) {
+
+  // Scale 'heat' down from 0-255 to 0-191
+
+  byte t192 = round((temperature/255.0)*191);
+
+  // calculate ramp up from
+
+  byte heatramp = t192 & 0x3F; // 0..63
+
+  heatramp <<= 2; // scale up to 0..252
+
+  // figure out which third of the spectrum we're in:
+
+  if( t192 > 0x80) {                     // hottest
+
+    strip.setPixelColor(Pixel, strip.Color(255, 255, heatramp));
+
+  } else if( t192 > 0x40 ) {             // middle
+
+    strip.setPixelColor(Pixel, strip.Color(255, heatramp, 0));
+
+  } else {                               // coolest
+
+    strip.setPixelColor(Pixel, strip.Color(heatramp, 0, 0));
+
+  }
+
+}
+
+// move from left back to right making one led active at any time appearing as a moving dot.
+void leftToRightSwipe(uint32_t c, uint8_t wait) {
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, c);
+    if(i > 0) strip.setPixelColor(i-1, 0);
+    strip.show();
+    delay(wait);
+  }
+
+  for(uint16_t i=strip.numPixels()-1; i>0; i--) {
+    strip.setPixelColor(i, c);
+    if(i < strip.numPixels()) strip.setPixelColor(i+1, 0);
+    strip.show();
+    delay(wait);
+  }
+}
+
+// make all leds active from left to right then fade them out from left to right and then do the same from right to left
+void leftToRightMasquerade(uint32_t c, uint8_t wait) {
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, c);
+    strip.show();
+    delay(wait);
+  }
+
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, 0);
+    strip.show();
+    delay(wait);
+  }
+
+  for(uint16_t i=strip.numPixels()-1; i > 0; i--) {
+    strip.setPixelColor(i, c);
+    strip.show();
+    delay(wait);
+  }
+
+  strip.setPixelColor(0, c);
+  strip.show();
+  delay(wait);
+
+  for(uint16_t i=strip.numPixels()-1; i > 0; i--) {
+    strip.setPixelColor(i, 0);
+    strip.show();
+    delay(wait);
+  }
+
+  strip.setPixelColor(0, 0);
+  strip.show();
+  delay(wait);
+}
+
+// move from both opposit ends of the strip towards the center then fade out from the center again
+void outsideToInside(uint32_t c, uint8_t wait) {
+  uint16_t j = strip.numPixels();
+  
+  for(uint16_t i=0; i < strip.numPixels(); i++) { 
+    strip.setPixelColor(i, c);
+    strip.setPixelColor(j--, c);
+    strip.show();
+    delay(wait);
+  }
+ 
+  j = ceil(strip.numPixels() / 2.0);
+  for(uint16_t i=floor(strip.numPixels() / 2.0); i < strip.numPixels(); i--) { 
+    strip.setPixelColor(i, 0);
+    strip.setPixelColor(j++, 0);
+    strip.show();
+    delay(wait);
+  }
+}
+
+// Fill the dots one after the other with a color
+void colorWipe(uint32_t c, uint8_t wait) {
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, c);
+    strip.show();
+    delay(wait);
+  }
+}
+
+// select a random led and make it the provided color
+void randomOneByOne(uint32_t c, uint8_t wait) {
+  uint8_t numDone = 0;
+  bool activated[strip.numPixels()] = {}; 
+  for(int i = 0; i < strip.numPixels(); i++) {
+    activated[i] = false;
+  }
+
+  while(numDone != strip.numPixels()) {
+    int selected = random(0, strip.numPixels());
+    if(activated[selected] == false) {
+      strip.setPixelColor(selected, c);
+      strip.show();
+      activated[selected] = true;
+      numDone++;
+      delay(wait);
+    }
+  }
+}
+
+// 
+//void trailingSwipe(uint32_t c, uint8_t wait, uint8_t numTrail) {
+//  for(uint16_t i=0; i<strip.numPixels(); i++) {
+//    strip.setPixelColor(i, c);
+//    for(uint8_t j = 1; j < numTrail; j++) {
+//      uint8_t k = i;
+//      if(k - j > 0) {
+//        strip.setPixelColor(k, c/j+1);
+//      }
+//    }
+//    strip.show();
+//    delay(wait);
+//  }
+//}
+
+void pulseWhite(uint8_t wait) {
+  for(int j = 0; j < 256 ; j++){
+      for(uint16_t i=0; i<strip.numPixels(); i++) {
+          byte current = neopix_gamma[j];
+          strip.setPixelColor(i, strip.Color(current, current, current) );
+        }
+        delay(wait);
+        strip.show();
+      }
+
+  for(int j = 255; j >= 0 ; j--){
+      for(uint16_t i=0; i<strip.numPixels(); i++) {
+          byte current = neopix_gamma[j];
+          strip.setPixelColor(i, strip.Color(current, current, current) );
+        }
+        delay(wait);
+        strip.show();
+      }
+}
+
+
+void rainbowFade2White(uint8_t wait, int rainbowLoops, int whiteLoops) {
+  float fadeMax = 100.0;
+  int fadeVal = 0;
+  uint32_t wheelVal;
+  int redVal, greenVal, blueVal;
+
+  for(int k = 0 ; k < rainbowLoops ; k ++){
+    
+    for(int j=0; j<256; j++) { // 5 cycles of all colors on wheel
+
+      for(int i=0; i< strip.numPixels(); i++) {
+
+        wheelVal = Wheel(((i * 256 / strip.numPixels()) + j) & 255);
+
+        redVal = red(wheelVal) * float(fadeVal/fadeMax);
+        greenVal = green(wheelVal) * float(fadeVal/fadeMax);
+        blueVal = blue(wheelVal) * float(fadeVal/fadeMax);
+
+        strip.setPixelColor( i, strip.Color( redVal, greenVal, blueVal ) );
+
+      }
+
+      //First loop, fade in!
+      if(k == 0 && fadeVal < fadeMax-1) {
+          fadeVal++;
+      }
+
+      //Last loop, fade out!
+      else if(k == rainbowLoops - 1 && j > 255 - fadeMax ){
+          fadeVal--;
+      }
+
+        strip.show();
+        delay(wait);
+    }
+  
+  }
+
+
+
+  delay(500);
+
+
+  for(int k = 0 ; k < whiteLoops ; k ++){
+
+    for(int j = 0; j < 256 ; j++){
+
+        for(uint16_t i=0; i < strip.numPixels(); i++) {
+            byte current = neopix_gamma[j];
+            strip.setPixelColor(i, strip.Color(current, current, current) );
+          }
+          strip.show();
+        }
+
+        delay(2000);
+    for(int j = 255; j >= 0 ; j--){
+
+        for(uint16_t i=0; i < strip.numPixels(); i++) {
+            byte current = neopix_gamma[j];
+            strip.setPixelColor(i, strip.Color(current, current, current) );
+          }
+          strip.show();
+        }
+  }
+
+  delay(500);
+
+
+}
+
+void whiteOverRainbow(uint8_t wait, uint8_t whiteSpeed, uint8_t whiteLength ) {
+  
+  if(whiteLength >= strip.numPixels()) whiteLength = strip.numPixels() - 1;
+
+  int head = whiteLength - 1;
+  int tail = 0;
+
+  int loops = 3;
+  int loopNum = 0;
+
+  static unsigned long lastTime = 0;
+
+
+  while(true){
+    for(int j=0; j<256; j++) {
+      for(uint16_t i=0; i<strip.numPixels(); i++) {
+        if((i >= tail && i <= head) || (tail > head && i >= tail) || (tail > head && i <= head) ){
+          strip.setPixelColor(i, strip.Color(255, 255, 255) );
+        }
+        else{
+          strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+        }
+        
+      }
+
+      if(millis() - lastTime > whiteSpeed) {
+        head++;
+        tail++;
+        if(head == strip.numPixels()){
+          loopNum++;
+        }
+        lastTime = millis();
+      }
+
+      if(loopNum == loops) return;
+    
+      head%=strip.numPixels();
+      tail%=strip.numPixels();
+        strip.show();
+        delay(wait);
+    }
+  }
+  
+}
+void fullWhite() {
+  
+    for(uint16_t i=0; i<strip.numPixels(); i++) {
+        strip.setPixelColor(i, strip.Color(0,0,0, 255 ) );
+    }
+      strip.show();
+}
+
+
+// Slightly different, this makes the rainbow equally distributed throughout
+void rainbowCycle(uint8_t wait) {
+  uint16_t i, j;
+
+  for(j=0; j<256 * 5; j++) { // 5 cycles of all colors on wheel
+    for(i=0; i< strip.numPixels(); i++) {
+      strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+    }
+    strip.show();
+    delay(wait);
+  }
+}
+
+void rainbow(uint8_t wait) {
+  uint16_t i, j;
+
+  for(j=0; j<256; j++) {
+    for(i=0; i<strip.numPixels(); i++) {
+      strip.setPixelColor(i, Wheel((i+j) & 255));
+    }
+    strip.show();
+    delay(wait);
+  }
+}
+
+// Input a value 0 to 255 to get a color value.
+// The colours are a transition r - g - b - back to r.
+uint32_t Wheel(byte WheelPos) {
+  WheelPos = 255 - WheelPos;
+  if(WheelPos < 85) {
+    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3,0);
+  }
+  if(WheelPos < 170) {
+    WheelPos -= 85;
+    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3,0);
+  }
+  WheelPos -= 170;
+  return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0,0);
+}
+
+uint8_t red(uint32_t c) {
+  return (c >> 16);
+}
+uint8_t green(uint32_t c) {
+  return (c >> 8);
+}
+uint8_t blue(uint32_t c) {
+  return (c);
+}
+
+void loopAnimated() {
+  int randomOption = random(0, 8);
+  uint32_t newColor = strip.Color(random(0, 255), random(0, 255), random(0, 255));
+  int options[4] = {random(0,4), random(0,4), random(0,4), random(0,4)};
+  int limit = random(100,300);
+
+  switch(randomOption) {
+    case 0:
+      
+      leftToRightSwipe(SITAHS_FAVORITE_MINT_GREEN, 50);
+    
+      leftToRightMasquerade(SITAHS_FAVORITE_MINT_GREEN, 50);
+    
+      outsideToInside(SITAHS_FAVORITE_MINT_GREEN, 50);
+      
+      randomOneByOne(SITAHS_FAVORITE_MINT_GREEN, 50);
+      break;
+    case 1:
+
+      for(int i = 0; i < 3; i++) {
+        selectPatternByNumber(options[i], MARKS_FAVORITE_PINK, 50);
+      }
+      
+      break;
+    case 2:
+    
+      for(int i = 0; i < 3; i++) {
+        selectPatternByNumber(options[i], RICOS_FAVORITE_BLUE, 50);
+      }
+      
+      break;
+    case 3:
+      leftToRightSwipe(newColor, 50);
+    
+      leftToRightMasquerade(newColor, 50);
+    
+      outsideToInside(newColor, 50);
+      
+      randomOneByOne(newColor, 50);
+      break;
+    case 4:
+      whiteOverRainbow(20,75,5);
+      break;
+    case 5:
+      rainbowFade2White(3,3,1);
+      break;
+    case 6:
+      RunningLights(newColor, 50);
+      break;
+    case 7:   
+      for(int i = 0; i < limit; i++) {
+        Fire(random(1,250), random(5,250), 50);
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+void loopSolid() {
+  int randomGreen = 0;
+  int randomRed = 0;
+  int randomBlue = 0;
+  
+  switch(random(0, 3)) {
+    case 0: 
+      randomGreen = 0;
+      break;
+    case 1:
+      randomGreen = 128;
+      break;
+    case 2:
+      randomGreen = 255;
+      break;
+    default:
+      break;
+  }
+
+  switch(random(0, 3)) {
+    case 0: 
+      randomRed = 0;
+      break;
+    case 1:
+      randomRed = 128;
+      break;
+    case 2:
+      randomRed = 255;
+      break;
+    default:
+      break;
+  }
+
+  switch(random(0, 2)) {
+    case 0: 
+      randomBlue = 0;
+      break;
+    case 1:
+      randomBlue = 255;
+      break;
+    default:
+      break;
+  }
+
+  uint32_t newColor = strip.Color(randomRed, randomGreen, randomBlue);
+  for(int i=0; i<strip.numPixels(); i++) {
+        strip.setPixelColor(i, newColor);
+  }
+  strip.show();
+  delay(5000);
+}
+
+  // Some example procedures showing how to display to the pixels:
+//  colorWipe(strip.Color(255, 0, 0), 50); // Red
+//  colorWipe(strip.Color(0, 255, 0), 50); // Green
+//  colorWipe(strip.Color(0, 0, 255), 50); // Blue
+//  colorWipe(strip.Color(0, 255, 127), 50); // Spring green - 100% saturation
+//  colorWipe(strip.Color(0, 191, 95), 50); // Spring green - 75% saturation
+//  colorWipe(strip.Color(0, 128, 63), 50); // Spring green - 50% saturation
+//  colorWipe(strip.Color(0, 63, 32), 50); // Spring green - 25% saturation
+  // colorWipe(strip.Color(0, 0, 0, 255), 50); // White
+    
+  // trailingSwipe(SITAHS_FAVORITE_MINT_GREEN, 50, 4);
+  
+//
+//  whiteOverRainbow(20,75,5);  
+//
+//  pulseWhite(5); 
+
+  // fullWhite();
+  // delay(2000);
+
+//  rainbowFade2White(3,3,1);
+
+  
+  //loopSolid();
