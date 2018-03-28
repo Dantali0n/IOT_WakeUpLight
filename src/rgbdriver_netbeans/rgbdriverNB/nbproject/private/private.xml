@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <data xmlns="http://www.netbeans.org/ns/make-project-private/1">
+        <activeConfTypeElem>1</activeConfTypeElem>
+        <activeConfIndexElem>1</activeConfIndexElem>
+    </data>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/media/dantali0n/Data/projects/personal/IOT_WakeUpLight/src/rgbdriver_netbeans/rgbdriverNB/simpleledpattern.h</file>
+            <file>file:/media/dantali0n/Data/projects/personal/IOT_WakeUpLight/src/rgbdriver_netbeans/rgbdriverNB/templateneopixel.h</file>
+            <file>file:/media/dantali0n/Data/projects/personal/IOT_WakeUpLight/src/rgbdriver_netbeans/rgbdriverNB/rgbrltypedef.h</file>
+            <file>file:/media/dantali0n/Data/projects/personal/IOT_WakeUpLight/src/rgbdriver_netbeans/rgbdriverNB/simpleledpattern.cpp</file>
+            <file>file:/media/dantali0n/Data/projects/personal/IOT_WakeUpLight/src/rgbdriver_netbeans/rgbdriverNB/ledpattern.h</file>
+            <file>file:/media/dantali0n/Data/projects/personal/IOT_WakeUpLight/src/rgbdriver_netbeans/rgbdriverNB/main.cpp</file>
+            <file>file:/media/dantali0n/Data/projects/personal/IOT_WakeUpLight/src/rgbdriver_netbeans/rgbdriverNB/ledpattern.cpp</file>
+            <file>file:/media/dantali0n/Data/projects/personal/IOT_WakeUpLight/src/rgbdriver_netbeans/rgbdriverNB/microtime.cpp</file>
+            <file>file:/media/dantali0n/Data/projects/personal/IOT_WakeUpLight/src/rgbdriver_netbeans/rgbdriverNB/templateneopixel.cpp</file>
+            <file>file:/media/dantali0n/Data/projects/personal/IOT_WakeUpLight/src/rgbdriver_netbeans/rgbdriverNB/rgbrltypedef.cpp</file>
+            <file>file:/media/dantali0n/Data/projects/personal/IOT_WakeUpLight/src/rgbdriver_netbeans/rgbdriverNB/microtime.h</file>
+        </group>
+    </open-files>
+</project-private>
