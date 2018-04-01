@@ -58,10 +58,6 @@ ledPattern::ledPattern(rgbColor startColor, rgbColor endColor, unsigned long dur
       break;
     case bicubic:
       break;
-    case polynomial:
-      break;
-    case cspline:
-      break;
     case akima:
       break;
     case rainbow:
@@ -90,10 +86,6 @@ void ledPattern::update(unsigned long deltaTime) {
       case cubic:
         break;
       case bicubic:
-        break;
-      case polynomial:
-        break;
-      case cspline:
         break;
       case akima:
         break;
@@ -239,18 +231,20 @@ void ledPattern::updateLinear(unsigned long deltaTime) {
 //}
 
 void ledPattern::updateCubic(unsigned long deltaTime) {
-  
+  this->currentDuration += deltaTime;
+  if(this->currentDuration > this->finalDuration) { this->currentDuration = this->finalDuration; } // clamp duration
+
+  // Increasing solution
+  // https://www.wolframalpha.com/input/?i=(255%2F2)cos((1%2F10000)(x%2Fpi)-pi)%2B(255%2F2)
+  // (y/2)cos((1/this->finalDuration)(this->currentDuration/pi)-pi)+(y/2)+this->startColor 
+  // where y = (this->finalColor - this->startColor) ofcourse compute per base color component
+
+  // Decreasing solution
+  // https://www.wolframalpha.com/input/?i=(255%2F2)*-cos((1%2F1000)(x%2Fpi)%2Bpi)%2B(255%2F2)
+  //(255/2)*-cos((1/1000)(x/pi)+pi)+(255/2)
 }
 
 void ledPattern::updateBiCubic(unsigned long deltaTime) {
-  
-}
-
-void ledPattern::updatePolynomial(unsigned long deltaTime) {
-  
-}
-
-void ledPattern::updateCspline(unsigned long deltaTime) {
   
 }
 

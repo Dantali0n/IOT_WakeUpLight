@@ -39,8 +39,6 @@ class ledPattern {
         linear,
         cubic,
         bicubic,
-        polynomial,
-        cspline,
         akima,
         rainbow
       };
@@ -69,8 +67,6 @@ class ledPattern {
       void updateLinear(unsigned long deltaTime);
       void updateCubic(unsigned long deltaTime);
       void updateBiCubic(unsigned long deltaTime);
-      void updatePolynomial(unsigned long deltaTime);
-      void updateCspline(unsigned long deltaTime);
       void updateAkima(unsigned long deltaTime);
       void updateRainbow(unsigned long deltaTime);
 	public:
