@@ -180,10 +180,6 @@ void simpleLedPattern::increment(uint32_t deltaTime) {
         break;
       case bicubic:
         break;
-      case polynomial:
-        break;
-      case cspline:
-        break;
       case akima:
         break;
       case rainbow:
@@ -203,7 +199,6 @@ void simpleLedPattern::reset() {
   this->currentDuration = 0;
   this->currentColor = this->startColor;
 }
-
 
 /**
  * Linear transistioning between two rgb values with a function of deltaTime
@@ -261,112 +256,12 @@ void simpleLedPattern::updateLinear(uint32_t deltaTime) {
   if(changed) updateStrips();
 }
 
-//void ledPattern::updateLinear(unsigned long deltaTime) {
-//  int timeRemaining = this->finalDuration - this->currentDuration;
-//  int stepRed = 0;
-//  int stepGreen = 0;
-//  int stepBlue = 0;
-//  
-//  int intermediateRed = 0;
-//  int intermediateGreen = 0;
-//  int intermediateBlue = 0;
-//  
-//  if(timeRemaining <= 0) {
-//    if(WUL_DEBUG) { Serial.print(this->finalColor.getRed()); Serial.print(this->finalColor.getGreen()); Serial.println(this->finalColor.getBlue()); }
-//    this->currentColor.setRed(this->finalColor.getRed());
-//    this->currentColor.setGreen(this->finalColor.getGreen());
-//    this->currentColor.setBlue(this->finalColor.getBlue());
-//    return; // nothing left to do
-//  }
-//
-//  this->currentDuration += deltaTime;
-//  double percentRemaining = 100 - ((double)this->currentDuration / this->finalDuration) * 100;
-//  currentPercentage = abs(percentRemaining - 100); // I know abs is pretty heavy but at 80mhz who cares really?
-//
-//  //intermediateRed = (int)this->finalColor.getRed() - (int)this->startColor.getRed();
-//  intermediateRed = (int)this->finalColor.getRed() - (int)this->currentColor.getRed();
-//  if(WUL_DEBUG) { Serial.print(intermediateRed); Serial.print('|'); }
-//  if(intermediateRed != 0) {
-//      stepRed = round(intermediateRed / percentRemaining); // large step logic
-//  }
-//
-//  //intermediateGreen = (int)this->finalColor.getGreen() - (int)this->currentColor.getGreen();
-//  intermediateGreen = (int)this->finalColor.getGreen() - (int)this->currentColor.getGreen();
-//  if(WUL_DEBUG) { Serial.print(intermediateGreen); Serial.print('|'); }
-//  if(intermediateGreen != 0) {
-//      stepGreen = round(intermediateGreen / percentRemaining); // large step logic
-//  }
-//
-//  // intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
-//  intermediateBlue = (int)this->finalColor.getBlue() - (int)this->currentColor.getBlue();
-//  if(WUL_DEBUG) { Serial.println(intermediateBlue); }
-//  if(intermediateBlue != 0) {
-//      stepBlue = round(intermediateBlue / percentRemaining); // large step logic
-//  }
-//
-//  if(WUL_DEBUG) {
-//    Serial.print("Steps:");
-//    Serial.print(stepRed);
-//    Serial.print(',');
-//    Serial.print(stepGreen);
-//    Serial.print(',');
-//    Serial.println(stepBlue);
-//  }
-//
-////  byte newRed = constrain(stepRed, 0, 255);
-////  byte newGreen = constrain(stepGreen, 0, 255);
-////  byte newBlue = constrain(stepBlue, 0, 255);
-//
-//  byte newRed = this->currentColor.getRed();
-//  byte newGreen = this->currentColor.getGreen();
-//  byte newBlue = this->currentColor.getBlue();
-//  
-//  newRed += stepRed;
-//  newGreen += stepGreen;
-//  newBlue += stepBlue;
-//  
-//  this->currentColor.setRed(newRed);
-//  this->currentColor.setGreen(newGreen);
-//  this->currentColor.setBlue(newBlue);
-//}
-
-//void simpleLedPattern::updateCubic(unsigned long deltaTime) {
-//  
-//}
-
-//void simpleLedPattern::updateBiCubic(unsigned long deltaTime) {
-//  
-//}
-
-//void simpleLedPattern::updatePolynomial(unsigned long deltaTime) {
-//  
-//}
-
-//void simpleLedPattern::updateCspline(unsigned long deltaTime) {
-//  
-//}
-
-//void simpleLedPattern::updateAkima(unsigned long deltaTime) {
-//  
-//}
-
-//void simpleLedPattern::updateRainbow(unsigned long deltaTime) {
-//  
-//}
-
 /**
  * 
  */
 void simpleLedPattern::updateStrips() {
   for (std::list<templateNeopixel>::iterator it = strips.begin(); it != strips.end(); it++) {
-//    int numPixels = it->numPixels();
-//    for (int iPixel = 0; iPixel < numPixels; iPixel++) {
-//      it->setPixelColor(iPixel,
-//          (byte)this->currentColor.getRed(),
-//          (byte)this->currentColor.getGreen(),
-//          (byte)this->currentColor.getBlue());
-//    }
-//    it->show();
+      it->toggleVariable(); // dummy method to show the strip is still accessible
   }
 }
 

@@ -98,6 +98,10 @@
       <compileType>
         <cTool>
           <developmentMode>5</developmentMode>
+          <stripSymbols>true</stripSymbols>
+          <architecture>2</architecture>
+          <standard>10</standard>
+          <warningLevel>3</warningLevel>
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
@@ -112,6 +116,9 @@
         <asmTool>
           <developmentMode>5</developmentMode>
         </asmTool>
+        <linkerTool>
+          <stripSymbols>true</stripSymbols>
+        </linkerTool>
       </compileType>
       <item path="alarm.cpp" ex="false" tool="1" flavor2="0">
       </item>

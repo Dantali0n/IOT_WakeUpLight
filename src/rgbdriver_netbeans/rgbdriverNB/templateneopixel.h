@@ -34,6 +34,7 @@ class templateNeopixel {
       bool variable;
     public:
         templateNeopixel();
+        void toggleVariable();
 
 };
 

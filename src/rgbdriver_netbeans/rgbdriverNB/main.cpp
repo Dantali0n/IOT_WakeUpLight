@@ -55,20 +55,6 @@ std::list<ledPattern*> ledPatterns = std::list<ledPattern*>();
 
 templateNeopixel strip1 = templateNeopixel();
 
-// ledPattern testPattern = ledPattern(strip1);
-ledPattern testPattern = simpleLedPattern(strip1, rgbColor(0,0,0), rgbColor(255,0,0), 90000000UL, simpleLedPattern::patternModes::linear);
-
-// ledPattern alarmPatternPhase1 = simpleLedPattern(strip1, rgbColor(0,0,0), rgbColor(255,0,0), (uint32_t)90000000, simpleLedPattern::patternModes::linear);
-// ledPattern alarmPatternPhase2 = simpleLedPattern(strip2, rgbColor(255,0,0), rgbColor(0,0,255), (uint32_t)90000000, simpleLedPattern::patternModes::linear);
-// ledPattern alarmPatternPhase3 = simpleLedPattern(strip3, rgbColor(0,0,255), rgbColor(255,255,255), (uint32_t)90000000, simpleLedPattern::patternModes::linear);
-
-alarm *testAlarm1 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)18, (byte)6, (byte)0, (byte)0), 86400UL, testPattern);
-//alarm *testAlarm2 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)18, (byte)6, (byte)2, (byte)0), 86400UL, alarmPatternPhase2);
-//alarm *testAlarm3 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)18, (byte)6, (byte)4, (byte)0), 86400UL, alarmPatternPhase3);
-//alarm *testAlarm4 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)15, (byte)19, (byte)1, (byte)0), alarmPatternPhase1);
-//alarm *testAlarm5 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)15, (byte)19, (byte)4, (byte)0), alarmPatternPhase1);
-
-
 std::random_device rd; // obtain a random number from hardware
 std::mt19937 eng(rd()); // seed the generator
 std::uniform_int_distribution<> colorRand(0, 256);
@@ -92,8 +78,10 @@ int main(int argc, char** argv) {
 }
 
 void setup() {
-
-  // singlePattern->setSafeDelete(true);
+  ledPattern* testPattern = new simpleLedPattern(strip1, rgbColor(0,0,0), rgbColor(255,0,0), 90000000UL, simpleLedPattern::patternModes::linear);
+  testPattern->setSafeDelete(true);
+  
+  alarm *testAlarm1 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)18, (byte)6, (byte)0, (byte)0), 86400UL, *testPattern);
 
   std::cout << "push alarms" << std::endl;
   alarms.push_front(*testAlarm1);
@@ -103,7 +91,7 @@ void setup() {
 //  alarms.push_front(*testAlarm5);
 
   std::cout << "push patterns"  << std::endl;
-  ledPatterns.push_front(&testPattern);
+  ledPatterns.push_front(testPattern);
 //  ledPatterns.push_front(alarmPatternPhase1);
 //  ledPatterns.push_front(alarmPatternPhase2);
 //  ledPatterns.push_front(alarmPatternPhase3);
@@ -133,42 +121,16 @@ void loopDeltaTime() {
     // Serial.println("check alarms");
     checkAlarms();
 
-//    if(runningSinglePattern) {
-//      if(singlePattern->isFinished()) {
-//        numPatterns++;
-//
-//        byte newfRed = (byte)random(0,255);
-//        byte newfBlue = (byte)random(0,255);
-//        byte newfGreen = (byte)random(0,255);
-//        unsigned long newTime = random(1000, 10000) * 500UL;
-//        rgbColor newColor = singlePattern->getColor();
-//        rgbColor endColor = rgbColor(newfRed, newfBlue, newfGreen);
-//
-//        // WARNING - we should not delete pattern if it is part of an alarm with an interval!!!
-//        // delete pattern; // we really can't call delete on a pointer variable that was not created with new;
-//        // TODO - implement way of determinging weither ledPattern can be removed
-//        
-//        if(singlePattern->isSafeDelete()) {
-//          delete singlePattern;
-//        }
-//        singlePattern = new ledPattern(newColor, endColor, newTime, ledPattern::patternModes::linear);
-//        singlePattern->setSafeDelete(true);
-//      }
-//      else {
-//        singlePattern->update(currentMicros - previousMicros);
-//        setAllPixels(singlePattern->getColor());
-//      }
-//    }
-
     // Serial.println("single pattern");
     if(runningSinglePattern) {
+      std::cout << ledPatterns.size() << std::endl;
       for (std::list<ledPattern*>::iterator singlePattern = ledPatterns.begin(); singlePattern != ledPatterns.end(); singlePattern++) {
-        if((*singlePattern)->isFinished()) {
+        // std::cout << 'i';
+        ledPattern* castPattern = *singlePattern;
+        if(castPattern->isFinished()) {
           std::cout << "pattern finished" << std::endl;
           numPatterns++;
 
-          std::cout << "cast pattern" << std::endl;
-          ledPattern* castPattern = *singlePattern;
           simpleLedPattern* simpleSinglePattern = static_cast<simpleLedPattern*>(castPattern);
 
           if(simpleSinglePattern != NULL) {
@@ -189,11 +151,12 @@ void loopDeltaTime() {
             if(simpleSinglePattern->isSafeDelete()) {
               std::cout << "delete pattern" << std::endl;
               // singlePattern = ledPatterns.erase(singlePattern);
-              delete (*singlePattern);
+              singlePattern = ledPatterns.erase(singlePattern);
+              delete simpleSinglePattern;
             } else {
+                
               // ledPatterns.erase(singlePattern);
             }
-            
             
             std::cout << "create new pattern" << std::endl;
             simpleLedPattern* newSimplePattern = new simpleLedPattern(*strip, newColor, endColor, newTime, simpleLedPattern::patternModes::linear);
@@ -204,8 +167,11 @@ void loopDeltaTime() {
           }
         }
         else {
-          // Serial.println("increment pattern");
-          (*singlePattern)->increment(currentMicros - previousMicros);
+            // Serial.println("increment pattern");
+            simpleLedPattern* simpleSinglePattern = static_cast<simpleLedPattern*>(castPattern);
+            if(simpleSinglePattern != NULL) {
+                simpleSinglePattern->increment(currentMicros - previousMicros);
+            }
           // setAllPixels(singlePattern->getColor());
         }
       }

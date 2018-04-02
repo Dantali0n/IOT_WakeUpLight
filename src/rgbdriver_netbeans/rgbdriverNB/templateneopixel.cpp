@@ -23,4 +23,9 @@
 #include "templateneopixel.h"
 
 templateNeopixel::templateNeopixel() {
+    variable = false;
+}
+
+void templateNeopixel::toggleVariable() {
+    variable = !variable;
 }

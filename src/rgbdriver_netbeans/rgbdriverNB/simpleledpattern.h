@@ -40,8 +40,6 @@ class simpleLedPattern : public ledPattern {
             linear,
             cubic,
             bicubic,
-            polynomial,
-            cspline,
             akima,
             rainbow
         };
@@ -51,8 +49,6 @@ class simpleLedPattern : public ledPattern {
     protected:
         uint32_t currentDuration; // current total animation time in microseconds
         uint32_t finalDuration; // time the animation finishes in microseconds
-
-    	std::list<templateNeopixel> strips; // the neopixel strips controlled by ledPattern
       
     	rgbColor startColor; 
         rgbColor currentColor;
@@ -61,21 +57,12 @@ class simpleLedPattern : public ledPattern {
     	patternModes patternMode;
 
     	void updateLinear(uint32_t deltaTime);
-    	// void updateCubic(uint32_t deltaTime);
-    	// void updateBiCubic(uint32_t deltaTime);
-    	// void updatePolynomial(uint32_t deltaTime);
-    	// void updateCspline(uint32_t deltaTime);
-    	// void updateAkima(uint32_t deltaTime);
-    	// void updateRainbow(uint32_t deltaTime);
 
         void updateStrips(); 
     public:
 
     	simpleLedPattern(templateNeopixel &strip, uint32_t duration, patternModes patternMode);
     	simpleLedPattern(templateNeopixel &strip, rgbColor startColor, rgbColor endColor, uint32_t duration, patternModes patternMode);
-
-      // void do_increment(uint32_t deltaTime);
-      // void do_reset();
 
        void increment(uint32_t deltaTime);
        void reset();
