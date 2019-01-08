@@ -1,0 +1,50 @@
+/*
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation; either version 3 of the License, or
+ *      (at your option) any later version.
+ *
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with this program; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ *      MA 02110-1301, USA.
+ */
+
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ Code by Dantali0n
+ https://dantalion.nl
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+#ifndef _NEO_ANIMATION_h
+#ifdef __cplusplus
+#define _NEO_ANIMATION_h
+
+#include <Arduino.h>
+#include "typedefinitions.h"
+#include "actor.h"
+#include "neopatterns.h"
+
+// Animation types supported:
+enum animation { 
+	NO_PATTERN_UPDATE, RAINBOW, COLOR_WHITE, COLOR_WIPE_CHRISTMAS, COLOR_WIPE_RANDOM, SCANNER_WHITE, SCANNER_RANDOM 
+};
+
+// String representation of each enum type 
+const static char *LED_ANIMATION_STRING[] = {
+    "", "RAINBOW", "COLOR_WHITE", "COLOR_WIPE_CHRISTMAS", "COLOR_WIPE_RANDOM", "SCANNER_WHITE", "SCANNER_RANDOM"
+};
+
+class NeoAnimation : public NeoPatterns {
+public:
+	animation currentAnimation;
+
+	NeoAnimation(uint16_t pixels, uint8_t pin, uint8_t type, void (*callback)(NeoAnimation* stick));
+};
+
+#endif /* __cplusplus */
+#endif /* _NEO_ANIMATION_h */
