@@ -1,7 +1,16 @@
 #include "neopatterns.h"
     
 // Constructor - calls base-class constructor to initialize strip
-NeoPatterns::NeoPatterns(uint16_t pixels, uint8_t pin, uint8_t type, void (*callback)(NeoPatterns* stick)):Adafruit_NeoPixel(pixels, pin, type),Actor() {
+NeoPatterns::NeoPatterns(uint16_t pixels, uint8_t pin, uint8_t type, void (*callback)(NeoPatterns* stick)):Adafruit_NeoPixel(pixels, pin, type),Actor()
+    , ActivePattern(NO_PATTERN)
+    , Direction(FORWARD)
+    , Trace(DUAL)
+    , Interval(0)
+    , Color1(0)
+    , Color2(0)
+    , TotalSteps(1)
+    , Index(0)
+{
     OnComplete = callback;
 }
     
@@ -136,27 +145,54 @@ void NeoPatterns::ColorWipeUpdate() {
 }
     
 // Initialize for a SCANNNER
-void NeoPatterns::Scanner(uint32_t color1, uint8_t interval) {
+void NeoPatterns::Scanner(uint32_t color1, uint8_t interval, trace trc, direction dir) {
     ActivePattern = SCANNER;
     Interval = interval;
-    TotalSteps = (numPixels() - 1) * 2;
+    Trace = trc;
+    switch(Trace){
+        case SINGLE:
+        TotalSteps = (numPixels() * 2);
+        break;
+        case DUAL:
+        TotalSteps = numPixels();
+        break;
+    }
     Color1 = color1;
     Index = 0;
+    Direction = dir;
+    // set all colors briefly to prevent trailing of different colors.
+    ColorSet(this->Color1); 
 }
  
 // Update the Scanner Pattern
 void NeoPatterns::ScannerUpdate() { 
-    for (int i = 0; i < numPixels(); i++) {
-        if (i == Index) { // Scan Pixel to the right
-             setPixelColor(i, Color1);
-        }
-        else if (i == TotalSteps - Index) { // Scan Pixel to the left
-             setPixelColor(i, Color1);
-        }
-        else { // Fading tail
-             setPixelColor(i, DimColor(getPixelColor(i)));
+    if(Trace == DUAL) {  
+        for (int i = 0; i < numPixels(); i++) {
+            if (i == Index) { // Scan Pixel to the right
+                 setPixelColor(i, Color1);
+            }
+            else if (i == TotalSteps - 1 - Index) { // Scan Pixel to the left
+                 setPixelColor(i, Color1);
+            }
+            else { // Fading tail
+                 setPixelColor(i, DimColor(getPixelColor(i)));
+            }
         }
     }
+    else {
+        for (int i = 0; i < numPixels(); i++) {
+            if (i == Index && Index < numPixels()) { // Scan Pixel to the right
+                 setPixelColor(i, Color1);
+            }
+            else if (i == TotalSteps - 1 - Index && Index > numPixels()) { // Scan Pixel to the left
+                 setPixelColor(i, Color1);
+            }
+            else { // Fading tail
+                 setPixelColor(i, DimColor(getPixelColor(i)));
+            }
+        }
+    }
+
     show();
     Increment();
 }
@@ -175,7 +211,7 @@ void NeoPatterns::Fade(uint32_t color1, uint32_t color2, uint16_t steps, uint8_t
 // Update the Fade Pattern
 void NeoPatterns::FadeUpdate() {
     // Calculate linear interpolation between Color1 and Color2
-    // Optimise order of operations to minimize truncation error
+    // Optimize order of operations to minimize truncation error
     uint8_t red = ((Red(Color1) * (TotalSteps - Index)) + (Red(Color2) * Index)) / TotalSteps;
     uint8_t green = ((Green(Color1) * (TotalSteps - Index)) + (Green(Color2) * Index)) / TotalSteps;
     uint8_t blue = ((Blue(Color1) * (TotalSteps - Index)) + (Blue(Color2) * Index)) / TotalSteps;
@@ -235,4 +271,3 @@ uint32_t NeoPatterns::Wheel(byte WheelPos) {
         return Color(WheelPos * 3, 255 - WheelPos * 3, 0);
     }
 }
-

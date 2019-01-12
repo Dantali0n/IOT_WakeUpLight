@@ -23,7 +23,7 @@
 #include "serialcommand.h"
 
 const char *serialCommand::COMMANDS_STRING[] = {
-    "brightness", "speed", "pattern", "color", "direction", "pwm"
+    "brightness", "speed", "pattern", "color", "path", "pwm"
 };
 
 /**
@@ -36,12 +36,13 @@ serialCommand::serialCommand(serialCommandDelegate *eventHandler) {
 
 void serialCommand::processCommands() {
   bool isComplete = false;
+
   if (Serial.available()) {
-    Serial.print("processCommands - have serial - ");
+    if(DEBUG) Serial.print("processCommands - have serial - ");
     int i = 0;
     char bytes[64] = {};
     while(Serial.available()) {
-      Serial.print("b");
+      if(DEBUG) Serial.print("b");
       bytes[i] = Serial.read();
       i++;
     }
@@ -49,15 +50,15 @@ void serialCommand::processCommands() {
     int substr = fetched.indexOf('\n');
 
     // remove everything after the line ending and the line ending itself
-    if(substr > 0) {
-      Serial.print(" - have line ending");
+    if(substr > -1) {
+      if(DEBUG) Serial.print(" - have line ending");
       
       // Serial.print("Before: ");
       // Serial.println(bytes);
       
-      for(int i = substr; i < 64; i++) {
-        bytes[i] = NULL;
-      }
+      // for(int i = substr; i < 64; i++) {
+      //   bytes[i] = NULL;
+      // }
       
       // Serial.print("after: ");
       // Serial.println(bytes);
@@ -75,6 +76,9 @@ void serialCommand::processCommands() {
     // Command has line ending and is complete and thus ready for processing
     if(isComplete) {
 
+      // Handle commands case insensitive
+      // currentCommand.toLowerCase();
+
       if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::brightness])) {
         currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::brightness]).length() +1); 
         processSetBrightness();
@@ -82,52 +86,22 @@ void serialCommand::processCommands() {
       else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::speed])) {
         currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::speed]).length() +1);
         processSetSpeed();
-        // bool newFlicker = currentCommand.substring(0,1).equals("1");
-        // Serial.print(COMMANDS_STRING[COMMANDS_ENUM::speed]);
-        // Serial.print(": ");
-        // Serial.println(newFlicker);
-        
-        // eventHandler->eventSetMinuteFlicker(newFlicker);
       }
       else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::pattern])) {
         currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::pattern]).length() +1);
         processSetAnimation();
-
-        // int newFlicker = currentCommand.toInt();
-        // Serial.print(COMMANDS_STRING[COMMANDS_ENUM::pattern]);
-        // Serial.print(": ");
-        // Serial.println(newFlicker);
-        // eventHandler->eventSetNumMinuteFlicker(newFlicker);
       }
       else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::color])) {
         currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::color]).length() +1);
         processSetColor();
-
-        // bool newRunningPatterns = currentCommand.substring(0,1).equals("1");
-        // Serial.print(COMMANDS_STRING[COMMANDS_ENUM::color]);
-        // Serial.print(": ");
-        // Serial.println(newRunningPatterns);
-        // eventHandler->eventSetRunningPatterns(newRunningPatterns);
       }
-      else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::direction])) {
-        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::direction]).length() +1);
-        processSetDirection();
-
-        // bool newRunningPatterns = currentCommand.substring(0,1).equals("1");
-        // Serial.print(COMMANDS_STRING[COMMANDS_ENUM::direction]);
-        // Serial.print(": ");
-        // Serial.println(newRunningPatterns);
-        // eventHandler->eventSetRunningPatterns(newRunningPatterns);
+      else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::path])) {
+        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::path]).length() +1);
+        processSetPath();
       }
       else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::pwm])) {
         currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::pwm]).length() +1);
         processSetPWM();
-
-        // bool newLeds = currentCommand.substring(0,1).equals("1");
-        // Serial.print(COMMANDS_STRING[COMMANDS_ENUM::pwm]);
-        // Serial.print(": ");
-        // Serial.println(newLeds);
-        // eventHandler->eventSetLeds(newLeds);
       }
       else {
         Serial.println(currentCommand);
@@ -147,7 +121,7 @@ void serialCommand::processSetBrightness() {
 
 void serialCommand::processSetSpeed() {
   long speed = currentCommand.toInt();
-  if(speed > UINT16_MAX) speed = UINT16_MAX;
+  if(speed > UINT8_MAX) speed = UINT8_MAX;
   eventHandler->eventSetSpeed(speed);
 }
 
@@ -157,8 +131,8 @@ void serialCommand::processSetAnimation() {
   if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::RAINBOW])) {
     anim = RAINBOW;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::COLOR_WHITE])) {
-    anim = COLOR_WHITE;
+  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::SOLID_COLOR])) {
+    anim = SOLID_COLOR;
   }
   else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::COLOR_WIPE_CHRISTMAS])) {
     anim = COLOR_WIPE_CHRISTMAS;
@@ -166,29 +140,50 @@ void serialCommand::processSetAnimation() {
   else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::COLOR_WIPE_RANDOM])) {
     anim = COLOR_WIPE_RANDOM;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::SCANNER_WHITE])) {
-    anim = SCANNER_WHITE;
+  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::SCANNER_SOLID])) {
+    anim = SCANNER_SOLID;
   }
   else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::SCANNER_RANDOM])) {
     anim = SCANNER_RANDOM;
+  }
+  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::FADE_SOLID])) {
+    anim = FADE_SOLID;
+  }
+  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::FADE_RANDOM])) {
+    anim = FADE_RANDOM;
   }
   
   eventHandler->eventSetAnimation(anim);
 }
 
 void serialCommand::processSetColor() {
+  int index = -1;
+  if(hasNextPart()) {
+    index = getNextPart().toInt();
+    currentCommand = currentCommand.substring(2);
+  }
+
   long color = currentCommand.toInt();
   if(color > UINT32_MAX) color = UINT32_MAX;
-  eventHandler->eventSetColor(color);
+  eventHandler->eventSetColor(color, index);
 }
 
-void serialCommand::processSetDirection() {
-
-  eventHandler->eventSetDirection(true);
+void serialCommand::processSetPath() {
+  direction dir = FORWARD;
+  if(currentCommand.startsWith(DIRECTION_STRING[direction::REVERSE])) dir = REVERSE;
+  eventHandler->eventSetPath(dir);
 }
 
 void serialCommand::processSetPWM() {
   long pwm = currentCommand.toInt();
   if(pwm > 255) pwm = 255;
   eventHandler->eventSetPWM(pwm);
+}
+
+bool serialCommand::hasNextPart() {
+  return (currentCommand.indexOf(" ") == -1) ? false : true; 
+}
+
+String serialCommand::getNextPart() {
+  return currentCommand.substring(0, currentCommand.indexOf(" "));
 }

@@ -27,6 +27,7 @@
 
 #include <Arduino.h>
 #include "typedefinitions.h"
+#include "neopatterns.h"
 #include "neoanimation.h"
 
 /**
@@ -35,10 +36,10 @@
 class serialCommandDelegate {
   public:
     virtual void eventSetBrightness(uint8_t brightness) = 0;
-    virtual void eventSetSpeed(uint16_t speed) = 0;
+    virtual void eventSetSpeed(uint8_t speed) = 0;
     virtual void eventSetAnimation(animation anim) = 0;
-    virtual void eventSetColor(uint32_t color) = 0;
-    virtual void eventSetDirection(bool reverse) = 0;
+    virtual void eventSetColor(uint32_t color, int index) = 0;
+    virtual void eventSetPath(direction dir) = 0;
     virtual void eventSetPWM(uint8_t pwm) = 0;
 };
 
@@ -46,15 +47,19 @@ class serialCommand {
   private:
     serialCommandDelegate* eventHandler;
     String currentCommand;
+
     void processSetBrightness();
     void processSetSpeed();
     void processSetAnimation();
     void processSetColor();
-    void processSetDirection();
+    void processSetPath();
     void processSetPWM();
+
+    bool hasNextPart();
+    String getNextPart();
   public:
     enum COMMANDS_ENUM {
-      brightness, speed, pattern, color, direction, pwm
+      brightness, speed, pattern, color, path, pwm
     };
     
     static const char *COMMANDS_STRING[];
@@ -66,5 +71,3 @@ class serialCommand {
 
 #endif /* __cplusplus */
 #endif /* _Serial_Command_h */
-
-

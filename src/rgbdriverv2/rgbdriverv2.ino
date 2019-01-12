@@ -1,3 +1,25 @@
+/*
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation; either version 3 of the License, or
+ *      (at your option) any later version.
+ *
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
+ *
+ *      You should have received a copy of the GNU General Public License
+ *      along with this program; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ *      MA 02110-1301, USA.
+ */
+
+/*  * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ Code by Dantali0n
+ https://dantalion.nl
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 #include <ArduinoSTL.h>
 #include <list>
 
@@ -8,32 +30,26 @@
 #include "neoanimation.h"
 #include "framerate.h"
 
-/**
-* 
-*/
-
 // constants //
-const int PIXEL_COUNT = 30;
+const int         PIXEL_COUNT         = 30;
+const animation   INITIAL_ANIMATION   = RAINBOW;
+const int         INITIAL_BRIGHTNESS  = 255;
+const int         INITIAL_SPEED       = 50;
 
 // input / output //
-// the dummy output
-const int ledPin = LED_BUILTIN;
-const int stripStartPin = 10;
-const int numStrips = 5;
-
+const int        ledPin            = LED_BUILTIN;
+const int        stripStartPin     = 10;
+const int        numStrips         = 7;
 
 // callbacks & other predeclaritive functions // 
-void modeSwitch(NeoPatterns* stick, animation mode);
-void stickComplete(NeoPatterns* stick);
+void stickComplete(NeoAnimation* stick);
 void boardSpecificSetup();
 
 // none const variables and objects // 
-DeltaTimer              deltaTimer; // allows update function with deltaTime increments to send to all actors
-FrameRate               rate; // keep track of current framerate
-std::list<NeoPatterns*> patterns          = std::list<NeoPatterns*>();
-animation               currentMode       = RAINBOW;
-int                     currentBrightness = 0;
-int                     currentSpeed      = 0;
+DeltaTimer                deltaTimer; // allows update function with deltaTime increments to send to all actors
+FrameRate                 rate; // keep track of current framerate
+std::list<NeoAnimation*>  patterns          = std::list<NeoAnimation*>();
+
 
 int lastPowerButtonState = 0;
 uint32_t lastSerialUpdate = 0; // track when the last serial debug information
@@ -41,28 +57,34 @@ bool ledState = false;
 
 class serialCommandHandler: public serialCommandDelegate {
   void eventSetBrightness(uint8_t brightness){
-    currentBrightness = brightness;
+    for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
+      (*it)->setBrightness(brightness);
+    }
   }
 
-  void eventSetSpeed(uint16_t speed){
-    currentSpeed = speed;
+  void eventSetSpeed(uint8_t speed){
+    for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
+      (*it)->Interval = speed;
+    }
   }
 
   void eventSetAnimation(animation pattern){
-    for (std::list<NeoPatterns*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
-      modeSwitch((*it), pattern);
+    for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
+      (*it)->animationSwitch(pattern);
     }
   }
 
-  void eventSetColor(uint32_t color){
-    for (std::list<NeoPatterns*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
-      (*it)->Color1 = color;
-      (*it)->Color2 = color;
+  void eventSetColor(uint32_t color, int index){
+    for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
+      if(index == -1 || index == 1) (*it)->Color1 = color;
+      if(index == -1 || index == 2) (*it)->Color2 = color;
     }
   }
 
-  void eventSetDirection(bool reverse){
-
+  void eventSetPath(direction dir){
+    for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
+      (*it)->Direction = dir;
+    }
   }
 
   void eventSetPWM(uint8_t pwm){
@@ -77,7 +99,8 @@ serialCommand serialC = serialCommand(&serialCH);
  * Initialize Serial, IO and the rgb leds
  */
 void setup() {
-  if(DEBUG) Serial.begin(9600);
+  Serial.begin(9600);
+  Serial.println("RGBDriver V2");
 
   pinMode(11, OUTPUT);
   digitalWrite(11, HIGH);
@@ -85,57 +108,19 @@ void setup() {
   boardSpecificSetup();
 
   for(uint8_t i = 0; i < numStrips; i++) {
-    NeoPatterns* stick = new NeoPatterns(PIXEL_COUNT, (stripStartPin-i), NEO_GRB + NEO_KHZ800, &stickComplete); 
+    int pixels = PIXEL_COUNT;
+    // if(i == numStrips -1) pixels *= 2; // override pixel count for specific indexes
+    //NeoAnimation* stick = new NeoAnimation(pixels, (stripStartPin-i), NEO_GRB + NEO_KHZ800, &stickComplete); 
+    NeoAnimation* stick = new NeoAnimation(pixels, (stripStartPin-i), NEO_GRB + NEO_KHZ800); 
     patterns.push_back(stick);
     stick->begin();
-
-    currentMode = RAINBOW;
-    stick->RainbowCycle(3);
-    
-//    currentMode = COLOR_WHITE;
-//    stick->NoPattern();
-//    stick->Color1 = 16777215;
-//    stick->ColorSet(16777215);
+    stick->animationSwitch(INITIAL_ANIMATION);
+    stick->setBrightness(INITIAL_BRIGHTNESS);
+    stick->Interval = INITIAL_SPEED;
   }
 
   // initialize outputs
-  pinMode(ledPin, OUTPUT);
-}
-
-/**
- * When the pattern is done read back the color settings on the potentiometer
- */
-void stickComplete(NeoPatterns* stick)
-{
-  // Random color change for next scan
-  switch(currentMode){
-      case RAINBOW:
-          break;
-      case COLOR_WHITE:
-          break;
-      case COLOR_WIPE_CHRISTMAS:
-          stick->Reverse();
-          if(stick->Color1 == 16711680) {
-            stick->Color1 = 65280;
-          }
-          else {
-            stick->Color1 = 16711680;
-          }
-          break;
-      case COLOR_WIPE_RANDOM:
-          stick->Reverse();
-          stick->Color1 = random(2147483646);
-          stick->Color2 = random(2147483646);
-          break;
-      case SCANNER_WHITE:
-          break;
-      case SCANNER_RANDOM:
-          stick->Reverse();
-          stick->Color1 = random(16777215);
-          stick->Color2 = random(16777215);
-      default:
-          break;
-    }
+  pinMode(ledPin, OUTPUT); 
 }
 
 /**
@@ -164,9 +149,7 @@ void loop() {
   uint32_t deltaTime = deltaTimer.getDeltaTime();
 
   // change ledstrip settings
-  for (std::list<NeoPatterns*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
-    (*it)->setBrightness(currentBrightness);
-    (*it)->Interval = currentSpeed;
+  for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
     (*it)->update(deltaTime);
   }
 
@@ -182,51 +165,31 @@ void loop() {
     digitalWrite(LED_BUILTIN, ledState);
     if(DEBUG) {
       uint32_t currentFrames = rate.get();
-      Serial.print(currentBrightness);
-      Serial.print(" ");
-      Serial.print(currentSpeed);
-      Serial.print(" ");
+      for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
+        Serial.print("{");
+        Serial.print((*it)->getBrightness());
+        Serial.print(",");
+        Serial.print((*it)->Interval);
+        Serial.print(",");
+        Serial.print(PATTERN_STRING[(*it)->ActivePattern]);
+        Serial.print(",");
+        Serial.print(DIRECTION_STRING[(*it)->Direction]);
+        Serial.print(",");
+        Serial.print(TRACE_STRING[(*it)->Trace]);
+        Serial.print(",");
+        Serial.print((*it)->Color1);
+        Serial.print(",");
+        Serial.print((*it)->Color2);
+        Serial.print(",");
+        Serial.print((*it)->TotalSteps);
+        Serial.print(",");
+        Serial.print((*it)->Index);
+        Serial.println("}");
+      }
       Serial.print(currentFrames);
-      Serial.print(" ");
-      if((1.d / currentFrames * 1000.d) > currentSpeed) { Serial.print("LAGG");}
+      // Serial.print(" ");
+      // if((1.d / currentFrames * 1000.d) > currentSpeed) { Serial.print("LAGG");}
       Serial.println();
     }
   }
- }
-
-/**
- * 
- */
-void modeSwitch(NeoPatterns* stick, animation mode) {
-  switch(mode){
-    case RAINBOW:
-        currentMode = COLOR_WHITE;
-        stick->NoPattern();
-        stick->Color1 = 16777215;
-        stick->ColorSet(16777215);
-        break;
-    case COLOR_WHITE:
-        currentMode = COLOR_WIPE_CHRISTMAS;
-        stick->ColorWipe(16711680, stick->Interval);
-        break;
-    case COLOR_WIPE_CHRISTMAS:
-        currentMode = COLOR_WIPE_RANDOM;
-        stick->ColorWipe(random(16777215), stick->Interval);
-        break;
-    case COLOR_WIPE_RANDOM:
-        currentMode = SCANNER_WHITE;
-        stick->Scanner(16777215, stick->Interval);
-        break;
-    case SCANNER_WHITE:
-        currentMode = SCANNER_RANDOM;
-        stick->Scanner(random(16777215), stick->Interval);
-        break;
-    case SCANNER_RANDOM:
-        currentMode = RAINBOW;
-        stick->RainbowCycle(stick->Interval);
-        break;
-    default:
-        break;
-  }
 }
-

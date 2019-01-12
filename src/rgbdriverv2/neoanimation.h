@@ -31,19 +31,35 @@
 
 // Animation types supported:
 enum animation { 
-	NO_PATTERN_UPDATE, RAINBOW, COLOR_WHITE, COLOR_WIPE_CHRISTMAS, COLOR_WIPE_RANDOM, SCANNER_WHITE, SCANNER_RANDOM 
+	NO_PATTERN_UPDATE, 
+	RAINBOW, 
+	SOLID_COLOR, 
+	COLOR_WIPE_SOLID, COLOR_WIPE_CHRISTMAS, COLOR_WIPE_RANDOM, 
+	SCANNER_SOLID, SCANNER_RANDOM, 
+	FADE_SOLID, FADE_RANDOM
 };
 
-// String representation of each enum type 
+// String representation of each animation type from the enum
 const static char *LED_ANIMATION_STRING[] = {
-    "", "RAINBOW", "COLOR_WHITE", "COLOR_WIPE_CHRISTMAS", "COLOR_WIPE_RANDOM", "SCANNER_WHITE", "SCANNER_RANDOM"
+    "", 
+    "RAINBOW", 
+    "SOLID_COLOR", 
+    "COLOR_WIPE_SOLID", "COLOR_WIPE_CHRISTMAS", "COLOR_WIPE_RANDOM", 
+    "SCANNER_SOLID", "SCANNER_RANDOM", 
+    "FADE_SOLID", "FADE_RANDOM"
 };
 
 class NeoAnimation : public NeoPatterns {
 public:
 	animation currentAnimation;
 
+	NeoAnimation(uint16_t pixels, uint8_t pin, uint8_t type);
 	NeoAnimation(uint16_t pixels, uint8_t pin, uint8_t type, void (*callback)(NeoAnimation* stick));
+
+	void animationSwitch(animation anim);
+
+protected:
+	static void patternComplete(NeoAnimation* stick);
 };
 
 #endif /* __cplusplus */

@@ -6,9 +6,16 @@
 #include "actor.h"
 
 // Pattern types supported:
-enum  pattern { NONE, RAINBOW_CYCLE, THEATER_CHASE, COLOR_WIPE, SCANNER, FADE, NO_PATTERN };
-// Patern directions supported:
+enum  pattern { RAINBOW_CYCLE, THEATER_CHASE, COLOR_WIPE, SCANNER, FADE, NO_PATTERN };
+const static char *PATTERN_STRING[] = { "RAINBOW_CYCLE", "THEATER_CHASE", "COLOR_WIPE", "SCANNER", "FADE", "NO_PATTERN" };
+
+// Pattern directions supported:
 enum  direction { FORWARD, REVERSE };
+const static char *DIRECTION_STRING[] = { "FORWARD", "REVERSE" };
+
+// Pattern trace type, determines amount of simultaneous bright emissions
+enum  trace { SINGLE, DUAL };
+const static char *TRACE_STRING[] = { "SINGLE", "DUAL" };
  
 // NeoPattern Class - derived from the Adafruit_NeoPixel class
 class NeoPatterns : public Adafruit_NeoPixel, public Actor {
@@ -16,6 +23,7 @@ public:
     // Member Variables:  
     pattern  ActivePattern;  // which pattern is running
     direction Direction;     // direction to run the pattern
+    trace Trace;
     
     unsigned long Interval;   // milliseconds between updates
     
@@ -56,7 +64,7 @@ public:
     void ColorWipeUpdate();
     
     // Initialize for a SCANNNER
-    void Scanner(uint32_t color1, uint8_t interval);
+    void Scanner(uint32_t color1, uint8_t interval, trace trc = DUAL, direction dir = FORWARD);
  
     // Update the Scanner Pattern
     void ScannerUpdate();

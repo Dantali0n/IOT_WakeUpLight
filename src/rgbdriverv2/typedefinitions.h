@@ -23,7 +23,7 @@
 #ifndef TYPEDEF_DEFINITIONS_H
 #define TYPEDEF_DEFINITIONS_H
 
-const static bool DEBUG = true;
+const static bool DEBUG = false;
 const static bool PERFORMANCE_PROFILE = false;
 
 typedef unsigned char uint8_t;
