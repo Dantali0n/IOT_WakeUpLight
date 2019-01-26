@@ -29,4 +29,3 @@ const static bool PERFORMANCE_PROFILE = false;
 typedef unsigned char uint8_t;
 
 #endif
-

@@ -42,8 +42,15 @@ void NeoPatterns::update(uint32_t deltaTime) {
             case FADE:
                 FadeUpdate();
                 break;
+            case FIRE:
+                FireUpdate();
+                break;
+            case METEOR:
+                MeteorUpdate();
+                break;
             case NO_PATTERN:
                 ColorSet(Color1);
+                break;
             default:
                 break;
         }
@@ -221,6 +228,71 @@ void NeoPatterns::FadeUpdate() {
     Increment();
 }
 
+// Initialize for a FIRE Pattern
+void NeoPatterns::Fire(uint32_t color1, uint8_t interval, trace trc = DUAL, direction dir = FORWARD) {
+    ActivePattern = FIRE;
+    Interval = interval;
+    TotalSteps = numPixels() * 2;
+    Color1 = color1;
+    Index = 0;
+    Trace = trc;
+    Direction = dir;
+}
+
+// Update the Fire Pattern
+void NeoPatterns::FireUpdate() {
+    // TODO implement
+}
+
+void NeoPatterns::FireSetPixelHeatColor(uint16_t pixel, uint8_t temperature) {
+    // Scale 'heat' down from 0-255 to 0-191
+    byte t192 = round((temperature/255.0)*191);
+
+    // calculate ramp up from
+    byte heatramp = t192 & 0x3F; // 0..63
+    heatramp <<= 2; // scale up to 0..252
+
+    // figure out which third of the spectrum we're in:
+    if( t192 > 0x80) {                     // hottest
+        setPixel(pixel, 255, 255, heatramp);
+    } else if( t192 > 0x40 ) {             // middle
+        setPixel(pixel, 255, heatramp, 0);
+    } else {                               // coolest
+        setPixel(pixel, heatramp, 0, 0);
+    }
+}
+
+// Initialize for a METEOR Pattern
+void NeoPatterns::Meteor(uint32_t color1, uint8_t interval, trace trc = DUAL, direction dir = FORWARD) {
+    ActivePattern = METEOR;
+    Interval = interval;
+    TotalSteps = numPixels() * 2; // Half of the steps the updated pixel is outside the actual size of the strip
+    Color1 = color1;
+    Index = 0;
+    Trace = trc;
+    Direction = dir;
+}
+
+// Update the Meteor Pattern
+void NeoPatterns::MeteorUpdate() {
+    for(int i = 0; i < numPixels(); i++) {
+        if (random(100) <= MeteorFadeChange) {
+            setPixelColor(i, DimColor(getPixelColor(i), MeteorFadeFactor));
+        }
+    }
+
+    // Offset is used to start to the left of the actual strip
+    int8_t offset = (numPixels() / 2);
+    for(int j = (MeteorLength / 2 * -1); j < MeteorLength / 2; j++) {
+      if( ( Index - offset - j < numPixels()) && (Index - offset - j >= 0) ) {
+        setPixelColor(Index - offset - j, Color1);
+      } 
+    }
+
+    show();
+    Increment();
+}
+
 void NeoPatterns::NoPattern() {
   ActivePattern = NO_PATTERN;
 }
@@ -230,6 +302,24 @@ uint32_t NeoPatterns::DimColor(uint32_t color) {
     // Shift R, G and B components one bit to the right
     uint32_t dimColor = Color(Red(color) >> 1, Green(color) >> 1, Blue(color) >> 1);
     return dimColor;
+}
+
+// Calculate dimmed version of a color
+uint32_t NeoPatterns::DimColor(uint32_t color, uint8_t factor) {
+    // Shift R, G and B components one bit to the right
+    uint8_t red, green, blue;
+    red = Red(color);
+    green = Green(color);
+    blue = Blue(color);
+    uint32_t dimColor = Color(DimBaseColor(red, factor), DimBaseColor(green, factor), DimBaseColor(blue, factor));
+    return dimColor;
+}
+
+// Calculate dimmed version of a base color
+uint8_t NeoPatterns::DimBaseColor(uint8_t baseColor, uint8_t factor) {
+    float result = baseColor-(baseColor * factor / UINT8_MAX);
+    if(baseColor == result && baseColor != 0) result -= 1; // always at least subtract one
+    return result;
 }
  
 // Set all pixels to a color (synchronously)

@@ -84,6 +84,18 @@ void NeoAnimation::animationSwitch(animation anim) {
     	this->currentAnimation = FADE_RANDOM;
         this->Fade(random(16777215), random(16777215), 254, this->Interval);
         break;
+    case FIRE_SOLID:
+    	this->currentAnimation = FIRE_SOLID;
+        this->Fire(this->Color1, this->Interval);
+        break;
+    case METEOR_SOLID:
+    	this->currentAnimation = METEOR_SOLID;
+        this->Meteor(this->Color1, this->Interval);
+        break;
+    case METEOR_SCANNER_SOLID:
+    	this->currentAnimation = METEOR_SCANNER_SOLID;
+        this->Meteor(this->Color1, this->Interval);
+        break;
     default:
         break;
   	}
@@ -131,6 +143,9 @@ void NeoAnimation::patternComplete(NeoAnimation* stick) {
 		else {
 	    	stick->Color1 = random(16777215);
 	  	}
+	  	stick->Reverse();
+	  	break;
+	case METEOR_SCANNER_SOLID:
 	  	stick->Reverse();
 	  	break;
 	default:

@@ -152,6 +152,15 @@ void serialCommand::processSetAnimation() {
   else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::FADE_RANDOM])) {
     anim = FADE_RANDOM;
   }
+  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::FIRE_SOLID])) {
+    anim = FIRE_SOLID;
+  }
+  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::METEOR_SOLID])) {
+    anim = METEOR_SOLID;
+  }
+  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::METEOR_SCANNER_SOLID])) {
+    anim = METEOR_SCANNER_SOLID;
+  }
   
   eventHandler->eventSetAnimation(anim);
 }

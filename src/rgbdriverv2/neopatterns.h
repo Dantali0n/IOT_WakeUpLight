@@ -6,8 +6,8 @@
 #include "actor.h"
 
 // Pattern types supported:
-enum  pattern { RAINBOW_CYCLE, THEATER_CHASE, COLOR_WIPE, SCANNER, FADE, NO_PATTERN };
-const static char *PATTERN_STRING[] = { "RAINBOW_CYCLE", "THEATER_CHASE", "COLOR_WIPE", "SCANNER", "FADE", "NO_PATTERN" };
+enum  pattern { RAINBOW_CYCLE, THEATER_CHASE, COLOR_WIPE, SCANNER, FADE, FIRE, METEOR, NO_PATTERN };
+const static char *PATTERN_STRING[] = { "RAINBOW_CYCLE", "THEATER_CHASE", "COLOR_WIPE", "SCANNER", "FADE", "FIRE", "METEOR", "NO_PATTERN" };
 
 // Pattern directions supported:
 enum  direction { FORWARD, REVERSE };
@@ -30,6 +30,17 @@ public:
     uint32_t Color1, Color2;  // What colors are in use
     uint16_t TotalSteps;  // total number of steps in the pattern
     uint16_t Index;  // current step within the pattern
+
+    // TODO: put pattern specific variables and methods in their own classes.
+
+    // Fire Pattern Variables:
+    uint8_t FireCooling = 50;
+    uint8_t FireSparkling = 120;
+
+    // Meteor Pattern Variables:
+    uint8_t MeteorFadeFactor = 85;
+    uint8_t MeteorFadeChange = 50;
+    uint8_t MeteorLength = 4;
     
     void (*OnComplete)(NeoPatterns*);  // Callback on completion of pattern
     
@@ -75,11 +86,32 @@ public:
     // Update the Fade Pattern
     void FadeUpdate();
 
+    // Initialize for a FIRE Pattern
+    void Fire(uint32_t color1, uint8_t interval, trace trc = DUAL, direction dir = FORWARD);
+ 
+    // Update the Fire Pattern
+    void FireUpdate();
+
+    // Determine pixel heat
+    void FireSetPixelHeatColor (uint16_t pixel, uint8_t temperature);
+
+    // Initialize for a METEOR Pattern
+    void Meteor(uint32_t color1, uint8_t interval, trace trc = DUAL, direction dir = FORWARD);
+ 
+    // Update the Meteor Pattern
+    void MeteorUpdate();
+
     // Disable patterns
     void NoPattern();
    
     // Calculate 50% dimmed version of a color (used by ScannerUpdate)
     uint32_t DimColor(uint32_t color);
+
+    // Calculate dimmed version of a color
+    uint32_t DimColor(uint32_t color, uint8_t factor);
+
+    // Calculate dimmed version of a base color
+    uint8_t DimBaseColor(uint8_t baseColor, uint8_t factor);
  
     // Set all pixels to a color (synchronously)
     void ColorSet(uint32_t color);
