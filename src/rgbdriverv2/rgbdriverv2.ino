@@ -51,37 +51,80 @@ FrameRate                 rate; // keep track of current framerate
 std::list<NeoAnimation*>  patterns          = std::list<NeoAnimation*>();
 
 
-int lastPowerButtonState = 0;
-uint32_t lastSerialUpdate = 0; // track when the last serial debug information
-bool ledState = false;
+int       lastPowerButtonState = 0;
+uint32_t  lastSerialUpdate = 0; // track when the last serial debug information
+bool      ledState = false;
+
+// TODO move this two branched template code into a function were only the specifics are passed
 
 class serialCommandHandler: public serialCommandDelegate {
-  void eventSetBrightness(uint8_t brightness){
+  void eventSetBrightness(uint8_t brightness, int8_t stripIndex){
+
+    if(stripIndex != -1 && stripIndex < patterns.size()) {
+      std::list<NeoAnimation*>::iterator it = patterns.begin();
+      std::advance (it, stripIndex);
+      (*it)->setBrightness(brightness);
+      return;
+    }
+
     for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
       (*it)->setBrightness(brightness);
     }
   }
 
-  void eventSetSpeed(uint8_t speed){
+  void eventSetSpeed(uint8_t speed, int8_t stripIndex){
+
+    if(stripIndex != -1 && stripIndex < patterns.size()) {
+      std::list<NeoAnimation*>::iterator it = patterns.begin();
+      std::advance (it, stripIndex);
+      (*it)->Interval = speed;
+      return;
+    }
+
     for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
       (*it)->Interval = speed;
     }
   }
 
-  void eventSetAnimation(animation pattern){
+  void eventSetAnimation(animation pattern, int8_t stripIndex){
+
+    if(stripIndex != -1 && stripIndex < patterns.size()) {
+      std::list<NeoAnimation*>::iterator it = patterns.begin();
+      std::advance (it, stripIndex);
+      (*it)->animationSwitch(pattern);
+      return;
+    }
+
     for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
       (*it)->animationSwitch(pattern);
     }
   }
 
-  void eventSetColor(uint32_t color, int index){
+  void eventSetColor(uint32_t color, int8_t colorIndex, int8_t stripIndex){
+
+    if(stripIndex != -1 && stripIndex < patterns.size()) {
+      std::list<NeoAnimation*>::iterator it = patterns.begin();
+      std::advance (it, stripIndex);
+      if(colorIndex == -1 || colorIndex == 1) (*it)->Color1 = color;
+      if(colorIndex == -1 || colorIndex == 2) (*it)->Color2 = color;
+      return;
+    }
+
     for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
-      if(index == -1 || index == 1) (*it)->Color1 = color;
-      if(index == -1 || index == 2) (*it)->Color2 = color;
+      if(colorIndex == -1 || colorIndex == 1) (*it)->Color1 = color;
+      if(colorIndex == -1 || colorIndex == 2) (*it)->Color2 = color;
     }
   }
 
-  void eventSetPath(direction dir){
+  void eventSetPath(direction dir, int8_t stripIndex){
+
+    if(stripIndex != -1 && stripIndex < patterns.size()) {
+      std::list<NeoAnimation*>::iterator it = patterns.begin();
+      std::advance (it, stripIndex);
+      (*it)->Direction = dir;
+      return;
+    }
+    
     for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
       (*it)->Direction = dir;
     }

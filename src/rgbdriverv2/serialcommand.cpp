@@ -53,16 +53,6 @@ void serialCommand::processCommands() {
     if(substr > -1) {
       if(DEBUG) Serial.print(" - have line ending");
       
-      // Serial.print("Before: ");
-      // Serial.println(bytes);
-      
-      // for(int i = substr; i < 64; i++) {
-      //   bytes[i] = NULL;
-      // }
-      
-      // Serial.print("after: ");
-      // Serial.println(bytes);
-      
       isComplete = true;
     }
 
@@ -70,14 +60,12 @@ void serialCommand::processCommands() {
     if(DEBUG) Serial.print(" ");
     if(DEBUG) Serial.println(currentCommand);
 
-    // Serial.print("Command: ");
-    // Serial.println(currentCommand);
 
     // Command has line ending and is complete and thus ready for processing
     if(isComplete) {
 
-      // Handle commands case insensitive
-      // currentCommand.toLowerCase();
+      // Determine if the command has an specified index
+      currentStripIndex = subtractStripIndex();
 
       if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::brightness])) {
         currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::brightness]).length() +1); 
@@ -116,13 +104,13 @@ void serialCommand::processCommands() {
 void serialCommand::processSetBrightness() {
   long brightness = currentCommand.toInt();
   if(brightness > UINT8_MAX) brightness = UINT8_MAX;
-  eventHandler->eventSetBrightness(brightness);
+  eventHandler->eventSetBrightness(brightness, currentStripIndex);
 }
 
 void serialCommand::processSetSpeed() {
   long speed = currentCommand.toInt();
   if(speed > UINT8_MAX) speed = UINT8_MAX;
-  eventHandler->eventSetSpeed(speed);
+  eventHandler->eventSetSpeed(speed, currentStripIndex);
 }
 
 void serialCommand::processSetAnimation() {
@@ -165,31 +153,39 @@ void serialCommand::processSetAnimation() {
     anim = METEOR_SCANNER_SOLID;
   }
   
-  eventHandler->eventSetAnimation(anim);
+  eventHandler->eventSetAnimation(anim, currentStripIndex);
 }
 
 void serialCommand::processSetColor() {
-  int index = -1;
+  int colorIndex = -1;
   if(hasNextPart()) {
-    index = getNextPart().toInt();
+    colorIndex = getNextPart().toInt();
     currentCommand = currentCommand.substring(2);
   }
 
   long color = currentCommand.toInt();
   if(color > UINT32_MAX) color = UINT32_MAX;
-  eventHandler->eventSetColor(color, index);
+  eventHandler->eventSetColor(color, colorIndex, currentStripIndex);
 }
 
 void serialCommand::processSetPath() {
   direction dir = FORWARD;
   if(currentCommand.startsWith(DIRECTION_STRING[direction::REVERSE])) dir = REVERSE;
-  eventHandler->eventSetPath(dir);
+  eventHandler->eventSetPath(dir, currentStripIndex);
 }
 
 void serialCommand::processSetPWM() {
   long pwm = currentCommand.toInt();
   if(pwm > 255) pwm = 255;
   eventHandler->eventSetPWM(pwm);
+}
+
+int8_t serialCommand::subtractStripIndex() {
+  String nextPart = getNextPart();
+  int8_t stripIndex = nextPart.toInt();
+  if(stripIndex != 0 || nextPart.indexOf("0") == 0) currentCommand = currentCommand.substring(nextPart.length() +1);
+  else stripIndex = -1;
+  return stripIndex;
 }
 
 bool serialCommand::hasNextPart() {
