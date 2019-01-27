@@ -56,6 +56,10 @@ void NeoAnimation::animationSwitch(animation anim) {
         this->NoPattern();
         this->ColorSet(this->Color1);
         break;
+    case STROBE_COLOR:
+        this->currentAnimation = STROBE_COLOR;
+        this->Fade(this->Color1, this->Color2, 1, this->Interval);
+        break;
     case COLOR_WIPE_SOLID:
     	this->currentAnimation = COLOR_WIPE_SOLID;
         // TODO: Implement
@@ -110,6 +114,20 @@ void NeoAnimation::patternComplete(NeoAnimation* stick) {
   	case RAINBOW:
 	    break;
 	case SOLID_COLOR:
+	  	break;
+  	case STROBE_COLOR:
+  		if(stick->Color1 > 0) {
+  			stick->Color2 = stick->Color1;
+  			stick->Color1 = 0;
+  		}
+  		else if(stick->strobeTicks == stick->NUM_STROBE_TICKS) {
+  			stick->strobeTicks = 0;
+  			stick->Color1 = stick->Color2;
+  			stick->Color2 = 0;
+  		}
+  		else {
+  			stick->strobeTicks++;
+  		}
 	  	break;
 	case COLOR_WIPE_CHRISTMAS:
 		stick->Reverse();

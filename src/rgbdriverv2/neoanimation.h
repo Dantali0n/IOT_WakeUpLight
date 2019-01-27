@@ -33,7 +33,7 @@
 enum animation { 
 	NO_PATTERN_UPDATE, 
 	RAINBOW, 
-	SOLID_COLOR, 
+	SOLID_COLOR, STROBE_COLOR,
 	COLOR_WIPE_SOLID, COLOR_WIPE_CHRISTMAS, COLOR_WIPE_RANDOM, 
 	SCANNER_SOLID, SCANNER_RANDOM, 
 	FADE_SOLID, FADE_RANDOM,
@@ -45,7 +45,7 @@ enum animation {
 const static char *LED_ANIMATION_STRING[] = {
     "", 
     "RAINBOW", 
-    "SOLID_COLOR", 
+    "SOLID_COLOR", "STROBE_COLOR",
     "COLOR_WIPE_SOLID", "COLOR_WIPE_CHRISTMAS", "COLOR_WIPE_RANDOM", 
     "SCANNER_SOLID", "SCANNER_RANDOM", 
     "FADE_SOLID", "FADE_RANDOM",
@@ -63,7 +63,12 @@ public:
 	void animationSwitch(animation anim);
 
 protected:
-	static void patternComplete(NeoAnimation* stick);
+ 	static void patternComplete(NeoAnimation* stick);
+
+ 	// STROBE_COLOR Variables
+ 	// Use with speed 25 for best result
+ 	const uint8_t NUM_STROBE_TICKS = 5; 
+	uint8_t strobeTicks = 0;
 };
 
 #endif /* __cplusplus */

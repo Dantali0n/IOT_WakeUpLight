@@ -10,8 +10,13 @@ NeoPatterns::NeoPatterns(uint16_t pixels, uint8_t pin, uint8_t type, void (*call
     , Color2(0)
     , TotalSteps(1)
     , Index(0)
+    , FireHeat(new uint8_t[pixels])
 {
     OnComplete = callback;
+}
+
+NeoPatterns::~NeoPatterns() {
+    delete FireHeat;
 }
     
 // Update the pattern
@@ -241,7 +246,39 @@ void NeoPatterns::Fire(uint32_t color1, uint8_t interval, trace trc = DUAL, dire
 
 // Update the Fire Pattern
 void NeoPatterns::FireUpdate() {
-    // TODO implement
+    int cooldown;
+
+    // Step 1.  Cool down every cell a little
+    for( int i = 0; i < numPixels(); i++) {
+        cooldown = random(0, ((FireCooling * 10) / numPixels()) + 2);
+        if(cooldown>FireHeat[i]) {
+           FireHeat[i]=0;
+        } else {
+            FireHeat[i]=FireHeat[i]-cooldown;
+        }
+    }
+  
+    // Step 2.  Heat from each cell drifts 'up' and diffuses a little
+    for( int k= numPixels() - 1; k >= 2; k--) {
+        FireHeat[k] = (FireHeat[k - 1] + FireHeat[k - 2] + FireHeat[k - 2]) / 3;
+    }
+
+    
+
+    // Step 3.  Randomly ignite new 'sparks' near the bottom
+    if( random(255) < FireSparkling ) {
+        int y = random(7);
+        FireHeat[y] = FireHeat[y] + random(160,255);
+        //FireHeat[y] = random(160,255);
+    }
+
+    // Step 4.  Convert heat to LED colors
+    for( int j = 0; j < numPixels(); j++) {
+        FireSetPixelHeatColor(j, FireHeat[j] );
+    }
+
+    show();
+    Increment();
 }
 
 void NeoPatterns::FireSetPixelHeatColor(uint16_t pixel, uint8_t temperature) {
@@ -254,11 +291,11 @@ void NeoPatterns::FireSetPixelHeatColor(uint16_t pixel, uint8_t temperature) {
 
     // figure out which third of the spectrum we're in:
     if( t192 > 0x80) {                     // hottest
-        setPixel(pixel, 255, 255, heatramp);
+        setPixelColor(pixel, 255, 255, heatramp);
     } else if( t192 > 0x40 ) {             // middle
-        setPixel(pixel, 255, heatramp, 0);
+        setPixelColor(pixel, 255, heatramp, 0);
     } else {                               // coolest
-        setPixel(pixel, heatramp, 0, 0);
+        setPixelColor(pixel, heatramp, 0, 0);
     }
 }
 

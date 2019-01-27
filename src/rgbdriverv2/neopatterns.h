@@ -36,6 +36,7 @@ public:
     // Fire Pattern Variables:
     uint8_t FireCooling = 50;
     uint8_t FireSparkling = 120;
+    uint8_t* FireHeat; // stores the heat for each pixel
 
     // Meteor Pattern Variables:
     uint8_t MeteorFadeFactor = 85;
@@ -46,6 +47,9 @@ public:
     
     // Constructor - calls base-class constructor to initialize strip
     NeoPatterns(uint16_t pixels, uint8_t pin, uint8_t type, void (*callback)(NeoPatterns* stick));
+
+    // Destructor
+    ~NeoPatterns();
     
     // Update the pattern
     void update(uint32_t deltaTime);
@@ -93,7 +97,7 @@ public:
     void FireUpdate();
 
     // Determine pixel heat
-    void FireSetPixelHeatColor (uint16_t pixel, uint8_t temperature);
+    void FireSetPixelHeatColor(uint16_t pixel, uint8_t temperature);
 
     // Initialize for a METEOR Pattern
     void Meteor(uint32_t color1, uint8_t interval, trace trc = DUAL, direction dir = FORWARD);
