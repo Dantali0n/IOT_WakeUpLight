@@ -21,6 +21,7 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #ifndef DELTA_TIMER_H
+#ifdef __cplusplus
 #define DELTA_TIMER_H
 
 #include <Arduino.h>
@@ -35,5 +36,6 @@ class DeltaTimer {
     void update(uint32_t newMicros);
     uint32_t getDeltaTime();
 };
-#endif
 
+#endif /* __cplusplus */
+#endif /* DELTA_TIMER_H */

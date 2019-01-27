@@ -20,9 +20,9 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _NEO_ANIMATION_h
+#ifndef _NEO_ANIMATION_H
 #ifdef __cplusplus
-#define _NEO_ANIMATION_h
+#define _NEO_ANIMATION_H
 
 #include <Arduino.h>
 #include "typedefinitions.h"
@@ -33,7 +33,7 @@
 enum animation { 
 	NO_PATTERN_UPDATE, 
 	RAINBOW, 
-	SOLID_COLOR, STROBE_COLOR,
+	COLOR_SOLID, STROBE_SOLID,
 	COLOR_WIPE_SOLID, COLOR_WIPE_CHRISTMAS, COLOR_WIPE_RANDOM, 
 	SCANNER_SOLID, SCANNER_RANDOM, 
 	FADE_SOLID, FADE_RANDOM,
@@ -45,7 +45,7 @@ enum animation {
 const static char *LED_ANIMATION_STRING[] = {
     "", 
     "RAINBOW", 
-    "SOLID_COLOR", "STROBE_COLOR",
+    "COLOR_SOLID", "STROBE_SOLID",
     "COLOR_WIPE_SOLID", "COLOR_WIPE_CHRISTMAS", "COLOR_WIPE_RANDOM", 
     "SCANNER_SOLID", "SCANNER_RANDOM", 
     "FADE_SOLID", "FADE_RANDOM",
@@ -72,4 +72,4 @@ protected:
 };
 
 #endif /* __cplusplus */
-#endif /* _NEO_ANIMATION_h */
+#endif /* _NEO_ANIMATION_H */

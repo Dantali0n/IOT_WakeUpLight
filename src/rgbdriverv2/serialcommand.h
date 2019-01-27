@@ -21,9 +21,9 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
-#ifndef _Serial_Command_h
+#ifndef _SERIAL_COMMAND_H
 #ifdef __cplusplus
-#define _Serial_Command_h
+#define _SERIAL_COMMAND_H
 
 #include <Arduino.h>
 #include "typedefinitions.h"
@@ -61,13 +61,13 @@ class serialCommand {
     enum COMMANDS_ENUM {
       brightness, speed, pattern, color, path, pwm
     };
-    
+
     static const char *COMMANDS_STRING[];
 
     serialCommand(serialCommandDelegate* eventHandler);
-    
+
     void processCommands();
 };
 
 #endif /* __cplusplus */
-#endif /* _Serial_Command_h */
+#endif /* _SERIAL_COMMAND_H */

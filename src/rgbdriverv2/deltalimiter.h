@@ -21,6 +21,7 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #ifndef DELTA_LIMITER_H
+#ifdef __cplusplus
 #define DELTA_LIMITER_H
 
 #include <Arduino.h>
@@ -36,5 +37,5 @@ class DeltaLimiter: public Actor {
     bool hasUpdate();
 };
 
-#endif
-
+#endif /* __cplusplus */
+#endif /* DELTA_LIMITER_H */

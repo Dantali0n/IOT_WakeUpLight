@@ -21,6 +21,7 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #ifndef SMOOTH_MAP_READ_H
+#ifdef __cplusplus
 #define SMOOTH_MAP_READ_H
 
 #include <Arduino.h>
@@ -41,5 +42,5 @@ public:
 	uint16_t read(uint8_t numSamples);
 };
 
-#endif
-
+#endif /* __cplusplus */
+#endif /* SMOOTH_MAP_READ_H */

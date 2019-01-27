@@ -20,9 +20,9 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _PWM_Led_Control_h
+#ifndef _PWM_LED_CONTROL_H
 #ifdef __cplusplus
-#define _PWM_Led_Control_h
+#define _PWM_LED_CONTROL_H
 
 #include <Arduino.h>
 #include "typedefinitions.h"
@@ -39,4 +39,4 @@ class pwmLedControl : public Actor {
 };
 
 #endif /* __cplusplus */
-#endif /* _PWM_Led_Control_h */
+#endif /* _PWM_LED_CONTROL_H */

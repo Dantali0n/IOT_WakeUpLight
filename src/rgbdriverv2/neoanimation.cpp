@@ -51,13 +51,13 @@ void NeoAnimation::animationSwitch(animation anim) {
         this->currentAnimation = RAINBOW;
         this->RainbowCycle(this->Interval);
         break;
-    case SOLID_COLOR:
-        this->currentAnimation = SOLID_COLOR;
+    case COLOR_SOLID:
+        this->currentAnimation = COLOR_SOLID;
         this->NoPattern();
         this->ColorSet(this->Color1);
         break;
-    case STROBE_COLOR:
-        this->currentAnimation = STROBE_COLOR;
+    case STROBE_SOLID:
+        this->currentAnimation = STROBE_SOLID;
         this->Fade(this->Color1, this->Color2, 1, this->Interval);
         break;
     case COLOR_WIPE_SOLID:
@@ -113,9 +113,9 @@ void NeoAnimation::patternComplete(NeoAnimation* stick) {
   	switch(stick->currentAnimation){
   	case RAINBOW:
 	    break;
-	case SOLID_COLOR:
+	case COLOR_SOLID:
 	  	break;
-  	case STROBE_COLOR:
+  	case STROBE_SOLID:
   		if(stick->Color1 > 0) {
   			stick->Color2 = stick->Color1;
   			stick->Color1 = 0;

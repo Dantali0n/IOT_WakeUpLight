@@ -131,11 +131,11 @@ void serialCommand::processSetAnimation() {
   if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::RAINBOW])) {
     anim = RAINBOW;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::SOLID_COLOR])) {
-    anim = SOLID_COLOR;
+  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::COLOR_SOLID])) {
+    anim = COLOR_SOLID;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::STROBE_COLOR])) {
-    anim = STROBE_COLOR;
+  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::STROBE_SOLID])) {
+    anim = STROBE_SOLID;
   }
   else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::COLOR_WIPE_CHRISTMAS])) {
     anim = COLOR_WIPE_CHRISTMAS;

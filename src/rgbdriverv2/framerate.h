@@ -21,6 +21,7 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #ifndef FRAME_RATE_H
+#ifdef __cplusplus
 #define FRAME_RATE_H
 
 #include <Arduino.h>
@@ -41,5 +42,5 @@ class FrameRate: public Actor {
     bool hasUpdate();
 };
 
-#endif
-
+#endif  /* __cplusplus */
+#endif  /* FRAME_RATE_H */

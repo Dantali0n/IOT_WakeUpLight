@@ -21,6 +21,7 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #ifndef TYPEDEF_DEFINITIONS_H
+#ifdef __cplusplus
 #define TYPEDEF_DEFINITIONS_H
 
 const static bool DEBUG = false;
@@ -28,4 +29,5 @@ const static bool PERFORMANCE_PROFILE = false;
 
 typedef unsigned char uint8_t;
 
-#endif
+#endif /* __cplusplus */
+#endif /* TYPEDEF_DEFINITIONS_H */

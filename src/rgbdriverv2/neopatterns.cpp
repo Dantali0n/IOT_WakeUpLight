@@ -1,5 +1,5 @@
 #include "neopatterns.h"
-    
+
 // Constructor - calls base-class constructor to initialize strip
 NeoPatterns::NeoPatterns(uint16_t pixels, uint8_t pin, uint8_t type, void (*callback)(NeoPatterns* stick)):Adafruit_NeoPixel(pixels, pin, type),Actor()
     , ActivePattern(NO_PATTERN)
@@ -18,18 +18,18 @@ NeoPatterns::NeoPatterns(uint16_t pixels, uint8_t pin, uint8_t type, void (*call
 NeoPatterns::~NeoPatterns() {
     delete FireHeat;
 }
-    
+
 // Update the pattern
 void NeoPatterns::update(uint32_t deltaTime) {
     lastUpdate += deltaTime;
     if(lastUpdate > Interval*1000) { // time to update
-        
+
         float steps = lastUpdate / (Interval*1000.0);
         if(steps > 1.25 && PERFORMANCE_PROFILE) {
           Serial.print("lagg: ");
           Serial.println(steps);
         }
-        
+
         lastUpdate = 0;
         switch(ActivePattern) {
             case RAINBOW_CYCLE:
@@ -61,7 +61,7 @@ void NeoPatterns::update(uint32_t deltaTime) {
         }
     }
 }
-  
+
 // Increment the Index and reset at the end
 void NeoPatterns::Increment() {
     if (Direction == FORWARD) {
@@ -83,7 +83,7 @@ void NeoPatterns::Increment() {
         }
     }
 }
-    
+
 // Reverse pattern direction
 void NeoPatterns::Reverse() {
     if (Direction == FORWARD) {
@@ -95,7 +95,7 @@ void NeoPatterns::Reverse() {
         Index = 0;
     }
 }
-    
+
 // Initialize for a RainbowCycle
 void NeoPatterns::RainbowCycle(uint8_t interval, direction dir) {
     ActivePattern = RAINBOW_CYCLE;
@@ -104,7 +104,7 @@ void NeoPatterns::RainbowCycle(uint8_t interval, direction dir) {
     Index = 0;
     Direction = dir;
 }
-    
+
 // Update the Rainbow Cycle Pattern
 void NeoPatterns::RainbowCycleUpdate(){
     for(int i=0; i< numPixels(); i++) {
@@ -113,7 +113,7 @@ void NeoPatterns::RainbowCycleUpdate(){
     show();
     Increment();
 }
- 
+
 // Initialize for a Theater Chase
 void NeoPatterns::TheaterChase(uint32_t color1, uint32_t color2, uint8_t interval, direction dir) {
     ActivePattern = THEATER_CHASE;
@@ -124,7 +124,7 @@ void NeoPatterns::TheaterChase(uint32_t color1, uint32_t color2, uint8_t interva
     Index = 0;
     Direction = dir;
 }
-    
+
 // Update the Theater Chase Pattern
 void NeoPatterns::TheaterChaseUpdate() {
     for(int i=0; i< numPixels(); i++) {
@@ -138,7 +138,7 @@ void NeoPatterns::TheaterChaseUpdate() {
     show();
     Increment();
 }
- 
+
 // Initialize for a ColorWipe
 void NeoPatterns::ColorWipe(uint32_t color, uint8_t interval, direction dir) {
     ActivePattern = COLOR_WIPE;
@@ -148,14 +148,14 @@ void NeoPatterns::ColorWipe(uint32_t color, uint8_t interval, direction dir) {
     Index = 0;
     Direction = dir;
 }
-    
+
 // Update the Color Wipe Pattern
 void NeoPatterns::ColorWipeUpdate() {
     setPixelColor(Index, Color1);
     show();
     Increment();
 }
-    
+
 // Initialize for a SCANNNER
 void NeoPatterns::Scanner(uint32_t color1, uint8_t interval, trace trc, direction dir) {
     ActivePattern = SCANNER;
@@ -175,7 +175,7 @@ void NeoPatterns::Scanner(uint32_t color1, uint8_t interval, trace trc, directio
     // set all colors briefly to prevent trailing of different colors.
     ColorSet(this->Color1); 
 }
- 
+
 // Update the Scanner Pattern
 void NeoPatterns::ScannerUpdate() { 
     if(Trace == DUAL) {  
@@ -208,7 +208,7 @@ void NeoPatterns::ScannerUpdate() {
     show();
     Increment();
 }
-    
+
 // Initialize for a Fade
 void NeoPatterns::Fade(uint32_t color1, uint32_t color2, uint16_t steps, uint8_t interval, direction dir) {
     ActivePattern = FADE;
@@ -219,7 +219,7 @@ void NeoPatterns::Fade(uint32_t color1, uint32_t color2, uint16_t steps, uint8_t
     Index = 0;
     Direction = dir;
 }
-    
+
 // Update the Fade Pattern
 void NeoPatterns::FadeUpdate() {
     // Calculate linear interpolation between Color1 and Color2
@@ -227,7 +227,7 @@ void NeoPatterns::FadeUpdate() {
     uint8_t red = ((Red(Color1) * (TotalSteps - Index)) + (Red(Color2) * Index)) / TotalSteps;
     uint8_t green = ((Green(Color1) * (TotalSteps - Index)) + (Green(Color2) * Index)) / TotalSteps;
     uint8_t blue = ((Blue(Color1) * (TotalSteps - Index)) + (Blue(Color2) * Index)) / TotalSteps;
-    
+
     ColorSet(Color(red, green, blue));
     show();
     Increment();
@@ -257,13 +257,11 @@ void NeoPatterns::FireUpdate() {
             FireHeat[i]=FireHeat[i]-cooldown;
         }
     }
-  
+
     // Step 2.  Heat from each cell drifts 'up' and diffuses a little
     for( int k= numPixels() - 1; k >= 2; k--) {
         FireHeat[k] = (FireHeat[k - 1] + FireHeat[k - 2] + FireHeat[k - 2]) / 3;
     }
-
-    
 
     // Step 3.  Randomly ignite new 'sparks' near the bottom
     if( random(255) < FireSparkling ) {
@@ -333,7 +331,7 @@ void NeoPatterns::MeteorUpdate() {
 void NeoPatterns::NoPattern() {
   ActivePattern = NO_PATTERN;
 }
-   
+
 // Calculate 50% dimmed version of a color (used by ScannerUpdate)
 uint32_t NeoPatterns::DimColor(uint32_t color) {
     // Shift R, G and B components one bit to the right
@@ -358,7 +356,7 @@ uint8_t NeoPatterns::DimBaseColor(uint8_t baseColor, uint8_t factor) {
     if(baseColor == result && baseColor != 0) result -= 1; // always at least subtract one
     return result;
 }
- 
+
 // Set all pixels to a color (synchronously)
 void NeoPatterns::ColorSet(uint32_t color) {
     for (int i = 0; i < numPixels(); i++) {
@@ -366,7 +364,7 @@ void NeoPatterns::ColorSet(uint32_t color) {
     }
     show();
 }
- 
+
 // Returns the Red component of a 32-bit color
 uint8_t NeoPatterns::Red(uint32_t color) {
     return (color >> 16) & 0xFF;

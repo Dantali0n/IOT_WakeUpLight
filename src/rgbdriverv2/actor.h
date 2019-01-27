@@ -21,6 +21,7 @@
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #ifndef ACTOR_H
+#ifdef __cplusplus
 #define ACTOR_H
 
 #include <Arduino.h>
@@ -34,5 +35,5 @@ class Actor {
     virtual void update(uint32_t deltaTime) = 0;
 };
 
-#endif
-
+#endif /* __cplusplus */
+#endif /* ACTOR_H */
