@@ -1,9 +1,16 @@
 # GamHa
 Harness the amazing power of wifi enabled microcontrollers for <em>true</em> home smart lighting control. Smart home Lighting is an expensive investment and often requires supplying personal information to untrustable third parties, but not any more! With GamHa you can make your own using off the shelf components and the user friendly Arduino IDE.
 
-<p align="center">
+<p align="center" =>
   <img align="center" src="https://pbs.twimg.com/media/DyAJ4LYWoAAbudx.jpg:small" alt="Hardware on display">
 </p>
+
+| Meteor scanner | Fire | Rainbow |
+|---|---|---|
+| <img src="https://raw.githubusercontent.com/Dantali0n/IOT_WakeUpLight/develop/General/demo/meteor.gif"> | <img  src="https://raw.githubusercontent.com/Dantali0n/IOT_WakeUpLight/develop/General/demo/fire.gif"> |   <img  src="https://raw.githubusercontent.com/Dantali0n/IOT_WakeUpLight/develop/General/demo/rainbow.gif"> |
+  
+ 
+  
 
 ## Features
 
