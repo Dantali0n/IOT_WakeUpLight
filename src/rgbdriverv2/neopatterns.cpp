@@ -289,9 +289,9 @@ void NeoPatterns::FireSetPixelHeatColor(uint16_t pixel, uint8_t temperature) {
 
     // figure out which third of the spectrum we're in:
     if( t192 > 0x80) {                     // hottest
-        setPixelColor(pixel, 255, 255, heatramp);
+        setPixelColor(pixel, UINT8_MAX, UINT8_MAX, heatramp);
     } else if( t192 > 0x40 ) {             // middle
-        setPixelColor(pixel, 255, heatramp, 0);
+        setPixelColor(pixel, UINT8_MAX, heatramp, 0);
     } else {                               // coolest
         setPixelColor(pixel, heatramp, 0, 0);
     }
@@ -383,16 +383,16 @@ uint8_t NeoPatterns::Blue(uint32_t color) {
 // Input a value 0 to 255 to get a color value.
 // The colours are a transition r - g - b - back to r.
 uint32_t NeoPatterns::Wheel(byte WheelPos) {
-    WheelPos = 255 - WheelPos;
+    WheelPos = UINT8_MAX - WheelPos;
     if(WheelPos < 85) {
-        return Color(255 - WheelPos * 3, 0, WheelPos * 3);
+        return Color(UINT8_MAX - WheelPos * 3, 0, WheelPos * 3);
     }
     else if(WheelPos < 170) {
         WheelPos -= 85;
-        return Color(0, WheelPos * 3, 255 - WheelPos * 3);
+        return Color(0, WheelPos * 3, UINT8_MAX - WheelPos * 3);
     }
     else {
         WheelPos -= 170;
-        return Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+        return Color(WheelPos * 3, UINT8_MAX - WheelPos * 3, 0);
     }
 }

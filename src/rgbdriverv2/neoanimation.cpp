@@ -51,6 +51,14 @@ void NeoAnimation::animationSwitch(animation anim) {
         this->currentAnimation = RAINBOW;
         this->RainbowCycle(this->Interval);
         break;
+    case SUNRISE:
+        this->currentAnimation = SUNRISE;
+        this->Interval = SUNRISE_SPEED;
+        this->setBrightness(UINT8_MAX);
+        this->Color1 = COLORS::BLACK;
+        this->Color2 = INITIAL_SUNRISE_COLOR;
+        this->Fade(this->Color1, this->Color2, SUNRISE_STEPS, this->Interval);
+        break;
     case COLOR_SOLID:
         this->currentAnimation = COLOR_SOLID;
         this->NoPattern();
@@ -70,7 +78,7 @@ void NeoAnimation::animationSwitch(animation anim) {
         break;
     case COLOR_WIPE_RANDOM:
         this->currentAnimation = COLOR_WIPE_RANDOM;
-        this->ColorWipe(random(16777215), this->Interval);
+        this->ColorWipe(random(COLORS::WHITE), this->Interval);
         break;
     case SCANNER_SOLID:
         this->currentAnimation = SCANNER_SOLID;
@@ -78,7 +86,7 @@ void NeoAnimation::animationSwitch(animation anim) {
         break;
     case SCANNER_RANDOM:
         this->currentAnimation = SCANNER_RANDOM;
-        this->Scanner(random(16777215), this->Interval, DUAL);
+        this->Scanner(random(COLORS::WHITE), this->Interval, DUAL);
         break;
     case FADE_SOLID:
     	this->currentAnimation = FADE_SOLID;
@@ -86,7 +94,7 @@ void NeoAnimation::animationSwitch(animation anim) {
         break;
     case FADE_RANDOM:
     	this->currentAnimation = FADE_RANDOM;
-        this->Fade(random(16777215), random(16777215), 254, this->Interval);
+        this->Fade(random(COLORS::WHITE), random(COLORS::WHITE), 254, this->Interval);
         break;
     case FIRE_SOLID:
     	this->currentAnimation = FIRE_SOLID;
@@ -113,17 +121,31 @@ void NeoAnimation::patternComplete(NeoAnimation* stick) {
   	switch(stick->currentAnimation){
   	case RAINBOW:
 	    break;
+	case SUNRISE:
+		if(stick->Color1 == COLORS::BLACK) {
+			stick->Color1 = INITIAL_SUNRISE_COLOR;
+			stick->Color2 = MID_SUNRISE_COLOR;
+		}
+		else if(stick->Color1 == INITIAL_SUNRISE_COLOR) {
+			stick->Color1 = MID_SUNRISE_COLOR;
+			stick->Color2 = END_SUNRISE_COLOR;
+		}
+		else if(stick->Color1 == MID_SUNRISE_COLOR){
+			stick->Color1 = COLORS::WHITE;
+			stick->Color2 = COLORS::WHITE;
+		}
+	    break;
 	case COLOR_SOLID:
 	  	break;
   	case STROBE_SOLID:
-  		if(stick->Color1 > 0) {
+  		if(stick->Color1 > COLORS::BLACK) {
   			stick->Color2 = stick->Color1;
-  			stick->Color1 = 0;
+  			stick->Color1 = COLORS::BLACK;
   		}
   		else if(stick->strobeTicks == stick->NUM_STROBE_TICKS) {
   			stick->strobeTicks = 0;
   			stick->Color1 = stick->Color2;
-  			stick->Color2 = 0;
+  			stick->Color2 = COLORS::BLACK;
   		}
   		else {
   			stick->strobeTicks++;
@@ -140,26 +162,26 @@ void NeoAnimation::patternComplete(NeoAnimation* stick) {
 		break;
 	case COLOR_WIPE_RANDOM:
 		stick->Reverse();
-		stick->Color1 = random(2147483646);
-		stick->Color2 = random(2147483646);
+		stick->Color1 = random(COLORS::WHITE);
+		stick->Color2 = random(COLORS::WHITE);
 		break;
 	case SCANNER_SOLID:
 		// stick->Reverse();
 		break;
 	case SCANNER_RANDOM:
 		stick->Reverse();
-		stick->Color1 = random(16777215);
-		stick->Color2 = random(16777215);
+		stick->Color1 = random(COLORS::WHITE);
+		stick->Color2 = random(COLORS::WHITE);
 		break;
 	case FADE_SOLID:
 		stick->Reverse();
 		break;
 	case FADE_RANDOM:
 		if(stick->Direction == REVERSE) {
-			stick->Color2 = random(16777215);
+			stick->Color2 = random(COLORS::WHITE);
 		}
 		else {
-	    	stick->Color1 = random(16777215);
+	    	stick->Color1 = random(COLORS::WHITE);
 	  	}
 	  	stick->Reverse();
 	  	break;

@@ -32,7 +32,7 @@
 // Animation types supported:
 enum animation { 
 	NO_PATTERN_UPDATE, 
-	RAINBOW, 
+	RAINBOW, SUNRISE,
 	COLOR_SOLID, STROBE_SOLID,
 	COLOR_WIPE_SOLID, COLOR_WIPE_CHRISTMAS, COLOR_WIPE_RANDOM, 
 	SCANNER_SOLID, SCANNER_RANDOM, 
@@ -44,7 +44,7 @@ enum animation {
 // String representation of each animation type from the enum
 const static char *LED_ANIMATION_STRING[] = {
     "", 
-    "RAINBOW", 
+    "RAINBOW", "SUNRISE",
     "COLOR_SOLID", "STROBE_SOLID",
     "COLOR_WIPE_SOLID", "COLOR_WIPE_CHRISTMAS", "COLOR_WIPE_RANDOM", 
     "SCANNER_SOLID", "SCANNER_RANDOM", 
@@ -69,6 +69,13 @@ protected:
  	// Use with speed 25 for best result
  	const uint8_t NUM_STROBE_TICKS = 5; 
 	uint8_t strobeTicks = 0;
+
+	// SUNRISE Variables
+	static const uint8_t SUNRISE_SPEED = 115;
+	static const uint8_t SUNRISE_STEPS = 254;
+	static const uint32_t INITIAL_SUNRISE_COLOR = 16728065;
+	static const uint32_t MID_SUNRISE_COLOR = 16756013;
+	static const uint32_t END_SUNRISE_COLOR = 7839230;
 };
 
 #endif /* __cplusplus */

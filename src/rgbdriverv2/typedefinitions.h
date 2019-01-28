@@ -24,8 +24,15 @@
 #ifdef __cplusplus
 #define TYPEDEF_DEFINITIONS_H
 
-const static bool DEBUG = false;
-const static bool PERFORMANCE_PROFILE = false;
+static const bool DEBUG = false; // output debugging information
+static const bool COMPUTER_SERIAL = false; // serial output is for esp8266
+static const bool PERFORMANCE_PROFILE = false; // output performance / timing information statistics
+
+/* Colors */
+namespace COLORS {
+	static const uint32_t WHITE = 16777215;
+	static const uint32_t BLACK = 0;
+}
 
 typedef unsigned char uint8_t;
 

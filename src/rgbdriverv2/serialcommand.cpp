@@ -92,9 +92,11 @@ void serialCommand::processCommands() {
         processSetPWM();
       }
       else {
-        Serial.println(currentCommand);
-        Serial.println("Invalid command!");
+        if(!COMPUTER_SERIAL) Serial.println(currentCommand);
+        Serial.println("invalid");
       }
+
+      Serial.println("ok");
       
       currentCommand = "";
     }
@@ -118,6 +120,9 @@ void serialCommand::processSetAnimation() {
 
   if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::RAINBOW])) {
     anim = RAINBOW;
+  }
+  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::SUNRISE])) {
+    anim = SUNRISE;
   }
   else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::COLOR_SOLID])) {
     anim = COLOR_SOLID;
@@ -180,6 +185,10 @@ void serialCommand::processSetPWM() {
   eventHandler->eventSetPWM(pwm);
 }
 
+/**
+ * Determine the specified strip index (should be at the start of the command) and subtract it from currentCommand
+ * @return the specified index if found or -1 otherwise.
+ */
 int8_t serialCommand::subtractStripIndex() {
   String nextPart = getNextPart();
   int8_t stripIndex = nextPart.toInt();

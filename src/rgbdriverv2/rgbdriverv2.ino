@@ -20,6 +20,14 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/*
+ * Arduino based dependencies (Can be installed through Arduino IDE)
+ * ArduinoSTL         by Mike Matera
+ * Adafruit GFX       by Adafruit
+ * Adafruit NeoPixel  by Adafruit
+ * CRC32              by Christopher Baker
+ */
+
 #include <ArduinoSTL.h>
 #include <list>
 
@@ -31,15 +39,15 @@
 #include "framerate.h"
 
 // constants //
-const int         PIXEL_COUNT         = 30;
-const animation   INITIAL_ANIMATION   = RAINBOW;
-const int         INITIAL_BRIGHTNESS  = 255;
-const int         INITIAL_SPEED       = 50;
+static const int         PIXEL_COUNT         = 30;
+static const animation   INITIAL_ANIMATION   = RAINBOW;
+static const int         INITIAL_BRIGHTNESS  = 255;
+static const int         INITIAL_SPEED       = 50;
 
 // input / output //
-const int        ledPin            = LED_BUILTIN;
-const int        stripStartPin     = 10;
-const int        numStrips         = 7;
+static const int        ledPin            = LED_BUILTIN;
+static const int        stripStartPin     = 10;
+static const int        numStrips         = 7;
 
 // callbacks & other predeclaritive functions // 
 void stickComplete(NeoAnimation* stick);
@@ -124,7 +132,7 @@ class serialCommandHandler: public serialCommandDelegate {
       (*it)->Direction = dir;
       return;
     }
-    
+
     for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
       (*it)->Direction = dir;
     }
