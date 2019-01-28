@@ -65,7 +65,7 @@ bool      ledState = false;
 
 // TODO move this two branched template code into a function were only the specifics are passed
 
-class serialCommandHandler: public serialCommandDelegate {
+class SerialCommandHandler: public SerialCommandDelegate {
   void eventSetBrightness(uint8_t brightness, int8_t stripIndex){
 
     if(stripIndex != -1 && stripIndex < patterns.size()) {
@@ -80,7 +80,7 @@ class serialCommandHandler: public serialCommandDelegate {
     }
   }
 
-  void eventSetSpeed(uint8_t speed, int8_t stripIndex){
+  void eventSetSpeed(uint16_t speed, int8_t stripIndex){
 
     if(stripIndex != -1 && stripIndex < patterns.size()) {
       std::list<NeoAnimation*>::iterator it = patterns.begin();
@@ -143,8 +143,8 @@ class serialCommandHandler: public serialCommandDelegate {
   }
 };
 
-serialCommandHandler serialCH = serialCommandHandler();
-serialCommand serialC = serialCommand(&serialCH);
+SerialCommandHandler serialCH = SerialCommandHandler();
+SerialCommand serialC = SerialCommand(&serialCH);
 
 /**
  * Initialize Serial, IO and the rgb leds
@@ -153,8 +153,7 @@ void setup() {
   Serial.begin(9600);
   Serial.println("RGBDriver V2");
 
-  pinMode(11, OUTPUT);
-  digitalWrite(11, HIGH);
+  pinMode(11, OUTPUT); // PWM LED
 
   boardSpecificSetup();
 

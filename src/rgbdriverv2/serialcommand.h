@@ -26,27 +26,31 @@
 #define _SERIAL_COMMAND_H
 
 #include <Arduino.h>
+#include <CRC32.h>
 #include "typedefinitions.h"
 #include "neopatterns.h"
 #include "neoanimation.h"
 
+
 /**
- * Abstract delegate to allow outside of serialCommand processing of events
+ * Abstract delegate to allow outside of SerialCommand processing of events
  */
-class serialCommandDelegate {
+class SerialCommandDelegate {
   public:
     virtual void eventSetBrightness(uint8_t brightness, int8_t stripIndex = -1) = 0;
-    virtual void eventSetSpeed(uint8_t speed, int8_t stripIndex = -1) = 0;
+    virtual void eventSetSpeed(uint16_t speed, int8_t stripIndex = -1) = 0;
     virtual void eventSetAnimation(animation anim, int8_t stripIndex = -1) = 0;
     virtual void eventSetColor(uint32_t color, int8_t colorIndex = -1, int8_t stripIndex = -1) = 0;
     virtual void eventSetPath(direction dir, int8_t stripIndex = -1) = 0;
     virtual void eventSetPWM(uint8_t pwm) = 0;
 };
 
-class serialCommand {
+class SerialCommand {
   private:
-    serialCommandDelegate* eventHandler;
-    String currentCommand;
+    SerialCommandDelegate* eventHandler;
+    String serialIn;
+    String serialOut;
+
     int8_t currentStripIndex;
 
     void processSetBrightness();
@@ -56,9 +60,15 @@ class serialCommand {
     void processSetPath();
     void processSetPWM();
 
-    int8_t  subtractStripIndex();
-    bool    hasNextPart();
-    String  getNextPart();
+    /* Checksumming 
+     * TODO: move into base class
+     */
+    bool      validateChecksum(String input, uint32_t checksum);
+    uint32_t  generateChecksum(String input);
+
+    int8_t    subtractStripIndex();
+    bool      hasNextPart();
+    String    getNextPart();
   public:
     enum COMMANDS_ENUM {
       brightness, speed, pattern, color, path, pwm
@@ -66,7 +76,7 @@ class serialCommand {
 
     static const char *COMMANDS_STRING[];
 
-    serialCommand(serialCommandDelegate* eventHandler);
+    SerialCommand(SerialCommandDelegate* eventHandler);
 
     void processCommands();
 };

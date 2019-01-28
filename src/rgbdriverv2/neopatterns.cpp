@@ -22,9 +22,9 @@ NeoPatterns::~NeoPatterns() {
 // Update the pattern
 void NeoPatterns::update(uint32_t deltaTime) {
     lastUpdate += deltaTime;
-    if(lastUpdate > Interval*1000) { // time to update
+    if(lastUpdate > (uint32_t)(Interval) * TIME::MILLIS_TO_MICROS) { // time to update
 
-        float steps = lastUpdate / (Interval*1000.0);
+        float steps = lastUpdate / (Interval * (float)(TIME::MILLIS_TO_MICROS));
         if(steps > 1.25 && PERFORMANCE_PROFILE) {
           Serial.print("lagg: ");
           Serial.println(steps);
@@ -97,7 +97,7 @@ void NeoPatterns::Reverse() {
 }
 
 // Initialize for a RainbowCycle
-void NeoPatterns::RainbowCycle(uint8_t interval, direction dir) {
+void NeoPatterns::RainbowCycle(uint16_t interval, direction dir) {
     ActivePattern = RAINBOW_CYCLE;
     Interval = interval;
     TotalSteps = 255;
@@ -115,7 +115,7 @@ void NeoPatterns::RainbowCycleUpdate(){
 }
 
 // Initialize for a Theater Chase
-void NeoPatterns::TheaterChase(uint32_t color1, uint32_t color2, uint8_t interval, direction dir) {
+void NeoPatterns::TheaterChase(uint32_t color1, uint32_t color2, uint16_t interval, direction dir) {
     ActivePattern = THEATER_CHASE;
     Interval = interval;
     TotalSteps = numPixels();
@@ -140,7 +140,7 @@ void NeoPatterns::TheaterChaseUpdate() {
 }
 
 // Initialize for a ColorWipe
-void NeoPatterns::ColorWipe(uint32_t color, uint8_t interval, direction dir) {
+void NeoPatterns::ColorWipe(uint32_t color, uint16_t interval, direction dir) {
     ActivePattern = COLOR_WIPE;
     Interval = interval;
     TotalSteps = numPixels();
@@ -157,7 +157,7 @@ void NeoPatterns::ColorWipeUpdate() {
 }
 
 // Initialize for a SCANNNER
-void NeoPatterns::Scanner(uint32_t color1, uint8_t interval, trace trc, direction dir) {
+void NeoPatterns::Scanner(uint32_t color1, uint16_t interval, trace trc, direction dir) {
     ActivePattern = SCANNER;
     Interval = interval;
     Trace = trc;
@@ -210,7 +210,7 @@ void NeoPatterns::ScannerUpdate() {
 }
 
 // Initialize for a Fade
-void NeoPatterns::Fade(uint32_t color1, uint32_t color2, uint16_t steps, uint8_t interval, direction dir) {
+void NeoPatterns::Fade(uint32_t color1, uint32_t color2, uint16_t steps, uint16_t interval, direction dir) {
     ActivePattern = FADE;
     Interval = interval;
     TotalSteps = steps;
@@ -224,6 +224,8 @@ void NeoPatterns::Fade(uint32_t color1, uint32_t color2, uint16_t steps, uint8_t
 void NeoPatterns::FadeUpdate() {
     // Calculate linear interpolation between Color1 and Color2
     // Optimize order of operations to minimize truncation error
+    // TODO prevent overflowing of integers when TotalSteps > UINT8_MAX
+
     uint8_t red = ((Red(Color1) * (TotalSteps - Index)) + (Red(Color2) * Index)) / TotalSteps;
     uint8_t green = ((Green(Color1) * (TotalSteps - Index)) + (Green(Color2) * Index)) / TotalSteps;
     uint8_t blue = ((Blue(Color1) * (TotalSteps - Index)) + (Blue(Color2) * Index)) / TotalSteps;
@@ -234,7 +236,7 @@ void NeoPatterns::FadeUpdate() {
 }
 
 // Initialize for a FIRE Pattern
-void NeoPatterns::Fire(uint32_t color1, uint8_t interval, trace trc = DUAL, direction dir = FORWARD) {
+void NeoPatterns::Fire(uint32_t color1, uint16_t interval, trace trc = DUAL, direction dir = FORWARD) {
     ActivePattern = FIRE;
     Interval = interval;
     TotalSteps = numPixels() * 2;
@@ -298,7 +300,7 @@ void NeoPatterns::FireSetPixelHeatColor(uint16_t pixel, uint8_t temperature) {
 }
 
 // Initialize for a METEOR Pattern
-void NeoPatterns::Meteor(uint32_t color1, uint8_t interval, trace trc = DUAL, direction dir = FORWARD) {
+void NeoPatterns::Meteor(uint32_t color1, uint16_t interval, trace trc = DUAL, direction dir = FORWARD) {
     ActivePattern = METEOR;
     Interval = interval;
     TotalSteps = numPixels() * 2; // Half of the steps the updated pixel is outside the actual size of the strip

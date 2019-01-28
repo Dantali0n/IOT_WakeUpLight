@@ -24,6 +24,7 @@
 #ifdef __cplusplus
 #define TYPEDEF_DEFINITIONS_H
 
+// TODO: Change into enum as mix and matching produces undesirable results.
 static const bool DEBUG = false; // output debugging information
 static const bool COMPUTER_SERIAL = false; // serial output is for esp8266
 static const bool PERFORMANCE_PROFILE = false; // output performance / timing information statistics
@@ -32,6 +33,10 @@ static const bool PERFORMANCE_PROFILE = false; // output performance / timing in
 namespace COLORS {
 	static const uint32_t WHITE = 16777215;
 	static const uint32_t BLACK = 0;
+}
+
+namespace TIME {
+	static const uint16_t MILLIS_TO_MICROS = 1000;
 }
 
 typedef unsigned char uint8_t;

@@ -71,8 +71,8 @@ protected:
 	uint8_t strobeTicks = 0;
 
 	// SUNRISE Variables
-	static const uint8_t SUNRISE_SPEED = 115;
-	static const uint8_t SUNRISE_STEPS = 254;
+	static const uint16_t SUNRISE_SPEED = 125;
+	static const uint16_t SUNRISE_STEPS = 250;
 	static const uint32_t INITIAL_SUNRISE_COLOR = 16728065;
 	static const uint32_t MID_SUNRISE_COLOR = 16756013;
 	static const uint32_t END_SUNRISE_COLOR = 7839230;

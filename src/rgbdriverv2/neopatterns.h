@@ -3,6 +3,7 @@
 #define _NEO_PATTERNS_H
 
 #include <Adafruit_NeoPixel.h>
+#include "typedefinitions.h"
 #include "actor.h"
 
 // Pattern types supported:
@@ -25,7 +26,7 @@ public:
     direction Direction;     // direction to run the pattern
     trace Trace;
     
-    unsigned long Interval;   // milliseconds between updates
+    uint16_t Interval;   // milliseconds between updates
     
     uint32_t Color1, Color2;  // What colors are in use
     uint16_t TotalSteps;  // total number of steps in the pattern
@@ -61,37 +62,37 @@ public:
     void Reverse();
 
     // Initialize for a RainbowCycle
-    void RainbowCycle(uint8_t interval, direction dir = FORWARD);
+    void RainbowCycle(uint16_t interval, direction dir = FORWARD);
 
     // Update the Rainbow Cycle Pattern
     void RainbowCycleUpdate();
 
     // Initialize for a Theater Chase
-    void TheaterChase(uint32_t color1, uint32_t color2, uint8_t interval, direction dir = FORWARD);
+    void TheaterChase(uint32_t color1, uint32_t color2, uint16_t interval, direction dir = FORWARD);
 
     // Update the Theater Chase Pattern
     void TheaterChaseUpdate();
 
     // Initialize for a ColorWipe
-    void ColorWipe(uint32_t color, uint8_t interval, direction dir = FORWARD);
+    void ColorWipe(uint32_t color, uint16_t interval, direction dir = FORWARD);
 
     // Update the Color Wipe Pattern
     void ColorWipeUpdate();
 
     // Initialize for a SCANNNER
-    void Scanner(uint32_t color1, uint8_t interval, trace trc = DUAL, direction dir = FORWARD);
+    void Scanner(uint32_t color1, uint16_t interval, trace trc = DUAL, direction dir = FORWARD);
 
     // Update the Scanner Pattern
     void ScannerUpdate();
 
     // Initialize for a Fade
-    void Fade(uint32_t color1, uint32_t color2, uint16_t steps, uint8_t interval, direction dir = FORWARD);
+    void Fade(uint32_t color1, uint32_t color2, uint16_t steps, uint16_t interval, direction dir = FORWARD);
 
     // Update the Fade Pattern
     void FadeUpdate();
 
     // Initialize for a FIRE Pattern
-    void Fire(uint32_t color1, uint8_t interval, trace trc = DUAL, direction dir = FORWARD);
+    void Fire(uint32_t color1, uint16_t interval, trace trc = DUAL, direction dir = FORWARD);
 
     // Update the Fire Pattern
     void FireUpdate();
@@ -100,7 +101,7 @@ public:
     void FireSetPixelHeatColor(uint16_t pixel, uint8_t temperature);
 
     // Initialize for a METEOR Pattern
-    void Meteor(uint32_t color1, uint8_t interval, trace trc = DUAL, direction dir = FORWARD);
+    void Meteor(uint32_t color1, uint16_t interval, trace trc = DUAL, direction dir = FORWARD);
 
     // Update the Meteor Pattern
     void MeteorUpdate();

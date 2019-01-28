@@ -131,8 +131,11 @@ void NeoAnimation::patternComplete(NeoAnimation* stick) {
 			stick->Color2 = END_SUNRISE_COLOR;
 		}
 		else if(stick->Color1 == MID_SUNRISE_COLOR){
-			stick->Color1 = COLORS::WHITE;
+			stick->Color1 = END_SUNRISE_COLOR;
 			stick->Color2 = COLORS::WHITE;
+		}
+		else {
+			stick->animationSwitch(STROBE_SOLID);
 		}
 	    break;
 	case COLOR_SOLID:

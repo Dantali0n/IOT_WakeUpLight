@@ -22,27 +22,29 @@
 
 #include "serialcommand.h"
 
-const char *serialCommand::COMMANDS_STRING[] = {
+const char *SerialCommand::COMMANDS_STRING[] = {
     "brightness", "speed", "pattern", "color", "path", "pwm"
 };
 
 /**
- * Assign instance of delegate upon object construction, do not allow serialCommand to exist without a delegate object
+ * Assign instance of delegate upon object construction, do not allow SerialCommand to exist without a delegate object
  */
-serialCommand::serialCommand(serialCommandDelegate *eventHandler) {
-  currentCommand = "";
+SerialCommand::SerialCommand(SerialCommandDelegate *eventHandler) 
+  : serialIn("") 
+{
   this->eventHandler = eventHandler;
 }
 
-void serialCommand::processCommands() {
-  bool isComplete = false;
+void SerialCommand::processCommands() {
+  bool isComplete = false; // Determine if the received command is complete
 
+  // Buffer input and determine if command is complete
   if (Serial.available()) {
-    if(DEBUG) Serial.print("processCommands - have serial - ");
+    if(DEBUG) serialOut += "processCommands - have serial - ";
     int i = 0;
     char bytes[64] = {};
     while(Serial.available()) {
-      if(DEBUG) Serial.print("b");
+      if(DEBUG) serialOut += "b";
       bytes[i] = Serial.read();
       i++;
     }
@@ -51,156 +53,188 @@ void serialCommand::processCommands() {
 
     // remove everything after the line ending and the line ending itself
     if(substr > -1) {
-      if(DEBUG) Serial.print(" - have line ending");
+      if(DEBUG) serialOut += " - have line ending";
       
       isComplete = true;
     }
 
-    currentCommand += String(bytes);
-    if(DEBUG) Serial.print(" ");
-    if(DEBUG) Serial.println(currentCommand);
+    serialIn += String(bytes);
+    if(DEBUG) serialOut += " ";
+    if(DEBUG) serialOut += serialIn;
+  }
 
+  // If not complete halt further execution for now.
+  if(isComplete == false) return; 
 
-    // Command has line ending and is complete and thus ready for processing
-    if(isComplete) {
+  // assume valid
+  bool isValid = true; 
 
-      // Determine if the command has an specified index
-      currentStripIndex = subtractStripIndex();
+  // Determine if the received checksum is valid
+  if(validateChecksum(serialIn, generateChecksum(serialIn.substring(0, serialIn.lastIndexOf(" "))))) {
+    if(COMPUTER_SERIAL == false) serialOut += "checksum valid ";
+  }
+  else {
+    if(COMPUTER_SERIAL == false) serialOut += "checksum invalid ";
+    if(COMPUTER_SERIAL) isValid = false; // invalid checksum makes the supplied command no longer valid but only if interfacing with none human.
+  }
 
-      if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::brightness])) {
-        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::brightness]).length() +1); 
-        processSetBrightness();
-      }
-      else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::speed])) {
-        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::speed]).length() +1);
-        processSetSpeed();
-      }
-      else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::pattern])) {
-        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::pattern]).length() +1);
-        processSetAnimation();
-      }
-      else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::color])) {
-        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::color]).length() +1);
-        processSetColor();
-      }
-      else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::path])) {
-        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::path]).length() +1);
-        processSetPath();
-      }
-      else if(currentCommand.startsWith(COMMANDS_STRING[COMMANDS_ENUM::pwm])) {
-        currentCommand = currentCommand.substring(String(COMMANDS_STRING[COMMANDS_ENUM::pwm]).length() +1);
-        processSetPWM();
-      }
-      else {
-        if(!COMPUTER_SERIAL) Serial.println(currentCommand);
-        Serial.println("invalid");
-      }
+  // Only attempt to process the specified command if it is still valid
+  if(isValid) { 
+    // Determine if the command has an specified index
+    // TODO: handle multiple specified indices's. 
+    currentStripIndex = subtractStripIndex();
 
-      Serial.println("ok");
-      
-      currentCommand = "";
+    if(serialIn.startsWith(COMMANDS_STRING[COMMANDS_ENUM::brightness])) {
+      serialIn = serialIn.substring(String(COMMANDS_STRING[COMMANDS_ENUM::brightness]).length() +1); 
+      processSetBrightness();
+    }
+    else if(serialIn.startsWith(COMMANDS_STRING[COMMANDS_ENUM::speed])) {
+      serialIn = serialIn.substring(String(COMMANDS_STRING[COMMANDS_ENUM::speed]).length() +1);
+      processSetSpeed();
+    }
+    else if(serialIn.startsWith(COMMANDS_STRING[COMMANDS_ENUM::pattern])) {
+      serialIn = serialIn.substring(String(COMMANDS_STRING[COMMANDS_ENUM::pattern]).length() +1);
+      processSetAnimation();
+    }
+    else if(serialIn.startsWith(COMMANDS_STRING[COMMANDS_ENUM::color])) {
+      serialIn = serialIn.substring(String(COMMANDS_STRING[COMMANDS_ENUM::color]).length() +1);
+      processSetColor();
+    }
+    else if(serialIn.startsWith(COMMANDS_STRING[COMMANDS_ENUM::path])) {
+      serialIn = serialIn.substring(String(COMMANDS_STRING[COMMANDS_ENUM::path]).length() +1);
+      processSetPath();
+    }
+    else if(serialIn.startsWith(COMMANDS_STRING[COMMANDS_ENUM::pwm])) {
+      serialIn = serialIn.substring(String(COMMANDS_STRING[COMMANDS_ENUM::pwm]).length() +1);
+      processSetPWM();
+    }
+    else {
+      if(COMPUTER_SERIAL == false) Serial.print(serialIn); // not println as string already contains a /n at the end.
+      isValid = false;
     }
   }
+
+  if(isValid) serialOut += "ok ";
+  else serialOut += "invalid ";
+
+  // WARNING generated checksum is for string including the space after ok / invalid!
+  serialOut += generateChecksum(serialOut);
+  
+  Serial.println(serialOut); // Push the combined data out
+  serialOut = ""; // clear serialOut
+  serialIn = ""; // clear serialIn
 }
 
-void serialCommand::processSetBrightness() {
-  long brightness = currentCommand.toInt();
+void SerialCommand::processSetBrightness() {
+  long brightness = serialIn.toInt();
   if(brightness > UINT8_MAX) brightness = UINT8_MAX;
   eventHandler->eventSetBrightness(brightness, currentStripIndex);
 }
 
-void serialCommand::processSetSpeed() {
-  long speed = currentCommand.toInt();
-  if(speed > UINT8_MAX) speed = UINT8_MAX;
+void SerialCommand::processSetSpeed() {
+  long speed = serialIn.toInt();
+  if(speed > UINT16_MAX) speed = UINT16_MAX;
   eventHandler->eventSetSpeed(speed, currentStripIndex);
 }
 
-void serialCommand::processSetAnimation() {
+void SerialCommand::processSetAnimation() {
   animation anim = NO_PATTERN_UPDATE;
 
-  if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::RAINBOW])) {
+  if(serialIn.startsWith(LED_ANIMATION_STRING[animation::RAINBOW])) {
     anim = RAINBOW;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::SUNRISE])) {
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::SUNRISE])) {
     anim = SUNRISE;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::COLOR_SOLID])) {
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::COLOR_SOLID])) {
     anim = COLOR_SOLID;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::STROBE_SOLID])) {
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::STROBE_SOLID])) {
     anim = STROBE_SOLID;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::COLOR_WIPE_CHRISTMAS])) {
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::COLOR_WIPE_CHRISTMAS])) {
     anim = COLOR_WIPE_CHRISTMAS;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::COLOR_WIPE_RANDOM])) {
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::COLOR_WIPE_RANDOM])) {
     anim = COLOR_WIPE_RANDOM;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::SCANNER_SOLID])) {
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::SCANNER_SOLID])) {
     anim = SCANNER_SOLID;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::SCANNER_RANDOM])) {
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::SCANNER_RANDOM])) {
     anim = SCANNER_RANDOM;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::FADE_SOLID])) {
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::FADE_SOLID])) {
     anim = FADE_SOLID;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::FADE_RANDOM])) {
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::FADE_RANDOM])) {
     anim = FADE_RANDOM;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::FIRE_SOLID])) {
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::FIRE_SOLID])) {
     anim = FIRE_SOLID;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::METEOR_SOLID])) {
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::METEOR_SOLID])) {
     anim = METEOR_SOLID;
   }
-  else if(currentCommand.startsWith(LED_ANIMATION_STRING[animation::METEOR_SCANNER_SOLID])) {
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::METEOR_SCANNER_SOLID])) {
     anim = METEOR_SCANNER_SOLID;
   }
   
   eventHandler->eventSetAnimation(anim, currentStripIndex);
 }
 
-void serialCommand::processSetColor() {
+void SerialCommand::processSetColor() {
   int colorIndex = -1;
   if(hasNextPart()) {
     colorIndex = getNextPart().toInt();
-    currentCommand = currentCommand.substring(2);
+    serialIn = serialIn.substring(2);
   }
 
-  long color = currentCommand.toInt();
+  long color = serialIn.toInt();
   if(color > UINT32_MAX) color = UINT32_MAX;
   eventHandler->eventSetColor(color, colorIndex, currentStripIndex);
 }
 
-void serialCommand::processSetPath() {
+void SerialCommand::processSetPath() {
   direction dir = FORWARD;
-  if(currentCommand.startsWith(DIRECTION_STRING[direction::REVERSE])) dir = REVERSE;
+  if(serialIn.startsWith(DIRECTION_STRING[direction::REVERSE])) dir = REVERSE;
   eventHandler->eventSetPath(dir, currentStripIndex);
 }
 
-void serialCommand::processSetPWM() {
-  long pwm = currentCommand.toInt();
+void SerialCommand::processSetPWM() {
+  long pwm = serialIn.toInt();
   if(pwm > 255) pwm = 255;
   eventHandler->eventSetPWM(pwm);
 }
 
+bool SerialCommand::validateChecksum(String input, uint32_t checksum) {
+  uint32_t inputChecksum = serialIn.substring(input.lastIndexOf(" ")).toInt();
+  return (inputChecksum == checksum) ? true : false;
+}
+
 /**
- * Determine the specified strip index (should be at the start of the command) and subtract it from currentCommand
+ * 
+ */
+uint32_t SerialCommand::generateChecksum(String input) {
+  return CRC32::calculate(input.c_str(), input.length());
+}
+
+/**
+ * Determine the specified strip index (should be at the start of the command) and subtract it from serialIn
  * @return the specified index if found or -1 otherwise.
  */
-int8_t serialCommand::subtractStripIndex() {
+int8_t SerialCommand::subtractStripIndex() {
   String nextPart = getNextPart();
   int8_t stripIndex = nextPart.toInt();
-  if(stripIndex != 0 || nextPart.indexOf("0") == 0) currentCommand = currentCommand.substring(nextPart.length() +1);
+  if(stripIndex != 0 || nextPart.indexOf("0") == 0) serialIn = serialIn.substring(nextPart.length() +1);
   else stripIndex = -1;
   return stripIndex;
 }
 
-bool serialCommand::hasNextPart() {
-  return (currentCommand.indexOf(" ") == -1) ? false : true; 
+bool SerialCommand::hasNextPart() {
+  return (serialIn.indexOf(" ") == -1) ? false : true; 
 }
 
-String serialCommand::getNextPart() {
-  return currentCommand.substring(0, currentCommand.indexOf(" "));
+String SerialCommand::getNextPart() {
+  return serialIn.substring(0, serialIn.indexOf(" "));
 }
