@@ -46,7 +46,7 @@ Harness the amazing power of wifi enabled microcontrollers for <em>true</em> hom
 ---
   - [X] wake up lighting patterns & colors.
   - [ ] DSP based pattern see [#11](https://github.com/Dantali0n/IOT_WakeUpLight/issues/11).
-  - [ ] CRC32 checksumming for serial input and output.
+  - [X] CRC32 checksumming for serial input and output.
   - [ ] Support mutiple indexes being specified at once through serial command interface.
   - [ ] Synchronization functionality and commands.
   - [ ] Desynchronization functionality and commands.
