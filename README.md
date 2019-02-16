@@ -25,6 +25,51 @@ Harness the amazing power of wifi enabled microcontrollers for <em>true</em> hom
 * 65535 step speed control.
 * Accurate offline time keeping with minimized drift.
 
+## Requirements
+The software consists of three different components each with its own set of requirements. When using the software only two of these requirements are necessary but for testing the additional third component is recommended.
+
+### Mega2560
+The first components is the firmware for the Arduino mega 2560. It requires the Arduino IDE and a set of libraries available through the library manager. 
+
+* Arduino IDE 1.6.2 or later
+* `ArduinoSTL` library
+* `Adafruit GFX Library` library
+* `Adafruit NeoPixel` library
+* `CRC32` library
+
+If you have the Arduino IDE system wide installed all libraries can be installed with one command.
+```bash
+arduino --install-library "Adafruit GFX Library,Adafruit NeoPixel,ArduinoSTL,CRC32"
+```
+
+### ESP8266
+Second component is the ESP8266 firmware similary this required the Arduino IDE and a set libraries. However, a more recent version of the Arduino IDE is required! Additionaly, adding a board support url to the Arduino IDE is required. 
+
+* Arduino IDE 1.6.4 or later
+* Added http://arduino.esp8266.com/stable/package_esp8266com_index.json to board support urls
+
+If the Arduino IDE is installed and you have no other board urls configured then the following commands can be execute to automate the installation.
+```bash
+arduino --pref "boardsmanager.additional.urls=http://arduino.esp8266.com/stable/package_esp8266com_index.json" --save-prefs
+arduino --install-boards esp8266:esp8266
+```
+
+### Tests
+Unit testing is done (not ready) through Catch2 and the setup and execution is managed through cmake.
+
+* Cmake
+* Make
+* GCC / Clang
+
+```bash
+cd test
+mkdir build
+cd build
+cmake ..
+make
+make test
+```
+
 ## Todo ESP8266
 ---
   - [X] Accuratly keep track of time without a RTC or internet connection -> see microTime class. (20 second drift per day)
