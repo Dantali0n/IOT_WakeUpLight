@@ -1,3 +1,4 @@
+![https://travis-ci.com/Dantali0n/IOT_WakeUpLight](https://api.travis-ci.com/Dantali0n/IOT_WakeUpLight.svg?branch=develop)
 # GamHa
 Harness the amazing power of wifi enabled microcontrollers for <em>true</em> home smart lighting control. Smart home Lighting is an expensive investment and often requires supplying personal information to untrustable third parties, but not any more! With GamHa you can make your own using off the shelf components and the user friendly Arduino IDE.
 
