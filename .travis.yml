@@ -8,8 +8,8 @@ before_install:
  - sudo mv arduino-1.8.8 /usr/local/share/arduino
  - sudo ln -s /usr/local/share/arduino/arduino /usr/local/bin/arduino
 install:
- - arduino --install-library "Adafruit GFX Library,Adafruit NeoPixel, ArduinoSTL, CRC32"
+ - arduino --install-library "Adafruit GFX Library,Adafruit NeoPixel,ArduinoSTL,CRC32"
 script:
  - arduino --verify --board arduino:avr:uno $PWD/src/rgbdriverv2/rgbdriverv2.ino
- - arduino --verify --board arduino:avr:mega2560 $PWD/src/rgbdriverv2/rgbdriverv2.ino
- - arduino --verify --board arduino:avr:mini $PWD/src/rgbdriverv2/rgbdriverv2.ino
+ - arduino --verify --board arduino:avr:mega:cpu=atmega2560 $PWD/src/rgbdriverv2/rgbdriverv2.ino
+ - arduino --verify --board arduino:avr:mini:cpu=atmega328 $PWD/src/rgbdriverv2/rgbdriverv2.ino
