@@ -57,17 +57,51 @@ arduino --install-boards esp8266:esp8266
 ### Tests
 Unit testing is done (not ready) through Catch2 and the setup and execution is managed through cmake.
 
-* Cmake
+* Cmake 2.8 or later
 * Make
 * GCC / Clang
 
 ```bash
-cd test
 mkdir build
 cd build
 cmake ..
 make
 make test
+```
+
+If certain CTest cases fails additional details are available by executing the specific Catch2 unit test. Below is an demonstration of this expansion.
+```bash
+$ make test
+Running tests...
+Test project /IOT_WakeUpLight/build
+    Start 1: TestOne
+1/1 Test #1: TestOne ..........................***Failed    0.00 sec
+
+0% tests passed, 1 tests failed out of 1
+```
+
+```bash
+$ ./test/testone 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+testone is a Catch v2.6.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Factorials are computed
+-------------------------------------------------------------------------------
+/IOT_WakeUpLight/test/test.cpp:4
+...............................................................................
+
+/IOT_WakeUpLight/test/test.cpp:8: FAILED:
+  REQUIRE( Factorial(10) == 362880 )
+with expansion:
+  3628800 (0x375f00) == 362880 (0x58980)
+
+===============================================================================
+test cases: 1 | 1 failed
+assertions: 4 | 3 passed | 1 failed
+
 ```
 
 ## Todo ESP8266

@@ -60,7 +60,6 @@ std::list<NeoAnimation*>  patterns          = std::list<NeoAnimation*>();
 
 
 int       lastPowerButtonState = 0;
-uint32_t  lastSerialUpdate = 0; // track when the last serial debug information
 bool      ledState = false;
 
 // TODO move this two branched template code into a function were only the specifics are passed
@@ -209,12 +208,10 @@ void loop() {
   serialC.processCommands();
 
   // output serial information
-  if(rate.getFrames() > lastSerialUpdate + 512 || rate.hasUpdate()) {
-    lastSerialUpdate = rate.getFrames(); // also auto resets lastSerialUpdate back to low value incase of rate.hasUpdate
+  if(rate.getFrames() >= rate.getAverage()) { // display one serial message every second
     ledState = !ledState;
     digitalWrite(LED_BUILTIN, ledState);
     if(DEBUG) {
-      uint32_t currentFrames = rate.get();
       for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
         Serial.print("{");
         Serial.print((*it)->getBrightness());
@@ -236,7 +233,7 @@ void loop() {
         Serial.print((*it)->Index);
         Serial.println("}");
       }
-      Serial.print(currentFrames);
+      Serial.print(rate.get());
       // Serial.print(" ");
       // if((1.d / currentFrames * 1000.d) > currentSpeed) { Serial.print("LAGG");}
       Serial.println();

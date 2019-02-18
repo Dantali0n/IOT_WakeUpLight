@@ -20,28 +20,48 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TYPEDEF_DEFINITIONS_H
+#ifndef ARDUINO_H
 #ifdef __cplusplus
-#define TYPEDEF_DEFINITIONS_H
+#define ARDUINO_H
 
-// TODO: Change into enum as mix and matching produces undesirable results.
-static const bool DEBUG = false; // output debugging information
-static const bool COMPUTER_SERIAL = false; // serial output is for esp8266
-static const bool PERFORMANCE_PROFILE = false; // output performance / timing information statistics
+#include <stdint.h>
+#include <math.h>
+#include <string>
 
-/* Colors */
-namespace COLORS {
-	static const uint32_t WHITE = 16777215;
-	static const uint32_t BLACK = 0;
-}
+typedef bool boolean;
+typedef unsigned char byte;
 
-namespace TIME {
-	static const uint16_t MILLIS_TO_MICROS = 1000;
-	static const uint64_t MICROS_TO_SECONDS = 1000000;
-	static const uint64_t MICROS_TO_MINUTES = 60000000;
-}
+uint32_t micros();
 
-typedef unsigned char uint8_t;
+inline uint64_t random(uint64_t limit) {
+	return 0;
+};
+
+inline uint64_t random(uint64_t lowerLimit, uint64_t uppperLimit) {
+	return 0;
+};
+
+// Ohboi this is gonna be fun.... 
+class String : public std::string {
+	public:
+		String(const char* input);
+};
+
+class serial {
+	public:
+		serial();
+		void begin(uint32_t baudRate);
+
+		void print(String text);
+		void println(String text);
+
+		void print(float& text);
+		void println(float& text);
+};
+
+extern serial Serial;
+
+#undef GLIBC_INSIDE
 
 #endif /* __cplusplus */
-#endif /* TYPEDEF_DEFINITIONS_H */
+#endif /* ARDUINO_H */

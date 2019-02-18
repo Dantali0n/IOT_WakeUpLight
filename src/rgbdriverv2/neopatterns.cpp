@@ -22,7 +22,7 @@ NeoPatterns::~NeoPatterns() {
 // Update the pattern
 void NeoPatterns::update(uint32_t deltaTime) {
     lastUpdate += deltaTime;
-    if(lastUpdate > (uint32_t)(Interval) * TIME::MILLIS_TO_MICROS) { // time to update
+    if(lastUpdate >= (uint32_t)(Interval) * TIME::MILLIS_TO_MICROS) { // time to update
 
         float steps = lastUpdate / (Interval * (float)(TIME::MILLIS_TO_MICROS));
         if(steps > 1.25 && PERFORMANCE_PROFILE) {
@@ -68,7 +68,7 @@ void NeoPatterns::Increment() {
        Index++;
        if (Index >= TotalSteps) {
             Index = 0;
-            if (OnComplete != NULL) {
+            if (OnComplete != nullptr) {
                 OnComplete(this); // call the comlpetion callback
             }
         }
@@ -77,7 +77,7 @@ void NeoPatterns::Increment() {
         --Index;
         if (Index <= 0) {
             Index = TotalSteps-1;
-            if (OnComplete != NULL) {
+            if (OnComplete != nullptr) {
                 OnComplete(this); // call the comlpetion callback
             }
         }

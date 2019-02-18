@@ -30,7 +30,7 @@ DeltaLimiter::DeltaLimiter(uint16_t deltaLimit):Actor() {
 void DeltaLimiter::update(uint32_t deltaTime) {
   lastUpdate += deltaTime;
   
-  if(lastUpdate > deltaLimit) {
+  if(lastUpdate >= deltaLimit) {
     lastUpdate -= deltaLimit;
     bHasUpdate = true;
   }

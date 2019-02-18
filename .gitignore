@@ -1,2 +1,6 @@
+/build
 /doc
 /src/rgbdriver_netbeans/
+
+thirdparty/*
+!thirdparty/README.md

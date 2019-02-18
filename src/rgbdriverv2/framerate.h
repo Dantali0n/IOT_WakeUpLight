@@ -25,12 +25,12 @@
 #define FRAME_RATE_H
 
 #include <Arduino.h>
+#include "typedefinitions.h"
 #include "actor.h"
 
 class FrameRate: public Actor {
   private:
-    static const uint32_t MICRO_TO_MINUTE = 60000000;
-    bool bHasUpdate;
+    uint32_t lastDelta;
     uint32_t frames;
     uint32_t framerate;
   public:
@@ -38,8 +38,8 @@ class FrameRate: public Actor {
     void update(uint32_t deltaTime);
     void reset();
     uint32_t get();
+    uint32_t getAverage();
     uint32_t getFrames();
-    bool hasUpdate();
 };
 
 #endif  /* __cplusplus */

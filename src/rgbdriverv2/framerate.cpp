@@ -23,18 +23,16 @@
 #include "framerate.h"
 
 FrameRate::FrameRate():Actor() {
-  bHasUpdate = false;
-  framerate = 0;
+  lastDelta = 0;
   reset();
 }
 
 void FrameRate::update(uint32_t deltaTime) {
   lastUpdate += deltaTime;
+  lastDelta = deltaTime;
   
-  if(lastUpdate > MICRO_TO_MINUTE) {
-    bHasUpdate = true;
+  if(lastUpdate >= TIME::MICROS_TO_MINUTES) {
     lastUpdate = 0;
-    framerate = frames / 60;
     reset();
   }
   else {
@@ -47,17 +45,15 @@ void FrameRate::reset() {
 }
 
 uint32_t FrameRate::get() {
-  return framerate;
+  if(lastDelta == 0) return 0; // can't determine framerate with a 0 delta
+  return TIME::MICROS_TO_SECONDS / lastDelta;
+}
+
+uint32_t FrameRate::getAverage() {
+  if(lastUpdate == 0) return 0; // can't determine framerate with a 0 lastUpdate
+  return (TIME::MICROS_TO_SECONDS / lastUpdate) * frames;
 }
 
 uint32_t FrameRate::getFrames() {
   return frames;
 }
-
-bool FrameRate::hasUpdate() {
-  bool holdBHasUpdate = bHasUpdate;
-  bHasUpdate = false;
-  return holdBHasUpdate;
-}
-
-

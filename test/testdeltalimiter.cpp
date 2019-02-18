@@ -20,28 +20,31 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TYPEDEF_DEFINITIONS_H
-#ifdef __cplusplus
-#define TYPEDEF_DEFINITIONS_H
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
 
-// TODO: Change into enum as mix and matching produces undesirable results.
-static const bool DEBUG = false; // output debugging information
-static const bool COMPUTER_SERIAL = false; // serial output is for esp8266
-static const bool PERFORMANCE_PROFILE = false; // output performance / timing information statistics
+#include "deltalimiter.h"
 
-/* Colors */
-namespace COLORS {
-	static const uint32_t WHITE = 16777215;
-	static const uint32_t BLACK = 0;
+TEST_CASE( "DeltaLimiter limit update", "[DeltaLimiter]" ) {
+	DeltaLimiter d(512);
+	REQUIRE( d.hasUpdate() == false);
 }
 
-namespace TIME {
-	static const uint16_t MILLIS_TO_MICROS = 1000;
-	static const uint64_t MICROS_TO_SECONDS = 1000000;
-	static const uint64_t MICROS_TO_MINUTES = 60000000;
+TEST_CASE( "DeltaLimiter should have an update", "[DeltaLimiter]" ) {
+	DeltaLimiter d(1);
+	d.update(1);
+	REQUIRE( d.hasUpdate() == true);
 }
 
-typedef unsigned char uint8_t;
+TEST_CASE( "DeltaLimiter update once", "[DeltaLimiter]" ) {
+	DeltaLimiter d(512);
+	d.update(512);
+	REQUIRE( d.hasUpdate() == true);
+	REQUIRE( d.hasUpdate() == false);
+}
 
-#endif /* __cplusplus */
-#endif /* TYPEDEF_DEFINITIONS_H */
+TEST_CASE( "DeltaLimiter overflow", "[DeltaLimiter]" ) {
+	DeltaLimiter d(65535);
+	d.update(65536);
+	REQUIRE( d.hasUpdate() == true);
+}

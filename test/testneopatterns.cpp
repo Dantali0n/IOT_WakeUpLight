@@ -20,28 +20,32 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TYPEDEF_DEFINITIONS_H
-#ifdef __cplusplus
-#define TYPEDEF_DEFINITIONS_H
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
 
-// TODO: Change into enum as mix and matching produces undesirable results.
-static const bool DEBUG = false; // output debugging information
-static const bool COMPUTER_SERIAL = false; // serial output is for esp8266
-static const bool PERFORMANCE_PROFILE = false; // output performance / timing information statistics
+#include "neopatterns.h"
 
-/* Colors */
-namespace COLORS {
-	static const uint32_t WHITE = 16777215;
-	static const uint32_t BLACK = 0;
+bool callbackCalled = false;
+
+void emptyPatternComplete(NeoPatterns* stick) {
+
+};
+
+void measurePatternComplete(NeoPatterns* stick) {
+	callbackCalled = true;
+};
+
+TEST_CASE( "NeoPatterns init", "[NeoPatterns]" ) {
+	NeoPatterns pattern(30, 8, NEO_RGB, emptyPatternComplete);
+	REQUIRE( sizeof(pattern) > 0);
 }
 
-namespace TIME {
-	static const uint16_t MILLIS_TO_MICROS = 1000;
-	static const uint64_t MICROS_TO_SECONDS = 1000000;
-	static const uint64_t MICROS_TO_MINUTES = 60000000;
+TEST_CASE( "NeoPatterns pattern updates and callback", "[NeoPatterns]" ) {
+	NeoPatterns pattern(30, 8, NEO_RGB, measurePatternComplete);
+	pattern.RainbowCycle(5);
+	for(uint16_t i = 0; i < pattern.TotalSteps; i++) {
+		pattern.update(pattern.Interval * TIME::MILLIS_TO_MICROS);
+	}
+	REQUIRE( callbackCalled == true);
+	callbackCalled = false;
 }
-
-typedef unsigned char uint8_t;
-
-#endif /* __cplusplus */
-#endif /* TYPEDEF_DEFINITIONS_H */
