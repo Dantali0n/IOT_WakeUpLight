@@ -40,11 +40,11 @@ void SerialCommand::processCommands() {
 
   // Buffer input and determine if command is complete
   if (Serial.available()) {
-    if(DEBUG) serialOut += "processCommands - have serial - ";
+    if(DEBUG_MODE == DEBUG) serialOut += "processCommands - have serial - ";
     int i = 0;
     char bytes[64] = {};
     while(Serial.available()) {
-      if(DEBUG) serialOut += "b";
+      if(DEBUG_MODE == DEBUG) serialOut += "b";
       bytes[i] = Serial.read();
       i++;
     }
@@ -53,14 +53,14 @@ void SerialCommand::processCommands() {
 
     // remove everything after the line ending and the line ending itself
     if(substr > -1) {
-      if(DEBUG) serialOut += " - have line ending";
+      if(DEBUG_MODE == DEBUG) serialOut += " - have line ending";
       
       isComplete = true;
     }
 
     serialIn += String(bytes);
-    if(DEBUG) serialOut += " ";
-    if(DEBUG) serialOut += serialIn;
+    if(DEBUG_MODE == DEBUG) serialOut += " ";
+    if(DEBUG_MODE == DEBUG) serialOut += serialIn;
   }
 
   // If not complete halt further execution for now.
@@ -71,11 +71,11 @@ void SerialCommand::processCommands() {
 
   // Determine if the received checksum is valid
   if(validateChecksum(serialIn, generateChecksum(serialIn.substring(0, serialIn.lastIndexOf(" "))))) {
-    if(COMPUTER_SERIAL == false) serialOut += "checksum valid ";
+    if(DEBUG_MODE != COMPUTER_SERIAL) serialOut += "checksum valid ";
   }
   else {
-    if(COMPUTER_SERIAL == false) serialOut += "checksum invalid ";
-    if(COMPUTER_SERIAL) isValid = false; // invalid checksum makes the supplied command no longer valid but only if interfacing with none human.
+    if(DEBUG_MODE != COMPUTER_SERIAL) serialOut += "checksum invalid ";
+    if(DEBUG_MODE == COMPUTER_SERIAL) isValid = false; // invalid checksum makes the supplied command no longer valid but only if interfacing with none human.
   }
 
   // Only attempt to process the specified command if it is still valid

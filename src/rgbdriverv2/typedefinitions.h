@@ -24,10 +24,14 @@
 #ifdef __cplusplus
 #define TYPEDEF_DEFINITIONS_H
 
-// TODO: Change into enum as mix and matching produces undesirable results.
-static const bool DEBUG = false; // output debugging information
-static const bool COMPUTER_SERIAL = false; // serial output is for esp8266
-static const bool PERFORMANCE_PROFILE = false; // output performance / timing information statistics
+enum DebugMode {
+	NORMAL,
+	DEBUG,
+	COMPUTER_SERIAL,
+	PERFORMANCE_PROFILE
+};
+
+static const DebugMode DEBUG_MODE = NORMAL;
 
 /* Colors */
 namespace COLORS {
