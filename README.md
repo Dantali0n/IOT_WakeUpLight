@@ -9,9 +9,6 @@ Harness the amazing power of wifi enabled microcontrollers for <em>true</em> hom
 | Meteor scanner | Fire | Rainbow |
 |---|---|---|
 | <img src="https://raw.githubusercontent.com/Dantali0n/IOT_WakeUpLight/develop/General/demo/meteor.gif"> | <img  src="https://raw.githubusercontent.com/Dantali0n/IOT_WakeUpLight/develop/General/demo/fire.gif"> |   <img  src="https://raw.githubusercontent.com/Dantali0n/IOT_WakeUpLight/develop/General/demo/rainbow.gif"> |
-  
- 
-  
 
 ## Features
 
@@ -24,6 +21,8 @@ Harness the amazing power of wifi enabled microcontrollers for <em>true</em> hom
 * 256 step brightness control.
 * 65535 step speed control.
 * Accurate offline time keeping with minimized drift.
+
+## Commands
 
 ## Requirements
 The software consists of three different components each with its own set of requirements. When using the software only two of these requirements are necessary but for testing the additional third component is recommended.
@@ -81,7 +80,7 @@ Test project /IOT_WakeUpLight/build
 ```
 
 ```bash
-$ ./test/testone 
+$ ./test/testone
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 testone is a Catch v2.6.1 host application.

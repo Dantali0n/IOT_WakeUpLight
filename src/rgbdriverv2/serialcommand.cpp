@@ -152,6 +152,9 @@ void SerialCommand::processSetAnimation() {
   else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::STROBE_SOLID])) {
     anim = STROBE_SOLID;
   }
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::COLOR_WIPE_SOLID])) {
+    anim = COLOR_WIPE_SOLID;
+  }
   else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::COLOR_WIPE_CHRISTMAS])) {
     anim = COLOR_WIPE_CHRISTMAS;
   }
@@ -184,14 +187,23 @@ void SerialCommand::processSetAnimation() {
 }
 
 void SerialCommand::processSetColor() {
+  // -1 to set all colors at once.
   int colorIndex = -1;
+  
+  // determine if color index is specified and update
   if(hasNextPart()) {
     colorIndex = getNextPart().toInt();
     serialIn = serialIn.substring(2);
   }
 
+  // determine the color
   long color = serialIn.toInt();
-  if(color > UINT32_MAX) color = UINT32_MAX;
+  if(color == 0) {
+    // hexadecimal color conversion if raw integer is 0
+    color = std::strtol(serialIn.c_str(), nullptr, 16);
+  }
+  // cap the maximum color value
+  if(color > COLORS::WHITE) color = COLORS::WHITE;
   eventHandler->eventSetColor(color, colorIndex, currentStripIndex);
 }
 
@@ -207,6 +219,9 @@ void SerialCommand::processSetPWM() {
   eventHandler->eventSetPWM(pwm);
 }
 
+/**
+ * 
+ */
 bool SerialCommand::validateChecksum(String input, uint32_t checksum) {
   uint32_t inputChecksum = serialIn.substring(input.lastIndexOf(" ")).toInt();
   return (inputChecksum == checksum) ? true : false;
@@ -231,10 +246,16 @@ int8_t SerialCommand::subtractStripIndex() {
   return stripIndex;
 }
 
+/**
+ * 
+ */
 bool SerialCommand::hasNextPart() {
   return (serialIn.indexOf(" ") == -1) ? false : true; 
 }
 
+/**
+ * 
+ */
 String SerialCommand::getNextPart() {
   return serialIn.substring(0, serialIn.indexOf(" "));
 }

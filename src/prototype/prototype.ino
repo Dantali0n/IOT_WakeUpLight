@@ -116,7 +116,6 @@ microTime activeTime = microTime(2010, 8, 18, 15 , 00, 00); // current system ti
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ400); // lights to wake up the user
 ledPattern *pattern = new ledPattern(rgbColor(250, 0, 0), rgbColor(0, 250, 0), 10000000UL, ledPattern::patternModes::linear);
 
-
 // declaration to prevent undeclared function error
 void setAllPixels(rgbColor color, float multiplier);
 

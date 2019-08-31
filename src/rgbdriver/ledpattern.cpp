@@ -26,8 +26,37 @@
  * If being bombarded with serial debug messages please check ledpattern.h for the debug constant and change it to false
  */
 
-// amount of different colors the rainbow pattern will show during its lifetime
-int ledPattern::numColorsRainbow = 100;
+/**
+ * 
+ */
+ledPattern::ledPattern(Adafruit_NeoPixel &strip) {
+ this->strips = std::list<Adafruit_NeoPixel>();
+ this->finished = false;
+ this->finishes = true;
+ this->paused = false;
+ this->disable = false;
+ this->safeDelete = false;
+
+ this->strips.push_front(strip);
+}
+
+/**
+ * Initiate ledPattern with random start and end colors
+ * @Param duration the time to transistion from start to finish in microseconds
+ * @Param patternMode the interpolation mode for the color transistion, see ledPattern::patternModes for options
+ */
+// ledPattern::ledPattern(unsigned long duration, ledPattern::patternModes patternMode) {
+//   this->strips = std::list<Adafruit_NeoPixel>();
+//   this->finished = false;
+//   this->finishes = true;
+//   this->paused = false;
+//   this->safeDelete = false;
+//   this->currentDuration = 0UL;
+//   this->finalDuration = duration;
+//   this->startColor = rgbColor((byte)random(0,256), (byte)random(0,256), (byte)random(0,256));
+//   this->currentColor = startColor;
+//   this->finalColor = rgbColor((byte)random(0,256), (byte)random(0,256), (byte)random(0,256));
+// }
 
 /**
  * Initiate ledPattern
@@ -36,138 +65,118 @@ int ledPattern::numColorsRainbow = 100;
  * @Param duration the time to transistion from start to finish in microseconds
  * @Param patternMode the interpolation mode for the color transistion, see ledPattern::patternModes for options
  */
-ledPattern::ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration, ledPattern::patternModes patternMode) {
-  this->finished = false;
-  this->safeDelete = false;
-	this->currentDuration = 0UL;
-	this->finalDuration = duration;
-  this->startColor = startColor;
-	this->currentColor = startColor;
-	this->finalColor = endColor;
-  this->patternMode = patternMode;
+// ledPattern::ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration, ledPattern::patternModes patternMode) {
+//   this->strips = std::list<Adafruit_NeoPixel>();
+//   this->finished = false;
+//   this->finishes = true;
+//   this->paused = false;
+//   this->safeDelete = false;
+// 	this->currentDuration = 0UL;
+//   this->finalDuration = duration;
+//   this->startColor = startColor;
+//   this->currentColor = startColor;
+//   this->finalColor = endColor;
 
-  /**
-   * @TODO Calculate color difference per rgb by percentage
-   * See variables stepsRed, stepsGreen and stepsBlue
-   * It is extremely likely the precalculating of steps will make individual update methods per mode redundant!
-   */
-  switch(this->patternMode) {
-    case linear:
-      break;
-    case cubic:
-      break;
-    case bicubic:
-      break;
-    case polynomial:
-      break;
-    case cspline:
-      break;
-    case akima:
-      break;
-    case rainbow:
-      break;
-    default:
-      break;
-  }
-}
+//  switch(this->patternMode) {
+//    case linear:
+//      break;
+//    case cubic:
+//      break;
+//    case bicubic:
+//      break;
+//    case polynomial:
+//      break;
+//    case cspline:
+//      break;
+//    case akima:
+//      break;
+//    case rainbow:
+//      break;
+//    default:
+//      break;
+//  }
+// }
 
 /**
  * Update the state of the ledpattern by incrementing the time in microseconds
  * @Param deltaTime the time in microseconds to progress the ledPattern
- * @TODO improve math -> increments start big get smaller towards the end problem resides in stepsize logic
  */
-void ledPattern::update(unsigned long deltaTime) {
-  if(this->currentDuration >= this->finalDuration) {
-    this->finished = true; 
+void ledPattern::increment(uint32_t deltaTime) {
+  // do_increment(deltaTime);
+  
+  // dont do anything during the updating of paused patterns
+  if(this->paused) {
     return;
   }
-  
-  if(deltaTime > 0) { // prevent division by zero
-    switch(patternMode) {
-      case linear:
-        updateLinear(deltaTime);
-        break;
-      case cubic:
-        break;
-      case bicubic:
-        break;
-      case polynomial:
-        break;
-      case cspline:
-        break;
-      case akima:
-        break;
-      case rainbow:
-        break;
-      default:
-        break;
-    }
+
+  // if the pattern finishes end it
+  if(this->finishes) {
+    this->finished = true;
+    return;
   }
 }
 
 /**
  * Resets the pattern for another round from the start
+ * @warning Not the same as looping
  */
 void ledPattern::reset() {
+  // do_reset();
+  
   this->finished = false;
-  this->currentDuration = 0UL;
-  this->currentColor = this->startColor;
 }
 
 
 /**
- * 
+ * Linear transistioning between two rgb values with a function of deltaTime
  * @math endtime / currenttime = divTime
  * @math endcolor - scolor = divColor
  * @math divcolor / divTime = currentcolor
  */
-void ledPattern::updateLinear(unsigned long deltaTime) {
-  this->currentDuration += deltaTime;
-  if(this->currentDuration > this->finalDuration) { this->currentDuration = this->finalDuration; } // clamp duration
-
-  double divTime = this->finalDuration / (double)this->currentDuration;
+// void ledPattern::updateLinear(unsigned long deltaTime) {
+//   double divTime = this->finalDuration / (double)this->currentDuration;
   
-  int newRed = 0;
-  int newGreen = 0;
-  int newBlue = 0;  
+//   int newRed = 0;
+//   int newGreen = 0;
+//   int newBlue = 0;  
 
-  int intermediateRed = 0;
-  int intermediateGreen = 0;
-  int intermediateBlue = 0;
+//   int intermediateRed = 0;
+//   int intermediateGreen = 0;
+//   int intermediateBlue = 0;
 
-  //intermediateRed = (int)this->finalColor.getRed() - (int)this->currentColor.getRed();
-  intermediateRed = (int)this->finalColor.getRed() - (int)this->startColor.getRed();
-  // if(RGBRL_DEBUG) { Serial.print(intermediateRed); Serial.print('|'); }
-  if(intermediateRed != 0) {
-      newRed = round(intermediateRed / divTime); // large step logic
-      if(RGBRL_DEBUG) { Serial.print(newRed); Serial.print('|'); }
-      newRed += this->startColor.getRed();
-  }
+//   //intermediateRed = (int)this->finalColor.getRed() - (int)this->currentColor.getRed();
+//   intermediateRed = (int)this->finalColor.getRed() - (int)this->startColor.getRed();
+//   // if(RGBRL_DEBUG) { Serial.print(intermediateRed); Serial.print('|'); }
+//   if(intermediateRed != 0) {
+//       newRed = round(intermediateRed / divTime); // large step logic
+//       if(RGBRL_DEBUG) { Serial.print(newRed); Serial.print('|'); }
+//       newRed += this->startColor.getRed();
+//   }
 
-  //intermediateGreen = (int)this->finalColor.getGreen() - (int)this->currentColor.getGreen();
-  intermediateGreen = (int)this->finalColor.getGreen() - (int)this->startColor.getGreen();
-  // if(RGBRL_DEBUG) { Serial.print(intermediateGreen); Serial.print('|'); }
-  if(intermediateGreen != 0) {
-      newGreen = round(intermediateGreen / divTime); // large step logic
-      if(RGBRL_DEBUG) { Serial.print(newGreen); Serial.print('|'); }
-      newGreen += this->startColor.getGreen();
-  }
+//   //intermediateGreen = (int)this->finalColor.getGreen() - (int)this->currentColor.getGreen();
+//   intermediateGreen = (int)this->finalColor.getGreen() - (int)this->startColor.getGreen();
+//   // if(RGBRL_DEBUG) { Serial.print(intermediateGreen); Serial.print('|'); }
+//   if(intermediateGreen != 0) {
+//       newGreen = round(intermediateGreen / divTime); // large step logic
+//       if(RGBRL_DEBUG) { Serial.print(newGreen); Serial.print('|'); }
+//       newGreen += this->startColor.getGreen();
+//   }
 
-  // intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
-  intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
-  // if(RGBRL_DEBUG) { Serial.println(intermediateBlue); }
-  if(intermediateBlue != 0) {
-      newBlue = round(intermediateBlue / divTime); // large step logic
-      if(RGBRL_DEBUG) { Serial.print(newBlue); }
-      newBlue += this->startColor.getBlue();
-  }
+//   // intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
+//   intermediateBlue = (int)this->finalColor.getBlue() - (int)this->startColor.getBlue();
+//   // if(RGBRL_DEBUG) { Serial.println(intermediateBlue); }
+//   if(intermediateBlue != 0) {
+//       newBlue = round(intermediateBlue / divTime); // large step logic
+//       if(RGBRL_DEBUG) { Serial.print(newBlue); }
+//       newBlue += this->startColor.getBlue();
+//   }
 
-  if(RGBRL_DEBUG) { Serial.println(); }
+//   if(RGBRL_DEBUG) { Serial.println(); }
 
-  if(intermediateRed != 0) this->currentColor.setRed(newRed);
-  if(intermediateGreen != 0) this->currentColor.setGreen(newGreen);
-  if(intermediateBlue != 0) this->currentColor.setBlue(newBlue);
-}
+//   if(intermediateRed != 0) this->currentColor.setRed(newRed);
+//   if(intermediateGreen != 0) this->currentColor.setGreen(newGreen);
+//   if(intermediateBlue != 0) this->currentColor.setBlue(newBlue);
+// }
 
 //void ledPattern::updateLinear(unsigned long deltaTime) {
 //  int timeRemaining = this->finalDuration - this->currentDuration;
@@ -238,53 +247,57 @@ void ledPattern::updateLinear(unsigned long deltaTime) {
 //  this->currentColor.setBlue(newBlue);
 //}
 
-void ledPattern::updateCubic(unsigned long deltaTime) {
+// void ledPattern::updateCubic(unsigned long deltaTime) {
   
-}
+// }
 
-void ledPattern::updateBiCubic(unsigned long deltaTime) {
+// void ledPattern::updateBiCubic(unsigned long deltaTime) {
   
-}
+// }
 
-void ledPattern::updatePolynomial(unsigned long deltaTime) {
+// void ledPattern::updatePolynomial(unsigned long deltaTime) {
   
-}
+// }
 
-void ledPattern::updateCspline(unsigned long deltaTime) {
+// void ledPattern::updateCspline(unsigned long deltaTime) {
   
-}
+// }
 
-void ledPattern::updateAkima(unsigned long deltaTime) {
+// void ledPattern::updateAkima(unsigned long deltaTime) {
   
-}
+// }
 
-void ledPattern::updateRainbow(unsigned long deltaTime) {
+// void ledPattern::updateRainbow(unsigned long deltaTime) {
   
-}
+// }
 
+
+Adafruit_NeoPixel* ledPattern::getStrip() {
+  return &strips.front();
+}
 /**
  * returns the current color of the ledPattern
  * @Return rgbColor the current color of the pattern
  */
-rgbColor ledPattern::getColor() {
-	return this->currentColor;
-}
+// rgbColor ledPattern::getColor() {
+// 	return this->currentColor;
+// }
 
 /**
  * returns the current duration of the ledPattern
  * @Return unsigned long microtime duration
  */
-unsigned long ledPattern::getCurrentDuration() {
-  return this->currentDuration;
-}
+// unsigned long ledPattern::getCurrentDuration() {
+//   return this->currentDuration;
+// }
 
 /**
  * returns the final duration of the ledPattern
  * @Return unsigned long microtime duration
  */
-unsigned long ledPattern::getFinalDuration() {
-  return this->finalDuration;
-}
+// unsigned long ledPattern::getFinalDuration() {
+//   return this->finalDuration;
+// }
 
 /**
  * returns if the pattern has finished
@@ -292,6 +305,44 @@ unsigned long ledPattern::getFinalDuration() {
  */
 bool ledPattern::isFinished() {
   return this->finished;
+}
+
+/**
+ * returns if the pattern ever finishes
+ * @Return if the pattern ever finishes
+ */
+bool ledPattern::doesFinish() {
+  return this->finishes;
+}
+
+/**
+ * returns if the pattern has finished
+ * @Return if the pattern has finished
+ */
+bool ledPattern::isPaused() {
+  return this->paused;
+}
+
+/**
+ * Set if the ledPattern should pause the progression of animations
+ */
+void ledPattern::setPaused(bool paused) {
+  this->paused = paused;
+}
+
+/**
+ * returns if the pattern is disabled
+ * @Return if the pattern is disabled
+ */
+bool ledPattern::isDisabled() {
+  return this->disable;
+}
+
+/**
+ * Set if the ledPattern should disable the display on the ledStrips
+ */
+void ledPattern::setDisabled(bool disable) {
+  this->disable = disable;
 }
 
 /**
@@ -303,7 +354,7 @@ bool ledPattern::isSafeDelete() {
 }
 
 /**
- * 
+ * Set if the ledPattern can be safely called delete upon
  */
 void ledPattern::setSafeDelete(bool safeDelete) {
   this->safeDelete = safeDelete;

@@ -20,12 +20,18 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _Wul_Typedef_h
-#define _Wul_Typedef_h
+#include "Arduino.h"
 
-typedef unsigned char byte;
+serial Serial = serial();
 
-// used to determine if debug info should be outputted to serial
-static const bool WUL_DEBUG = false; 
+serial::serial() {
+}
 
-#endif /* _Wul_Typedef_h */
+void serial::begin(uint32_t baudRate) {
+}
+
+void serial::print(String text) {
+}
+
+void serial::println(String text) {
+}

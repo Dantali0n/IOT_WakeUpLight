@@ -25,6 +25,9 @@
 #define _Led_Pattern_h
 
 #include <Arduino.h>
+#include <Adafruit_NeoPixel.h>
+#include <ArduinoSTL.h>
+#include <list>
 #include "rgbrltypedef.h"
 #include "rgbcolor.h"
 
@@ -35,53 +38,77 @@
  */
 class ledPattern {
     public:
-      enum patternModes {
-        linear,
-        cubic,
-        bicubic,
-        polynomial,
-        cspline,
-        akima,
-        rainbow
-      };
+      // enum patternModes {
+      //   linear,
+      //   cubic,
+      //   bicubic,
+      //   polynomial,
+      //   cspline,
+      //   akima,
+      //   rainbow
+      // };
 
-      static int numColorsRainbow;
-  	private:
-    
-      /**
-       * If being bombarded with serial debug messages please check ledpattern.h for the debug constant and change it to false
-       */
-      bool finished;
-      bool safeDelete;
-  		unsigned long currentDuration;
-  		unsigned long finalDuration;
+      // static int numColorsRainbow;
+  	protected:
+      bool finished; // if the ledPattern has finished animating
+      bool finishes; // if the ledPattern ever finishes animating
+      bool paused; // pause the progression of the animation
+      bool disable; // disable the ledStrip
+      bool safeDelete; // if the ledPattern is created with the new keyword and can safely be called by delete
+  		// unsigned long currentDuration; // current total animation time in microseconds
+  		// unsigned long finalDuration; // time the animation finishes in microseconds
       
       //char stepsRed[100]; 
       //char stepsGreen[100]; 
       //char stepsBlue[100]; 
-      
-      rgbColor startColor;
-  		rgbColor currentColor;
-  		rgbColor finalColor;
-      
-      patternModes patternMode;
 
-      void updateLinear(unsigned long deltaTime);
-      void updateCubic(unsigned long deltaTime);
-      void updateBiCubic(unsigned long deltaTime);
-      void updatePolynomial(unsigned long deltaTime);
-      void updateCspline(unsigned long deltaTime);
-      void updateAkima(unsigned long deltaTime);
-      void updateRainbow(unsigned long deltaTime);
+      std::list<Adafruit_NeoPixel> strips; // the neopixel strips controlled by ledPattern
+      
+      // rgbColor startColor; 
+  		// rgbColor currentColor;
+  		// rgbColor finalColor;
+      
+      // patternModes patternMode;
+
+      // void updateLinear(unsigned long deltaTime);
+      // void updateCubic(unsigned long deltaTime);
+      // void updateBiCubic(unsigned long deltaTime);
+      // void updatePolynomial(unsigned long deltaTime);
+      // void updateCspline(unsigned long deltaTime);
+      // void updateAkima(unsigned long deltaTime);
+      // void updateRainbow(unsigned long deltaTime);
+  private:
+//    virtual void do_increment(uint32_t deltaTime) = 0;
+//    virtual void do_reset() = 0;
 	public:
-		ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration, patternModes patternMode);
-		void update(unsigned long deltaTime);
+    // virtual ~ledPattern();
+    // ledPattern();
+    // ledPattern(unsigned long duration, patternModes patternMode);
+		// ledPattern(rgbColor startColor, rgbColor endColor, unsigned long duration, patternModes patternMode);
+
+    ledPattern(Adafruit_NeoPixel &strip);
+
+    // ledPattern(Adafruit_NeoPixel strip, unsigned long duration, patternModes patternMode);
+    // ledPattern(Adafruit_NeoPixel strip, rgbColor startColor, rgbColor endColor, unsigned long duration, patternModes patternMode);
+   
+		void increment(uint32_t deltaTime);
     void reset();
-		rgbColor getColor();
+
+    // void addStrip(Adafruit_NeoPixel strip);
+    // void removeStrip(Adafruit_NeoPixel strip);
+
+    Adafruit_NeoPixel* getStrip();
+    
+		// rgbColor getColor();
     // byte getPercentage();
-    unsigned long getCurrentDuration();
-    unsigned long getFinalDuration();
+    // unsigned long getCurrentDuration();
+    // unsigned long getFinalDuration();
     bool isFinished();
+    bool doesFinish();
+    bool isPaused();
+    void setPaused(bool paused);
+    bool isDisabled();
+    void setDisabled(bool disabled);
     bool isSafeDelete();
     void setSafeDelete(bool safeDelete);
 };

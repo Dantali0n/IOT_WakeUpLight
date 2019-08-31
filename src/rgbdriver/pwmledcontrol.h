@@ -20,12 +20,22 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _Wul_Typedef_h
-#define _Wul_Typedef_h
+#ifndef _PWM_Led_Control_h
+#ifdef __cplusplus
+#define _PWM_Led_Control_h
 
-typedef unsigned char byte;
+#include <Arduino.h>
+#include "rgbrltypedef.h"
 
-// used to determine if debug info should be outputted to serial
-static const bool WUL_DEBUG = false; 
+/**
+ * 
+ */
+class pwmLedControl {
+	private:
+		uint8_t pwmPin; 
+    public:
+    	pwmLedControl(uint8_t pwmPin);
+};
 
-#endif /* _Wul_Typedef_h */
+#endif /* __cplusplus */
+#endif /* _PWM_Led_Control_h */

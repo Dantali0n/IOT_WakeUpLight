@@ -20,12 +20,7 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _Wul_Typedef_h
-#define _Wul_Typedef_h
+#include "Arduino.h"
 
-typedef unsigned char byte;
-
-// used to determine if debug info should be outputted to serial
-static const bool WUL_DEBUG = false; 
-
-#endif /* _Wul_Typedef_h */
+String::String(const char* input) {
+}
