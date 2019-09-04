@@ -19,6 +19,9 @@ set(LIB_RGBDRIVER_SRC
 	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/framerate.cpp
 	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/neoanimation.cpp
 	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/neopatterns.cpp
+	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/pwmledcontrol.cpp
+	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/serialcommand.cpp
+	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/smoothmapread.cpp
 )
 
 set(LIB_RGBDRIVER_HEADERS
@@ -30,6 +33,10 @@ set(LIB_RGBDRIVER_HEADERS
 	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/framerate.h
 	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/neoanimation.h
 	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/neopatterns.h
+	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/pwmledcontrol.h
+	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/serialcommand.h
+	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/smoothmapread.h
+	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/typedefinitions.h
 )
 
 add_library(RGBunit SHARED ${LIB_RGBDRIVER_SRC} ${LIB_RGBDRIVER_HEADERS})

@@ -1,6 +1,8 @@
 /build
 /doc
 /src/rgbdriver_netbeans/
+.idea
+cmake-build-debug
 
 thirdparty/*
 !thirdparty/README.md
