@@ -22,5 +22,5 @@
 
 #include "Arduino.h"
 
-String::String(const char* input) {
+String::String(const char* input) : Callable() {
 }

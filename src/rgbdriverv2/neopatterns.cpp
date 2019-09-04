@@ -68,8 +68,8 @@ void NeoPatterns::Increment() {
        Index++;
        if (Index >= TotalSteps) {
             Index = 0;
-            if (OnComplete != nullptr) {
-                OnComplete(this); // call the comlpetion callback
+            if (OnComplete != NULL) {
+                OnComplete(this); // call the completion callback
             }
         }
     }
@@ -77,8 +77,8 @@ void NeoPatterns::Increment() {
         --Index;
         if (Index <= 0) {
             Index = TotalSteps-1;
-            if (OnComplete != nullptr) {
-                OnComplete(this); // call the comlpetion callback
+            if (OnComplete != NULL) {
+                OnComplete(this); // call the completion callback
             }
         }
     }
@@ -107,7 +107,7 @@ void NeoPatterns::RainbowCycle(uint16_t interval, direction dir) {
 
 // Update the Rainbow Cycle Pattern
 void NeoPatterns::RainbowCycleUpdate(){
-    for(int i=0; i< numPixels(); i++) {
+    for(uint16_t i=0; i < numPixels(); i++) {
         setPixelColor(i, Wheel(((i * 256 / numPixels()) + Index) & 255));
     }
     show();
@@ -127,7 +127,7 @@ void NeoPatterns::TheaterChase(uint32_t color1, uint32_t color2, uint16_t interv
 
 // Update the Theater Chase Pattern
 void NeoPatterns::TheaterChaseUpdate() {
-    for(int i=0; i< numPixels(); i++) {
+    for(uint16_t i=0; i< numPixels(); i++) {
         if ((i + Index) % 3 == 0) {
             setPixelColor(i, Color1);
         }
@@ -179,7 +179,7 @@ void NeoPatterns::Scanner(uint32_t color1, uint16_t interval, trace trc, directi
 // Update the Scanner Pattern
 void NeoPatterns::ScannerUpdate() { 
     if(Trace == DUAL) {  
-        for (int i = 0; i < numPixels(); i++) {
+        for (uint16_t i = 0; i < numPixels(); i++) {
             if (i == Index) { // Scan Pixel to the right
                  setPixelColor(i, Color1);
             }
@@ -192,7 +192,7 @@ void NeoPatterns::ScannerUpdate() {
         }
     }
     else {
-        for (int i = 0; i < numPixels(); i++) {
+        for (uint16_t i = 0; i < numPixels(); i++) {
             if (i == Index && Index < numPixels()) { // Scan Pixel to the right
                  setPixelColor(i, Color1);
             }
@@ -236,7 +236,7 @@ void NeoPatterns::FadeUpdate() {
 }
 
 // Initialize for a FIRE Pattern
-void NeoPatterns::Fire(uint32_t color1, uint16_t interval, trace trc = DUAL, direction dir = FORWARD) {
+void NeoPatterns::Fire(uint32_t color1, uint16_t interval, trace trc, direction dir) {
     ActivePattern = FIRE;
     Interval = interval;
     TotalSteps = numPixels() * 2;
@@ -251,7 +251,7 @@ void NeoPatterns::FireUpdate() {
     int cooldown;
 
     // Step 1.  Cool down every cell a little
-    for( int i = 0; i < numPixels(); i++) {
+    for(uint16_t i = 0; i < numPixels(); i++) {
         cooldown = random(0, ((FireCooling * 10) / numPixels()) + 2);
         if(cooldown>FireHeat[i]) {
            FireHeat[i]=0;
@@ -261,19 +261,19 @@ void NeoPatterns::FireUpdate() {
     }
 
     // Step 2.  Heat from each cell drifts 'up' and diffuses a little
-    for( int k= numPixels() - 1; k >= 2; k--) {
+    for(int k = numPixels() - 1; k >= 2; k--) {
         FireHeat[k] = (FireHeat[k - 1] + FireHeat[k - 2] + FireHeat[k - 2]) / 3;
     }
 
     // Step 3.  Randomly ignite new 'sparks' near the bottom
-    if( random(255) < FireSparkling ) {
+    if(random(255) < FireSparkling ) {
         int y = random(7);
         FireHeat[y] = FireHeat[y] + random(160,255);
         //FireHeat[y] = random(160,255);
     }
 
     // Step 4.  Convert heat to LED colors
-    for( int j = 0; j < numPixels(); j++) {
+    for(uint16_t j = 0; j < numPixels(); j++) {
         FireSetPixelHeatColor(j, FireHeat[j] );
     }
 
@@ -300,7 +300,7 @@ void NeoPatterns::FireSetPixelHeatColor(uint16_t pixel, uint8_t temperature) {
 }
 
 // Initialize for a METEOR Pattern
-void NeoPatterns::Meteor(uint32_t color1, uint16_t interval, trace trc = DUAL, direction dir = FORWARD) {
+void NeoPatterns::Meteor(uint32_t color1, uint16_t interval, trace trc, direction dir) {
     ActivePattern = METEOR;
     Interval = interval;
     TotalSteps = numPixels() * 2; // Half of the steps the updated pixel is outside the actual size of the strip
@@ -312,7 +312,7 @@ void NeoPatterns::Meteor(uint32_t color1, uint16_t interval, trace trc = DUAL, d
 
 // Update the Meteor Pattern
 void NeoPatterns::MeteorUpdate() {
-    for(int i = 0; i < numPixels(); i++) {
+    for(uint16_t i = 0; i < numPixels(); i++) {
         if (random(100) <= MeteorFadeChange) {
             setPixelColor(i, DimColor(getPixelColor(i), MeteorFadeFactor));
         }
@@ -321,7 +321,7 @@ void NeoPatterns::MeteorUpdate() {
     // Offset is used to start to the left of the actual strip
     int8_t offset = (numPixels() / 2);
     for(int j = (MeteorLength / 2 * -1); j < MeteorLength / 2; j++) {
-      if( ( Index - offset - j < numPixels()) && (Index - offset - j >= 0) ) {
+      if( ( Index - offset - j < numPixels()) && ((long)Index - offset - j >= 0) ) {
         setPixelColor(Index - offset - j, Color1);
       } 
     }
@@ -361,7 +361,7 @@ uint8_t NeoPatterns::DimBaseColor(uint8_t baseColor, uint8_t factor) {
 
 // Set all pixels to a color (synchronously)
 void NeoPatterns::ColorSet(uint32_t color) {
-    for (int i = 0; i < numPixels(); i++) {
+    for (uint16_t i = 0; i < numPixels(); i++) {
         setPixelColor(i, color);
     }
     show();

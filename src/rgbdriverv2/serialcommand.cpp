@@ -200,7 +200,7 @@ void SerialCommand::processSetColor() {
   long color = serialIn.toInt();
   if(color == 0) {
     // hexadecimal color conversion if raw integer is 0
-    color = std::strtol(serialIn.c_str(), nullptr, 16);
+    color = std::strtol(serialIn.c_str(), NULL, 16);
   }
   // cap the maximum color value
   if(color > COLORS::WHITE) color = COLORS::WHITE;

@@ -28,6 +28,8 @@
 #include <math.h>
 #include <string>
 
+#include "meta/callable.h"
+
 typedef bool boolean;
 typedef unsigned char byte;
 
@@ -35,19 +37,19 @@ uint32_t micros();
 
 inline uint64_t random(uint64_t limit) {
 	return 0;
-};
+}
 
 inline uint64_t random(uint64_t lowerLimit, uint64_t uppperLimit) {
 	return 0;
-};
+}
 
 // Ohboi this is gonna be fun.... 
-class String : public std::string {
+class String : public std::string, Callable{
 	public:
 		String(const char* input);
 };
 
-class serial {
+class serial : Callable {
 	public:
 		serial();
 		void begin(uint32_t baudRate);

@@ -26,18 +26,18 @@
  * 
  */
 NeoAnimation::NeoAnimation(uint16_t pixels, uint8_t pin, uint8_t type)
-    :NeoPatterns(pixels, pin, type, NeoAnimation::patternComplete)
+    :NeoPatterns(pixels, pin, type, reinterpret_cast<void(*)(NeoPatterns*)>(NeoAnimation::patternComplete))
 {
-    OnComplete = NeoAnimation::patternComplete;
+    OnComplete = reinterpret_cast<void(*)(NeoPatterns*)>(NeoAnimation::patternComplete);
 }
 
 /**
  * 
  */
 NeoAnimation::NeoAnimation(uint16_t pixels, uint8_t pin, uint8_t type, void (*callback)(NeoAnimation* stick))
-    :NeoPatterns(pixels, pin, type, callback)
+    :NeoPatterns(pixels, pin, type, reinterpret_cast<void(*)(NeoPatterns*)>(callback))
 {
-    OnComplete = callback;
+    OnComplete = reinterpret_cast<void(*)(NeoPatterns*)>(callback);
 }
 
 /**
@@ -118,12 +118,11 @@ void NeoAnimation::animationSwitch(animation anim) {
  * @param NeoAnimation* 
  */
 void NeoAnimation::patternComplete(NeoAnimation* stick) {
+    long tempColor = stick->Color1;
     switch(stick->currentAnimation){
     case RAINBOW:
-        Serial.print("RAINBOW");
         break;
     case SUNRISE:
-        Serial.print("SUNRISE");
         if(stick->Color1 == COLORS::BLACK) {
             stick->Color1 = INITIAL_SUNRISE_COLOR;
             stick->Color2 = MID_SUNRISE_COLOR;
@@ -141,10 +140,8 @@ void NeoAnimation::patternComplete(NeoAnimation* stick) {
         }
         break;
     case COLOR_SOLID:
-        Serial.print("COLOR_SOLID");
         break;
     case STROBE_SOLID:
-        Serial.print("STROBE_SOLID");
         if(stick->Color1 > COLORS::BLACK) {
             stick->Color2 = stick->Color1;
             stick->Color1 = COLORS::BLACK;
@@ -159,13 +156,10 @@ void NeoAnimation::patternComplete(NeoAnimation* stick) {
         }
         break;
     case COLOR_WIPE_SOLID:
-        Serial.print("COLOR_WIPE_SOLID");
-        long tempColor = stick->Color1;
         stick->Color1 = stick->Color2;
         stick->Color2 = tempColor;
         break;
     case COLOR_WIPE_CHRISTMAS:
-        Serial.print("COLOR_WIPE_CHRISTMAS");
         stick->Reverse();
         if(stick->Color1 == 16711680) {
             stick->Color1 = 65280;
@@ -175,27 +169,22 @@ void NeoAnimation::patternComplete(NeoAnimation* stick) {
         }
         break;
     case COLOR_WIPE_RANDOM:
-        Serial.print("COLOR_WIPE_RANDOM");
         stick->Reverse();
         stick->Color1 = random(COLORS::WHITE);
         stick->Color2 = random(COLORS::WHITE);
         break;
     case SCANNER_SOLID:
-        Serial.print("SCANNER_SOLID");
         // stick->Reverse();
         break;
     case SCANNER_RANDOM:
-        Serial.print("SCANNER_RANDOM");
         stick->Reverse();
         stick->Color1 = random(COLORS::WHITE);
         stick->Color2 = random(COLORS::WHITE);
         break;
     case FADE_SOLID:
-        Serial.print("FADE_SOLID");
         stick->Reverse();
         break;
     case FADE_RANDOM:
-        Serial.print("FADE_RANDOM");
         if(stick->Direction == REVERSE) {
             stick->Color2 = random(COLORS::WHITE);
         }
@@ -205,11 +194,9 @@ void NeoAnimation::patternComplete(NeoAnimation* stick) {
         stick->Reverse();
         break;
     case METEOR_SCANNER_SOLID:
-        Serial.print("METEOR_SCANNER_SOLID");
         stick->Reverse();
         break;
     default:
-        Serial.print("DEFAULT");
         break;
     }
 }

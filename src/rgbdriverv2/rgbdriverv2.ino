@@ -67,7 +67,7 @@ bool      ledState = false;
 class SerialCommandHandler: public SerialCommandDelegate {
   void eventSetBrightness(uint8_t brightness, int8_t stripIndex){
 
-    if(stripIndex != -1 && stripIndex < patterns.size()) {
+    if(stripIndex != -1 && stripIndex < (long)patterns.size()) {
       std::list<NeoAnimation*>::iterator it = patterns.begin();
       std::advance (it, stripIndex);
       (*it)->setBrightness(brightness);
@@ -81,7 +81,7 @@ class SerialCommandHandler: public SerialCommandDelegate {
 
   void eventSetSpeed(uint16_t speed, int8_t stripIndex){
 
-    if(stripIndex != -1 && stripIndex < patterns.size()) {
+    if(stripIndex != -1 && stripIndex < (long)patterns.size()) {
       std::list<NeoAnimation*>::iterator it = patterns.begin();
       std::advance (it, stripIndex);
       (*it)->Interval = speed;
@@ -95,7 +95,7 @@ class SerialCommandHandler: public SerialCommandDelegate {
 
   void eventSetAnimation(animation pattern, int8_t stripIndex){
 
-    if(stripIndex != -1 && stripIndex < patterns.size()) {
+    if(stripIndex != -1 && stripIndex < (long)patterns.size()) {
       std::list<NeoAnimation*>::iterator it = patterns.begin();
       std::advance (it, stripIndex);
       (*it)->animationSwitch(pattern);
@@ -109,7 +109,7 @@ class SerialCommandHandler: public SerialCommandDelegate {
 
   void eventSetColor(uint32_t color, int8_t colorIndex, int8_t stripIndex){
 
-    if(stripIndex != -1 && stripIndex < patterns.size()) {
+    if(stripIndex != -1 && stripIndex < (long)patterns.size()) {
       std::list<NeoAnimation*>::iterator it = patterns.begin();
       std::advance (it, stripIndex);
       if(colorIndex == -1 || colorIndex == 1) (*it)->Color1 = color;
@@ -125,7 +125,7 @@ class SerialCommandHandler: public SerialCommandDelegate {
 
   void eventSetPath(direction dir, int8_t stripIndex){
 
-    if(stripIndex != -1 && stripIndex < patterns.size()) {
+    if(stripIndex != -1 && stripIndex < (long)patterns.size()) {
       std::list<NeoAnimation*>::iterator it = patterns.begin();
       std::advance (it, stripIndex);
       (*it)->Direction = dir;

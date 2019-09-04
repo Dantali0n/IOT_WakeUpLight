@@ -13,7 +13,8 @@ include(macros)
 use_cxx11()
 
 # Enable permissive c++
-use_cxx_permissive()
+#use_cxx_permissive()
+use_cxx_warning_pedantic()
 
 # Download thirdparty dependencies & include them
 message("Downloading thirdparty dependencies")

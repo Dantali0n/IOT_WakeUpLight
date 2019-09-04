@@ -20,18 +20,8 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "Arduino.h"
+#include "callable.h"
 
-serial Serial = serial();
-
-serial::serial() : Callable() {
-}
-
-void serial::begin(uint32_t baudRate) {
-}
-
-void serial::print(String text) {
-}
-
-void serial::println(String text) {
+Callable::Callable() {
+	
 }

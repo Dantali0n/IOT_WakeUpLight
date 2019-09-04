@@ -20,18 +20,14 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "Arduino.h"
+#ifndef CALLABLE_H
+#ifdef __cplusplus
+#define CALLABLE_H
 
-serial Serial = serial();
+class Callable {
+	public:
+		Callable();
+};
 
-serial::serial() : Callable() {
-}
-
-void serial::begin(uint32_t baudRate) {
-}
-
-void serial::print(String text) {
-}
-
-void serial::println(String text) {
-}
+#endif /* __cplusplus */
+#endif /* CALLABLE_H */

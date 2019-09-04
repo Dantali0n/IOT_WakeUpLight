@@ -24,6 +24,21 @@ Harness the amazing power of wifi enabled microcontrollers for <em>true</em> hom
 
 ## Commands
 
+Serial commands can be send to the Mega2560 to adjust the behavior of LED strips. The following commands are valid:
+`brightness speed pattern color path pwm`. Most of these commands can be addressed to an individual LED strip by specifying the index
+before the command such as `1 brightness 255` for example. The `pwm` command does not support an index as there is only one LED bar.
+Both `brightness` and `pwm` take an integer value between 0 and 255 as argument. Similarly, `speed` also takes an integer as an argument,
+however, it supports values between 1 and 65535. All other commands take strings as arguments while `color` could also take integers
+it is easier to supply colors in hex format. `0xff0000` for solid red or `0x00ff00` for solid green for example. The `path` commands sets
+the direction of the animation and takes either `REVERSE` or `FORWARD` as argument. The last command is `pattern` and it supports a variety
+of arguments being:
+
+```
+RAINBOW, SUNRISE, COLOR_SOLID, STROBE_SOLID, COLOR_WIPE_SOLID, COLOR_WIPE_CHRISTMAS, 
+COLOR_WIPE_RANDOM, SCANNER_SOLID, SCANNER_RANDOM, FADE_SOLID, FADE_RANDOM,
+FIRE_SOLID, METEOR_SOLID, METEOR_SCANNER_SOLID
+```
+
 ## Requirements
 The software consists of three different components each with its own set of requirements. When using the software only two of these requirements are necessary but for testing the additional third component is recommended.
 
@@ -42,12 +57,12 @@ arduino --install-library "Adafruit GFX Library,Adafruit NeoPixel,ArduinoSTL,CRC
 ```
 
 ### ESP8266
-Second component is the ESP8266 firmware similary this required the Arduino IDE and a set libraries. However, a more recent version of the Arduino IDE is required! Additionaly, adding a board support url to the Arduino IDE is required. 
+Second component is the ESP8266 firmware similarly this requires the Arduino IDE and a set of libraries. However, a more recent version of the Arduino IDE is required! Additionally, adding a board support url to the Arduino IDE is required. 
 
 * Arduino IDE 1.6.4 or later
 * Added http://arduino.esp8266.com/stable/package_esp8266com_index.json to board support urls
 
-If the Arduino IDE is installed and you have no other board urls configured then the following commands can be execute to automate the installation.
+If the Arduino IDE is installed and you have no other board urls configured then the following commands can be executed to automate the installation.
 ```bash
 arduino --pref "boardsmanager.additional.urls=http://arduino.esp8266.com/stable/package_esp8266com_index.json" --save-prefs
 arduino --install-boards esp8266:esp8266

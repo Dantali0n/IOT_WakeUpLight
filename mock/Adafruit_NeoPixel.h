@@ -129,15 +129,15 @@ class Adafruit_NeoPixel {
   void  updateLength(uint16_t n) {}
   void  updateType(neoPixelType t) {}
 
-  uint8_t* getPixels(void) const {}
-  uint8_t  getBrightness(void) const {}
-  uint8_t  sine8(uint8_t) const {}
-  uint8_t  gamma8(uint8_t) const {}
+  uint8_t* getPixels(void) const { return NULL; }
+  uint8_t  getBrightness(void) const { return 0; }
+  uint8_t  sine8(uint8_t) const { return 0; }
+  uint8_t  gamma8(uint8_t) const { return 0; }
   int8_t  getPin(void) { return pin; }
-  uint16_t  numPixels(void) const {}
-  static uint32_t  Color(uint8_t r, uint8_t g, uint8_t b) {}
-  static uint32_t  Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {}
-  uint32_t getPixelColor(uint16_t n) const {};
+  uint16_t  numPixels(void) const { return numLEDs; }
+  static uint32_t  Color(uint8_t r, uint8_t g, uint8_t b) { return 0; }
+  static uint32_t  Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) { return 0; }
+  uint32_t getPixelColor(uint16_t n) const { return 0; };
   inline bool canShow(void) { return (micros() - endTime) >= 300L; }
 
  protected:

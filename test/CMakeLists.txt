@@ -1,11 +1,13 @@
 project(rgbdriverv2Test)
 
 set(LIB_MOCK_SRC
+	${CMAKE_SOURCE_DIR}/mock/meta/callable.cpp
 	${CMAKE_SOURCE_DIR}/mock/Serial.cpp
 	${CMAKE_SOURCE_DIR}/mock/String.cpp
 )
 
 set(LIB_MOCK_HEADERS
+	${CMAKE_SOURCE_DIR}/mock/meta/callable.h
 	${CMAKE_SOURCE_DIR}/mock/Arduino.h
 )
 
