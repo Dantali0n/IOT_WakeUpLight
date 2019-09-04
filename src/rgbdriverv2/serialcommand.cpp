@@ -40,11 +40,11 @@ void SerialCommand::processCommands() {
 
   // Buffer input and determine if command is complete
   if (Serial.available()) {
-    if(DEBUG) serialOut += "processCommands - have serial - ";
+    if(DEBUG_MODE == DEBUG) serialOut += "processCommands - have serial - ";
     int i = 0;
     char bytes[64] = {};
     while(Serial.available()) {
-      if(DEBUG) serialOut += "b";
+      if(DEBUG_MODE == DEBUG) serialOut += "b";
       bytes[i] = Serial.read();
       i++;
     }
@@ -53,14 +53,14 @@ void SerialCommand::processCommands() {
 
     // remove everything after the line ending and the line ending itself
     if(substr > -1) {
-      if(DEBUG) serialOut += " - have line ending";
+      if(DEBUG_MODE == DEBUG) serialOut += " - have line ending";
       
       isComplete = true;
     }
 
     serialIn += String(bytes);
-    if(DEBUG) serialOut += " ";
-    if(DEBUG) serialOut += serialIn;
+    if(DEBUG_MODE == DEBUG) serialOut += " ";
+    if(DEBUG_MODE == DEBUG) serialOut += serialIn;
   }
 
   // If not complete halt further execution for now.
@@ -71,11 +71,11 @@ void SerialCommand::processCommands() {
 
   // Determine if the received checksum is valid
   if(validateChecksum(serialIn, generateChecksum(serialIn.substring(0, serialIn.lastIndexOf(" "))))) {
-    if(COMPUTER_SERIAL == false) serialOut += "checksum valid ";
+    if(DEBUG_MODE != COMPUTER_SERIAL) serialOut += "checksum valid ";
   }
   else {
-    if(COMPUTER_SERIAL == false) serialOut += "checksum invalid ";
-    if(COMPUTER_SERIAL) isValid = false; // invalid checksum makes the supplied command no longer valid but only if interfacing with none human.
+    if(DEBUG_MODE != COMPUTER_SERIAL) serialOut += "checksum invalid ";
+    if(DEBUG_MODE == COMPUTER_SERIAL) isValid = false; // invalid checksum makes the supplied command no longer valid but only if interfacing with none human.
   }
 
   // Only attempt to process the specified command if it is still valid
@@ -152,6 +152,9 @@ void SerialCommand::processSetAnimation() {
   else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::STROBE_SOLID])) {
     anim = STROBE_SOLID;
   }
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::COLOR_WIPE_SOLID])) {
+    anim = COLOR_WIPE_SOLID;
+  }
   else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::COLOR_WIPE_CHRISTMAS])) {
     anim = COLOR_WIPE_CHRISTMAS;
   }
@@ -184,14 +187,23 @@ void SerialCommand::processSetAnimation() {
 }
 
 void SerialCommand::processSetColor() {
+  // -1 to set all colors at once.
   int colorIndex = -1;
+  
+  // determine if color index is specified and update
   if(hasNextPart()) {
     colorIndex = getNextPart().toInt();
     serialIn = serialIn.substring(2);
   }
 
+  // determine the color
   long color = serialIn.toInt();
-  if(color > UINT32_MAX) color = UINT32_MAX;
+  if(color == 0) {
+    // hexadecimal color conversion if raw integer is 0
+    color = std::strtol(serialIn.c_str(), nullptr, 16);
+  }
+  // cap the maximum color value
+  if(color > COLORS::WHITE) color = COLORS::WHITE;
   eventHandler->eventSetColor(color, colorIndex, currentStripIndex);
 }
 
@@ -207,6 +219,9 @@ void SerialCommand::processSetPWM() {
   eventHandler->eventSetPWM(pwm);
 }
 
+/**
+ * 
+ */
 bool SerialCommand::validateChecksum(String input, uint32_t checksum) {
   uint32_t inputChecksum = serialIn.substring(input.lastIndexOf(" ")).toInt();
   return (inputChecksum == checksum) ? true : false;
@@ -231,10 +246,16 @@ int8_t SerialCommand::subtractStripIndex() {
   return stripIndex;
 }
 
+/**
+ * 
+ */
 bool SerialCommand::hasNextPart() {
   return (serialIn.indexOf(" ") == -1) ? false : true; 
 }
 
+/**
+ * 
+ */
 String SerialCommand::getNextPart() {
   return serialIn.substring(0, serialIn.indexOf(" "));
 }

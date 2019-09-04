@@ -10,6 +10,7 @@
 #include "rgbcolor.h" // library to hold a rgb color
 #include "alarm.h"
 #include "ledpattern.h"
+#include "simpleledpattern.h"
 #include "serialcommand.h"
 
 #define BRIGHTNESS 250
@@ -27,7 +28,7 @@ static const int OSCILLATION_TIME = 500; // used to oscillate the rgb led strip
 static const int REQUEST_DELAY = 3900; // minimum time between alarm checks and clock updates in micro seconds - 3900 microseconds = 255 fps
 // static const unsigned long REQUEST_DELAY = 83332; // 83332 microseconds = 12 fps
 
-static const unsigned long MICROS_TO_SECONDS = 1000000; // constant value to convert micro seconds to seconds
+static const uint32_t MICROS_TO_SECONDS = 1000000; // constant value to convert micro seconds to seconds
 
 const static rgbColor SITAHS_FAVORITE_MINT_GREEN = rgbColor(0, 255, 75);
 const static rgbColor MARKS_FAVORITE_PINK = rgbColor(255, 100, 83);
@@ -37,26 +38,16 @@ const static rgbColor RICOS_FAVORITE_BLUE = rgbColor(0, 72, 251);
 
 bool buttonBounce = false; // boolean to bounce button so we prevent multiple triggers
 bool hasNotFlashed = false; // boolean to flash when the pattern is complete
-unsigned long currentMicros = 0; // used in loop to store micros
-unsigned long previousMicros = 0; // used in loop to store micros
+uint32_t currentMicros = 0; // used in loop to store micros
+uint32_t previousMicros = 0; // used in loop to store micros
 int curTimeZone = 1; // timeZone for the current time
 int lastMinute = 0;
-unsigned int averageFramerate = 0;
-unsigned int numPatterns = 0;
-
-std::list<alarm> alarms = std::list<alarm>();
-ledPattern alarmPatternPhase1 = ledPattern(rgbColor(0,0,0), rgbColor(255,0,0), 90000000UL, ledPattern::patternModes::linear);
-ledPattern alarmPatternPhase2 = ledPattern(rgbColor(255,0,0), rgbColor(0,0,255), 90000000UL, ledPattern::patternModes::linear);
-ledPattern alarmPatternPhase3 = ledPattern(rgbColor(0,0,255), rgbColor(255,255,255), 90000000UL, ledPattern::patternModes::linear);
-alarm *testAlarm1 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)18, (byte)6, (byte)0, (byte)0), 86400UL, alarmPatternPhase1);
-alarm *testAlarm2 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)18, (byte)6, (byte)2, (byte)0), 86400UL, alarmPatternPhase2);
-alarm *testAlarm3 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)18, (byte)6, (byte)4, (byte)0), 86400UL, alarmPatternPhase3);
-alarm *testAlarm4 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)15, (byte)19, (byte)1, (byte)0), alarmPatternPhase1);
-alarm *testAlarm5 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)15, (byte)19, (byte)4, (byte)0), alarmPatternPhase1);
+uint32_t averageFramerate = 0;
+uint32_t numPatterns = 0;
 
 /* ====================== Settings ==================== */
 bool autoTurnOff = false; // always turn lights off when their is no active pattern
-bool runningPatterns = true; // continious running patterns
+bool runningSinglePattern = true; // continious running patterns
 bool minuteFlicker = true; // boolean to enable or disable flashing every minute
 unsigned int numMinuteFlicker = 3; // amount of times to flicker every minute
 
@@ -70,10 +61,27 @@ Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(LED_COUNT, LED_PIN_2, NEO_GRB + NEO
 Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(LED_COUNT, LED_PIN_3, NEO_GRB + NEO_KHZ800); // lights
 Adafruit_NeoPixel strip4 = Adafruit_NeoPixel(LED_COUNT, LED_PIN_4, NEO_GRB + NEO_KHZ800); // lights
 Adafruit_NeoPixel strip5 = Adafruit_NeoPixel(LED_COUNT, LED_PIN_5, NEO_GRB + NEO_KHZ800); // lights
-ledPattern *pattern = new ledPattern(rgbColor(255, 0, 0), rgbColor(0, 255, 0), 10000000UL, ledPattern::patternModes::linear);
+// ledPattern *singlePattern = new ledPattern(rgbColor(255, 0, 0), rgbColor(0, 255, 0), 10000000UL, ledPattern::patternModes::linear);
+
+std::list<alarm> alarms = std::list<alarm>();
+std::list<ledPattern*> ledPatterns = std::list<ledPattern*>();
+
+
+// ledPattern testPattern = ledPattern(strip1);
+// ledPattern testPattern = simpleLedPattern(strip1, rgbColor(0,0,0), rgbColor(255,0,0), 90000000UL, simpleLedPattern::patternModes::linear);
+
+// ledPattern alarmPatternPhase1 = simpleLedPattern(strip1, rgbColor(0,0,0), rgbColor(255,0,0), (uint32_t)90000000, simpleLedPattern::patternModes::linear);
+// ledPattern alarmPatternPhase2 = simpleLedPattern(strip2, rgbColor(255,0,0), rgbColor(0,0,255), (uint32_t)90000000, simpleLedPattern::patternModes::linear);
+// ledPattern alarmPatternPhase3 = simpleLedPattern(strip3, rgbColor(0,0,255), rgbColor(255,255,255), (uint32_t)90000000, simpleLedPattern::patternModes::linear);
+
+//alarm *testAlarm1 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)18, (byte)6, (byte)0, (byte)0), 86400UL, testPattern);
+//alarm *testAlarm2 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)18, (byte)6, (byte)2, (byte)0), 86400UL, alarmPatternPhase2);
+//alarm *testAlarm3 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)18, (byte)6, (byte)4, (byte)0), 86400UL, alarmPatternPhase3);
+//alarm *testAlarm4 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)15, (byte)19, (byte)1, (byte)0), alarmPatternPhase1);
+//alarm *testAlarm5 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)15, (byte)19, (byte)4, (byte)0), alarmPatternPhase1);
 
 // declaration to prevent undeclared function error
-void setAllPixels(rgbColor color, float multiplier);
+void setAllPixels(rgbColor color);
 
 class serialCommandHandler: public serialCommandDelegate {
   void eventSetTime(microTime newTime) {
@@ -81,7 +89,7 @@ class serialCommandHandler: public serialCommandDelegate {
   }
 
   void eventSetRunningPatterns(bool newRunningPatterns) {
-    runningPatterns = newRunningPatterns;
+    runningSinglePattern = newRunningPatterns;
   }
 
   void eventSetMinuteFlicker(bool newFlicker) {
@@ -101,7 +109,7 @@ serialCommandHandler serialCH = serialCommandHandler();
 serialCommand serialC = serialCommand(&serialCH);
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(19200);
   strip1.setBrightness(BRIGHTNESS);
   strip1.begin();
   strip1.show(); // Initialize all pixels to 'off'
@@ -118,11 +126,25 @@ void setup() {
   strip5.begin();
   strip5.show(); // Initialize all pixels to 'off'
 
+  ledPattern* testPattern = new simpleLedPattern(strip1, rgbColor(0,0,0), rgbColor(255,0,0), 90000000UL, simpleLedPattern::patternModes::linear);
+  testPattern->setSafeDelete(true);
+
+  alarm *testAlarm1 = new alarm(microTime((unsigned int)2017, (byte)8, (byte)18, (byte)6, (byte)0, (byte)0), 86400UL, *testPattern);
+
+  Serial.println("push alarms");
+  alarms.empty();
   alarms.push_front(*testAlarm1);
-  alarms.push_front(*testAlarm2);
-  alarms.push_front(*testAlarm3);
-  alarms.push_front(*testAlarm4);
-  alarms.push_front(*testAlarm5);
+//  alarms.push_front(*testAlarm2);
+//  alarms.push_front(*testAlarm3);
+//  alarms.push_front(*testAlarm4);
+//  alarms.push_front(*testAlarm5);
+
+  Serial.println("push patterns");
+  ledPatterns.empty();
+  ledPatterns.push_front(testPattern);
+//  ledPatterns.push_front(alarmPatternPhase1);
+//  ledPatterns.push_front(alarmPatternPhase2);
+//  ledPatterns.push_front(alarmPatternPhase3);
 }
 
 void loop() {
@@ -142,38 +164,98 @@ void loopDeltaTime() {
   
   if(currentMicros - previousMicros > REQUEST_DELAY) {
     serialC.processCommands();
+    // Serial.println("update time");
     updateTime(currentMicros - previousMicros);
 
+    // Serial.println("check alarms");
     checkAlarms();
 
-    if(pattern->isFinished()) {
-      numPatterns++;
+//    if(runningSinglePattern) {
+//      if(singlePattern->isFinished()) {
+//        numPatterns++;
+//
+//        byte newfRed = (byte)random(0,255);
+//        byte newfBlue = (byte)random(0,255);
+//        byte newfGreen = (byte)random(0,255);
+//        unsigned long newTime = random(1000, 10000) * 500UL;
+//        rgbColor newColor = singlePattern->getColor();
+//        rgbColor endColor = rgbColor(newfRed, newfBlue, newfGreen);
+//
+//        // WARNING - we should not delete pattern if it is part of an alarm with an interval!!!
+//        // delete pattern; // we really can't call delete on a pointer variable that was not created with new;
+//        // TODO - implement way of determinging weither ledPattern can be removed
+//        
+//        if(singlePattern->isSafeDelete()) {
+//          delete singlePattern;
+//        }
+//        singlePattern = new ledPattern(newColor, endColor, newTime, ledPattern::patternModes::linear);
+//        singlePattern->setSafeDelete(true);
+//      }
+//      else {
+//        singlePattern->update(currentMicros - previousMicros);
+//        setAllPixels(singlePattern->getColor());
+//      }
+//    }
 
-      if(runningPatterns) {
-        byte newfRed = (byte)random(0,255);
-        byte newfBlue = (byte)random(0,255);
-        byte newfGreen = (byte)random(0,255);
-        unsigned long newTime = random(1000, 10000) * 500UL;
-        rgbColor newColor = pattern->getColor();
-        rgbColor endColor = rgbColor(newfRed, newfBlue, newfGreen);
-  
-        // WARNING - we should not delete pattern if it is part of an alarm with an interval!!!
-        // delete pattern; // we really can't call delete on a pointer variable that was not created with new;
-        // TODO - implement way of determinging weither ledPattern can be removed
-  
-        if(pattern->isSafeDelete()) {
-          delete pattern;
+    // Serial.println("single pattern");
+    if(runningSinglePattern) {
+      for (std::list<ledPattern*>::iterator singlePattern = ledPatterns.begin(); singlePattern != ledPatterns.end(); singlePattern++) {
+        ledPattern* castPattern = *singlePattern;
+        // Serial.print("i");
+        if(castPattern->isFinished()) {
+          Serial.println("pattern finished");
+          numPatterns++;
+
+          Serial.println("cast pattern");
+          simpleLedPattern* simpleSinglePattern = static_cast<simpleLedPattern*>(castPattern);
+
+          if(simpleSinglePattern != NULL) {
+            Serial.println("pattern not null");
+            Adafruit_NeoPixel* strip = simpleSinglePattern->getStrip();
+            byte newfRed = (byte)random(0,255);
+            byte newfBlue = (byte)random(0,255);
+            byte newfGreen = (byte)random(0,255);
+            unsigned long newTime = random(1000, 10000) * 500UL;
+            
+            rgbColor newColor = simpleSinglePattern->getColor();
+            rgbColor endColor = rgbColor(newfRed, newfBlue, newfGreen);
+    
+            // WARNING - we should not delete pattern if it is part of an alarm with an interval!!!
+            // delete pattern; // we really can't call delete on a pointer variable that was not created with new;
+            // TODO - implement way of determinging weither ledPattern can be removed
+
+            if(simpleSinglePattern->isSafeDelete()) {
+              Serial.println("delete pattern");
+              // singlePattern = ledPatterns.erase(singlePattern);
+              singlePattern = ledPatterns.erase(singlePattern);
+              delete simpleSinglePattern;
+            } else {
+              // ledPatterns.erase(singlePattern);
+            }
+            
+            
+            Serial.println("create new pattern");
+            simpleLedPattern* newSimplePattern = new simpleLedPattern(*strip, newColor, endColor, newTime, simpleLedPattern::patternModes::linear);
+            newSimplePattern->setSafeDelete(true);
+
+            Serial.println("assign new pattern");
+            ledPatterns.push_front(newSimplePattern);
+          }
         }
-        pattern = new ledPattern(newColor, endColor, newTime, ledPattern::patternModes::linear);
-        pattern->setSafeDelete(true);
+        else {
+          // Serial.println("increment pattern");
+          simpleLedPattern* simpleSinglePattern = static_cast<simpleLedPattern*>(castPattern);
+
+          if(simpleSinglePattern != NULL) {
+            simpleSinglePattern->increment(currentMicros - previousMicros);
+          }
+          // setAllPixels(singlePattern->getColor());
+        }
       }
-      else if(autoTurnOff) {
-        setAllPixels(rgbColor(0,0,0), 1.0);
-      }
-    } 
-    else {
-      pattern->update(currentMicros - previousMicros);
-      setAllPixels(pattern->getColor(), 1.0);
+    }
+    
+    if(autoTurnOff) {
+      setAllPixels(rgbColor(0,0,0));
     }
     
     if(lastMinute != activeTime.minute()) {
@@ -200,15 +282,15 @@ void loopDeltaTime() {
       numPatterns = 0;
 
       // Only flicker if minuteFlicker is enabled
-      if(minuteFlicker) {
-        // flicker for numMinuteFlicker amount of times
-        for(unsigned int i = 0; i < numMinuteFlicker; i++) { 
-          setAllPixels(rgbColor(0,0,0), 1.0);
-          delay(FLASH_DELAY);
-          setAllPixels(pattern->getColor(), 1.0);
-          delay(FLASH_DELAY);
-        }
-      }
+//      if(minuteFlicker) {
+//        // flicker for numMinuteFlicker amount of times
+//        for(unsigned int i = 0; i < numMinuteFlicker; i++) { 
+//          setAllPixels(rgbColor(0,0,0));
+//          delay(FLASH_DELAY);
+//          setAllPixels(singlePattern->getColor());
+//          delay(FLASH_DELAY);
+//        }
+//      }
     }
 
     averageFramerate++;
@@ -243,8 +325,11 @@ void checkAlarms() {
 //      Serial.println(it->getTrigger()->second());
       if(it->check(activeTime) == true) {
         Serial.println("Sound the alarm");
-        pattern = it->getAlarmPattern();
-        pattern->reset();
+        ledPatterns.push_front(it->getAlarmPattern());
+        it->getAlarmPattern()->reset();
+
+        // singlePattern = it->getAlarmPattern();
+        // singlePattern->reset();
 
         // WARNING this could cause our ledPattern to be removed from existence since we pass it as an pointer
         // In this case it does not since the alarm is created during compile time and later assigned to the list.
@@ -264,37 +349,47 @@ void checkAlarms() {
  * @Param b amount of blue in 256 steps
  * @Param mulitplier multiplies all the color values by this amount leave 1 for as is
  */
-void setAllPixels(rgbColor color, float multiplier = 1.0) 
+void setPixel(rgbColor color, unsigned int pixel, Adafruit_NeoPixel strip) {
+   strip.setPixelColor(pixel,
+        (byte)((float)color.getRed()),
+        (byte)((float)color.getGreen()),
+        (byte)((float)color.getBlue()));
+}
+
+/**
+ * set the led strip to the desired color
+ */
+void setAllPixels(rgbColor color) 
 {
   for (int iPixel = 0; iPixel < LED_COUNT; iPixel++) {
     strip1.setPixelColor(iPixel,
-                        (byte)((float)color.getRed() * multiplier),
-                        (byte)((float)color.getGreen() * multiplier),
-                        (byte)((float)color.getBlue() * multiplier));
+                        (byte)((float)color.getRed()),
+                        (byte)((float)color.getGreen()),
+                        (byte)((float)color.getBlue()));
   }
   for (int iPixel = 0; iPixel < LED_COUNT; iPixel++) {
     strip2.setPixelColor(iPixel,
-                        (byte)((float)color.getRed() * multiplier),
-                        (byte)((float)color.getGreen() * multiplier),
-                        (byte)((float)color.getBlue() * multiplier));
+                        (byte)((float)color.getRed()),
+                        (byte)((float)color.getGreen()),
+                        (byte)((float)color.getBlue()));
   }
   for (int iPixel = 0; iPixel < LED_COUNT; iPixel++) {
     strip3.setPixelColor(iPixel,
-                        (byte)((float)color.getRed() * multiplier),
-                        (byte)((float)color.getGreen() * multiplier),
-                        (byte)((float)color.getBlue() * multiplier));
+                        (byte)((float)color.getRed()),
+                        (byte)((float)color.getGreen()),
+                        (byte)((float)color.getBlue()));
   }
   for (int iPixel = 0; iPixel < LED_COUNT; iPixel++) {
     strip4.setPixelColor(iPixel,
-                        (byte)((float)color.getRed() * multiplier),
-                        (byte)((float)color.getGreen() * multiplier),
-                        (byte)((float)color.getBlue() * multiplier));
+                        (byte)((float)color.getRed()),
+                        (byte)((float)color.getGreen()),
+                        (byte)((float)color.getBlue()));
   }
   for (int iPixel = 0; iPixel < LED_COUNT; iPixel++) {
     strip5.setPixelColor(iPixel,
-                        (byte)((float)color.getRed() * multiplier),
-                        (byte)((float)color.getGreen() * multiplier),
-                        (byte)((float)color.getBlue() * multiplier));
+                        (byte)((float)color.getRed()),
+                        (byte)((float)color.getGreen()),
+                        (byte)((float)color.getBlue()));
   }
   
   strip1.show();

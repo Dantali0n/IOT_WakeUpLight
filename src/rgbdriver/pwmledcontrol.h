@@ -20,32 +20,22 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TYPEDEF_DEFINITIONS_H
+#ifndef _PWM_Led_Control_h
 #ifdef __cplusplus
-#define TYPEDEF_DEFINITIONS_H
+#define _PWM_Led_Control_h
 
-enum DebugMode {
-	NORMAL,
-	DEBUG,
-	COMPUTER_SERIAL,
-	PERFORMANCE_PROFILE
+#include <Arduino.h>
+#include "rgbrltypedef.h"
+
+/**
+ * 
+ */
+class pwmLedControl {
+	private:
+		uint8_t pwmPin; 
+    public:
+    	pwmLedControl(uint8_t pwmPin);
 };
 
-static const DebugMode DEBUG_MODE = NORMAL;
-
-/* Colors */
-namespace COLORS {
-	static const uint32_t WHITE = 16777215;
-	static const uint32_t BLACK = 0;
-}
-
-namespace TIME {
-	static const uint16_t MILLIS_TO_MICROS = 1000;
-	static const uint64_t MICROS_TO_SECONDS = 1000000;
-	static const uint64_t MICROS_TO_MINUTES = 60000000;
-}
-
-typedef unsigned char uint8_t;
-
 #endif /* __cplusplus */
-#endif /* TYPEDEF_DEFINITIONS_H */
+#endif /* _PWM_Led_Control_h */

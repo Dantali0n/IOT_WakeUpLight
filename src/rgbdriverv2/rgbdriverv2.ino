@@ -178,7 +178,7 @@ void setup() {
 void boardSpecificSetup() {
   // pro mini only
   #ifdef ARDUINO_AVR_PRO
-    if(DEBUG) Serial.println("Dev: Arduino pro");
+    if(DEBUG_MODE == DEBUG) Serial.println("Dev: Arduino pro");
     //TIMSK0 = 0; // disable timer0 - required for micros() en millis()
     TIMSK1 = 0; // disable timer1
     TIMSK2 = 0; // disable timer2
@@ -186,7 +186,7 @@ void boardSpecificSetup() {
   #endif
 
   #ifdef ARDUINO_ARCH_ESP32
-    if(DEBUG) Serial.println("Dev: ESP32");
+    if(DEBUG_MODE == DEBUG) Serial.println("Dev: ESP32");
     analogReadResolution(8);
     analogSetCycles(3);
   #endif
@@ -211,7 +211,7 @@ void loop() {
   if(rate.getFrames() >= rate.getAverage()) { // display one serial message every second
     ledState = !ledState;
     digitalWrite(LED_BUILTIN, ledState);
-    if(DEBUG) {
+    if(DEBUG_MODE == DEBUG) {
       for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
         Serial.print("{");
         Serial.print((*it)->getBrightness());

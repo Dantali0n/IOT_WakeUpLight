@@ -26,7 +26,9 @@
 #define _SERIAL_COMMAND_H
 
 #include <Arduino.h>
+#include <ArduinoSTL.h>
 #include <CRC32.h>
+#include <string>
 #include "typedefinitions.h"
 #include "neopatterns.h"
 #include "neoanimation.h"

@@ -20,32 +20,7 @@
  https://dantalion.nl
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef TYPEDEF_DEFINITIONS_H
-#ifdef __cplusplus
-#define TYPEDEF_DEFINITIONS_H
+#include "Arduino.h"
 
-enum DebugMode {
-	NORMAL,
-	DEBUG,
-	COMPUTER_SERIAL,
-	PERFORMANCE_PROFILE
-};
-
-static const DebugMode DEBUG_MODE = NORMAL;
-
-/* Colors */
-namespace COLORS {
-	static const uint32_t WHITE = 16777215;
-	static const uint32_t BLACK = 0;
+String::String(const char* input) {
 }
-
-namespace TIME {
-	static const uint16_t MILLIS_TO_MICROS = 1000;
-	static const uint64_t MICROS_TO_SECONDS = 1000000;
-	static const uint64_t MICROS_TO_MINUTES = 60000000;
-}
-
-typedef unsigned char uint8_t;
-
-#endif /* __cplusplus */
-#endif /* TYPEDEF_DEFINITIONS_H */

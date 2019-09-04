@@ -1,6 +1,16 @@
 project(rgbdriverv2Test)
 
+set(LIB_MOCK_SRC
+	${CMAKE_SOURCE_DIR}/mock/Serial.cpp
+	${CMAKE_SOURCE_DIR}/mock/String.cpp
+)
+
+set(LIB_MOCK_HEADERS
+	${CMAKE_SOURCE_DIR}/mock/Arduino.h
+)
+
 set(LIB_RGBDRIVER_SRC
+	${LIB_MOCK_SRC}
 	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/actor.cpp
 	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/deltalimiter.cpp
 	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/deltatimer.cpp
@@ -13,7 +23,8 @@ set(LIB_RGBDRIVER_SRC
 )
 
 set(LIB_RGBDRIVER_HEADERS
-	${CMAKE_SOURCE_DIR}/mock/Arduino.h
+	${LIB_MOCK_HEADERS}
+	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/typedefinitions.h
 	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/actor.h
 	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/deltalimiter.h
 	${CMAKE_SOURCE_DIR}/src/rgbdriverv2/deltatimer.h
@@ -31,7 +42,6 @@ set_target_properties(RGBunit PROPERTIES LINKER_LANGUAGE CXX)
 
 include_directories(${CMAKE_SOURCE_DIR}/mock)
 include_directories(${CMAKE_SOURCE_DIR}/src/rgbdriverv2)
-
 
 
 set(TEST_DELTALIMITER_SOURCE 
