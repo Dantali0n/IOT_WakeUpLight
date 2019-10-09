@@ -100,6 +100,10 @@ void NeoAnimation::animationSwitch(animation anim) {
         this->currentAnimation = FIRE_SOLID;
         this->Fire(this->Color1, this->Interval);
         break;
+    case FIRE_SCANNER:
+        this->currentAnimation = FIRE_SCANNER;
+        this->Fire(this->Color1, this->Interval, DUAL);
+        break;
     case METEOR_SOLID:
         this->currentAnimation = METEOR_SOLID;
         this->Meteor(this->Color1, this->Interval);

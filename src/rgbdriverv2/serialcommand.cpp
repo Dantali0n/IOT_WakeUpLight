@@ -176,6 +176,9 @@ void SerialCommand::processSetAnimation() {
   else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::FIRE_SOLID])) {
     anim = FIRE_SOLID;
   }
+  else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::FIRE_SCANNER])) {
+    anim = FIRE_SCANNER;
+  }
   else if(serialIn.startsWith(LED_ANIMATION_STRING[animation::METEOR_SOLID])) {
     anim = METEOR_SOLID;
   }

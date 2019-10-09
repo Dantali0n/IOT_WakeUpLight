@@ -248,6 +248,22 @@ void NeoPatterns::Fire(uint32_t color1, uint16_t interval, trace trc, direction 
 
 // Update the Fire Pattern
 void NeoPatterns::FireUpdate() {
+    
+    switch(Trace){
+    case SINGLE:
+        FireUpdateSingle();
+        break;
+    case DUAL:
+        FireUpdateDual();
+        break;
+    }
+
+    show();
+    Increment();
+}
+
+// Update the Fire Pattern
+void NeoPatterns::FireUpdateSingle() {
     int cooldown;
 
     // Step 1.  Cool down every cell a little
@@ -276,9 +292,70 @@ void NeoPatterns::FireUpdate() {
     for(uint16_t j = 0; j < numPixels(); j++) {
         FireSetPixelHeatColor(j, FireHeat[j] );
     }
+}
 
-    show();
-    Increment();
+// Update the Fire Pattern
+void NeoPatterns::FireUpdateDual() {
+    int cooldown;
+    uint8_t halfway = numPixels() / 2;
+
+    // from left to right
+
+    // Step 1.  Cool down every cell a little
+    for(uint16_t i = 0; i < halfway; i++) {
+        cooldown = random(0, ((FireCooling * 10) / halfway) + 2);
+        if(cooldown>FireHeat[i]) {
+           FireHeat[i]=0;
+        } else {
+            FireHeat[i]=FireHeat[i]-cooldown;
+        }
+    }
+
+    // Step 2.  Heat from each cell drifts 'up' and diffuses a little
+    for(int k = halfway - 1; k >= 2; k--) {
+        FireHeat[k] = (FireHeat[k - 1] + FireHeat[k - 2] + FireHeat[k - 2]) / 3;
+    }
+
+    // Step 3.  Randomly ignite new 'sparks' near the bottom
+    if(random(255) < FireSparkling ) {
+        int y = random(3);
+        FireHeat[y] = FireHeat[y] + random(160,255);
+        //FireHeat[y] = random(160,255);
+    }
+
+    // Step 4.  Convert heat to LED colors
+    for(uint16_t j = 0; j < halfway; j++) {
+        FireSetPixelHeatColor(j, FireHeat[j] );
+    }
+
+    // from right to left
+
+    // Step 1.  Cool down every cell a little
+    for(uint16_t i = numPixels(); i >= halfway; i--) {
+        cooldown = random(0, ((FireCooling * 10) / halfway) + 2);
+        if(cooldown>FireHeat[i]) {
+           FireHeat[i]=0;
+        } else {
+            FireHeat[i]=FireHeat[i]-cooldown;
+        }
+    }
+
+    // Step 2.  Heat from each cell drifts 'up' and diffuses a little
+    for(int k = halfway; k < numPixels()-2; k++) {
+        FireHeat[k] = (FireHeat[k + 1] + FireHeat[k + 2] + FireHeat[k + 2]) / 3;
+    }
+
+        // Step 3.  Randomly ignite new 'sparks' near the bottom
+    if(random(255) < FireSparkling ) {
+        int y = random(26,30);
+        FireHeat[y] = FireHeat[y] + random(160,255);
+        //FireHeat[y] = random(160,255);
+    }
+
+        // Step 4.  Convert heat to LED colors
+    for(uint16_t j = numPixels(); j >= halfway; j--) {
+        FireSetPixelHeatColor(j, FireHeat[j] );
+    }
 }
 
 void NeoPatterns::FireSetPixelHeatColor(uint16_t pixel, uint8_t temperature) {

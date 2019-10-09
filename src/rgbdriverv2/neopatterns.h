@@ -92,7 +92,7 @@ public:
     void FadeUpdate();
 
     // Initialize for a FIRE Pattern
-    void Fire(uint32_t color1, uint16_t interval, trace trc = DUAL, direction dir = FORWARD);
+    void Fire(uint32_t color1, uint16_t interval, trace trc = SINGLE, direction dir = FORWARD);
 
     // Update the Fire Pattern
     void FireUpdate();
@@ -133,6 +133,11 @@ public:
     // Input a value 0 to 255 to get a color value.
     // The colours are a transition r - g - b - back to r.
     uint32_t Wheel(byte WheelPos);
+private:
+
+    void FireUpdateSingle();
+
+    void FireUpdateDual();
 };
 
 #endif /* __cplusplus */
