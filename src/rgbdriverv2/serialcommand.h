@@ -43,6 +43,7 @@ class SerialCommandDelegate {
     virtual void eventSetSpeed(uint16_t speed, int8_t stripIndex = -1) = 0;
     virtual void eventSetAnimation(animation anim, int8_t stripIndex = -1) = 0;
     virtual void eventSetColor(uint32_t color, int8_t colorIndex = -1, int8_t stripIndex = -1) = 0;
+    virtual void eventSetIndex(uint16_t index, int8_t stripIndex = -1) = 0;
     virtual void eventSetPath(direction dir, int8_t stripIndex = -1) = 0;
     virtual void eventSetPWM(uint8_t pwm) = 0;
 };
@@ -59,6 +60,7 @@ class SerialCommand {
     void processSetSpeed();
     void processSetAnimation();
     void processSetColor();
+    void processSetIndex();
     void processSetPath();
     void processSetPWM();
 
@@ -73,7 +75,7 @@ class SerialCommand {
     String    getNextPart();
   public:
     enum COMMANDS_ENUM {
-      brightness, speed, pattern, color, path, pwm
+      brightness, speed, pattern, color, index, path, pwm
     };
 
     static const char *COMMANDS_STRING[];

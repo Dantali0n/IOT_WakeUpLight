@@ -123,6 +123,20 @@ class SerialCommandHandler: public SerialCommandDelegate {
     }
   }
 
+    void eventSetIndex(uint16_t index, int8_t stripIndex){
+
+    if(stripIndex != -1 && stripIndex < (long)patterns.size()) {
+      std::list<NeoAnimation*>::iterator it = patterns.begin();
+      std::advance (it, stripIndex);
+      (*it)->Index = index;
+      return;
+    }
+
+    for (std::list<NeoAnimation*>::iterator it = patterns.begin(); it != patterns.end(); it++) {
+      (*it)->Index = index;
+    }
+  }
+
   void eventSetPath(direction dir, int8_t stripIndex){
 
     if(stripIndex != -1 && stripIndex < (long)patterns.size()) {

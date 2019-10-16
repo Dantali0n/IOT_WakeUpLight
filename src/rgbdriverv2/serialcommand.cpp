@@ -23,7 +23,7 @@
 #include "serialcommand.h"
 
 const char *SerialCommand::COMMANDS_STRING[] = {
-    "brightness", "speed", "pattern", "color", "path", "pwm"
+    "brightness", "speed", "pattern", "color", "index", "path", "pwm"
 };
 
 /**
@@ -99,6 +99,10 @@ void SerialCommand::processCommands() {
     else if(serialIn.startsWith(COMMANDS_STRING[COMMANDS_ENUM::color])) {
       serialIn = serialIn.substring(String(COMMANDS_STRING[COMMANDS_ENUM::color]).length() +1);
       processSetColor();
+    }
+    else if(serialIn.startsWith(COMMANDS_STRING[COMMANDS_ENUM::index])) {
+      serialIn = serialIn.substring(String(COMMANDS_STRING[COMMANDS_ENUM::index]).length() +1);
+      processSetIndex();
     }
     else if(serialIn.startsWith(COMMANDS_STRING[COMMANDS_ENUM::path])) {
       serialIn = serialIn.substring(String(COMMANDS_STRING[COMMANDS_ENUM::path]).length() +1);
@@ -208,6 +212,12 @@ void SerialCommand::processSetColor() {
   // cap the maximum color value
   if(color > COLORS::WHITE) color = COLORS::WHITE;
   eventHandler->eventSetColor(color, colorIndex, currentStripIndex);
+}
+
+void SerialCommand::processSetIndex() {
+  long index   = serialIn.toInt();
+  if(index > UINT16_MAX) index = UINT16_MAX;
+  eventHandler->eventSetIndex(index, currentStripIndex);
 }
 
 void SerialCommand::processSetPath() {
