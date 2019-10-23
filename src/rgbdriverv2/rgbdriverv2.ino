@@ -123,11 +123,12 @@ class SerialCommandHandler: public SerialCommandDelegate {
     }
   }
 
-    void eventSetIndex(uint16_t index, int8_t stripIndex){
+    void eventSetIndex(uint16_t index, bool percentage, int8_t stripIndex){
 
     if(stripIndex != -1 && stripIndex < (long)patterns.size()) {
       std::list<NeoAnimation*>::iterator it = patterns.begin();
       std::advance (it, stripIndex);
+      if(percentage) index = ((*it)->TotalSteps * index) / 100;
       (*it)->Index = index;
       return;
     }

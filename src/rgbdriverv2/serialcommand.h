@@ -43,7 +43,7 @@ class SerialCommandDelegate {
     virtual void eventSetSpeed(uint16_t speed, int8_t stripIndex = -1) = 0;
     virtual void eventSetAnimation(animation anim, int8_t stripIndex = -1) = 0;
     virtual void eventSetColor(uint32_t color, int8_t colorIndex = -1, int8_t stripIndex = -1) = 0;
-    virtual void eventSetIndex(uint16_t index, int8_t stripIndex = -1) = 0;
+    virtual void eventSetIndex(uint16_t index, bool percentage = false, int8_t stripIndex = -1) = 0;
     virtual void eventSetPath(direction dir, int8_t stripIndex = -1) = 0;
     virtual void eventSetPWM(uint8_t pwm) = 0;
 };

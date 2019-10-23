@@ -215,9 +215,18 @@ void SerialCommand::processSetColor() {
 }
 
 void SerialCommand::processSetIndex() {
-  long index   = serialIn.toInt();
+  int16_t percentage = serialIn.indexOf('%');
+  bool isPercentage = percentage == -1 ? false : true;
+  serialOut += percentage == -1 ? "p: false " : "p: true ";
+  long index = 0;
+
+  if(percentage != -1) index = serialIn.substring(0, percentage).toInt();
+  else index = serialIn.toInt();
+
+  serialOut += "index: " + static_cast<String>(index);
+
   if(index > UINT16_MAX) index = UINT16_MAX;
-  eventHandler->eventSetIndex(index, currentStripIndex);
+  eventHandler->eventSetIndex(index, isPercentage, currentStripIndex);
 }
 
 void SerialCommand::processSetPath() {
