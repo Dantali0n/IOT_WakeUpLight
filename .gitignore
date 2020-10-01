@@ -6,3 +6,5 @@ cmake-build-debug
 
 thirdparty/*
 !thirdparty/README.md
+
+src/*/credentials.h
