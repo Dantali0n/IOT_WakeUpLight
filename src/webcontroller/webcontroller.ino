@@ -41,6 +41,40 @@ static const char postForms[] PROGMEM = MULTI_LINE_STRING(
       align-items: center;
       margin: 0 auto;
     }
+    .slidecontainer {
+      width: 100%;
+    }
+    
+    .slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 25px;
+      background: #d3d3d3;
+      outline: none;
+      opacity: 0.7;
+      -webkit-transition: .2s;
+      transition: opacity .2s;
+    }
+    
+    .slider:hover {
+      opacity: 1;
+    }
+    
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 25px;
+      height: 25px;
+      background: #4CAF50;
+      cursor: pointer;
+    }
+    
+    .slider::-moz-range-thumb {
+      width: 25px;
+      height: 25px;
+      background: #4CAF50;
+      cursor: pointer;
+    }
   </style>
   <script src="kelly.js"></script>
   <script type="text/javascript">
@@ -62,11 +96,27 @@ static const char postForms[] PROGMEM = MULTI_LINE_STRING(
    }
    
    function changePattern() {
-
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "submit", true); 
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    var data = "pattern " + document.getElementById("patternselect").value;
+    xhttp.send("command=" + encodeURIComponent(data).replace(/%20/g,'+'));
    }
 
    function changeSpeed() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "submit", true); 
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    var data = "speed " + document.getElementById("speed").value;
+    xhttp.send("command=" + encodeURIComponent(data).replace(/%20/g,'+'));
+   }
 
+   function changeBrightness() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "submit", true); 
+    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    var data = "brightness " + document.getElementById("brightness").value;
+    xhttp.send("command=" + encodeURIComponent(data).replace(/%20/g,'+'));
    }
   </script>
  </head>
@@ -75,6 +125,28 @@ static const char postForms[] PROGMEM = MULTI_LINE_STRING(
   <form method="post" action="submit">
    <label for="command">Raw Command:</label>
    <input type="text" name="command" value=""/></br>
+   <label for="speed">Animation speed:</label>
+   <input type="range" min="15" max="150" value="50" class="slider" id="speed" onchange="changeSpeed()">
+   <label for="brightness">Brightness:</label>
+   <input type="range" min="1" max="255" value="100" class="slider" id="brightness" onchange="changeBrightness()">
+   <label for="patternselect">Pattern:</label>
+   <select name="patternselect" id="patternselect" onchange="changePattern()">
+    <option value="COLOR_SOLID">Solid color</option>
+    <option value="STROBE_SOLID">Strobe</option>
+    <option value="SUNRISE">Sunrise</option>
+    <option value="RAINBOW">Rainbow</option>
+    <option value="COLOR_WIPE_SOLID">Color wipe</option>
+    <option value="COLOR_WIPE_CHRISTMAS">Christmas color wipe</option>
+    <option value="COLOR_WIPE_RANDOM">Random color wipe</option>
+    <option value="SCANNER_SOLID">Scanner</option>
+    <option value="SCANNER_RANDOM">Random scanner</option>
+    <option value="FADE_SOLID">Fade</option>
+    <option value="FADE_RANDOM">Random fade</option>
+    <option value="FIRE_SOLID">Fire</option>
+    <option value="FIRE_SCANNER">Random fire</option>
+    <option value="METEOR_SOLID">Meteor</option>
+    <option value="METEOR_SCANNER_SOLID">Meteor scanner</option>
+   </select></br>
    <label for="colorselect">Color selection:</label>
    <select name="colorselect" id="colorselect">
     <option value="all">Both</option>
